@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — ทดลองใช้</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f6f2;color:#0e1b33;font:17px/1.6 "IBM Plex Sans Thai",system-ui,sans-serif}
+.box{max-width:480px;padding:28px 22px}
+h1{font-size:30px;margin:0 0 8px;line-height:1.25}
+p{color:#5f6675;margin:0 0 14px}
+ul{margin:0 0 18px;padding-left:20px}
+li{margin:6px 0}
+.btn{display:inline-block;border:1px solid #1457d9;background:#1457d9;color:#fff;border-radius:6px;padding:13px 22px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer}
+.o{background:transparent;color:#0e1b33;border-color:#0e1b33;margin-left:8px}
+.note{font-size:13px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1 id="h"></h1>
+  <p id="p"></p>
+  <ul id="u"></ul>
+  <button class="btn" id="go"></button><a class="btn o" href="/" id="back"></a>
+  <p class="note" id="n"></p>
+</div>
+<script src="wallet.js"></script>
+<script>
+var lang = "th"; try { lang = localStorage.getItem("mira_lang") || "th"; } catch (e) {}
+var T = {
+  th: { h: "ลองใช้ Mira แบบสาธิต", p: "บัญชีทดลองมีเงินและข้อมูลตัวอย่างให้ลองทุกอย่าง โดยไม่ต้องสมัคร",
+        u: ["เงินตัวอย่างในพอร์ตลงทุน เงินปล่อยกู้ และเงินพัก", "ลองถอนเงิน ย้ายเงิน คุยกับ June และดูรายงาน", "ผูกกับเครื่องนี้ 1 บัญชีต่อ 1 เครื่อง"],
+        go: "เริ่มทดลองใช้", back: "กลับหน้าแรก", resume: "กลับไปบัญชีทดลองเดิม",
+        n: "ข้อมูลทดลองอยู่ในเครื่องนี้เท่านั้น เมื่อออกจากโหมดทดลองหรือล้างเบราว์เซอร์ ข้อมูลจะหายทั้งหมด ทุกอย่างเป็นเงินจำลอง" },
+  en: { h: "Try Mira as a demo", p: "The trial account has sample money and data so you can try everything, without signing up.",
+        u: ["Sample money in the investment port, lending and cash", "Try withdrawing, moving money, talking to June and the reports", "Linked to this device: one demo account per device"],
+        go: "Start the demo", back: "Back to home", resume: "Back to my demo account",
+        n: "Demo data stays on this device only. When you leave demo mode or clear the browser, everything is gone. All money is simulated." }
+}[lang];
+document.getElementById("h").textContent = T.h; document.getElementById("p").textContent = T.p;
+document.getElementById("u").innerHTML = T.u.map(function (x) { return "<li>" + x + "</li>"; }).join("");
+document.getElementById("back").textContent = T.back; document.getElementById("n").textContent = T.n;
+var go = document.getElementById("go");
+go.textContent = window.MiraWallet.demoOn() ? T.resume : T.go;
+go.onclick = function () { window.MiraWallet.seedDemo(); location.href = "/dashboard.html"; };
+</script>
+</body>
+</html>

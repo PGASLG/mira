@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — ยืมเงินฉุกเฉิน</title>
+<script src="loader.js"></script>
+<style>
+/* Editorial & calm: flat paper, hairline rules, serif numbers. Colours mirror mira.css (which loads last and wins). */
+:root{--blue:#1457d9;--yellow:#f2b01e;--green:#1b7f4b;--red:#b3392b;--sky:#eeece4;--bg:#f7f6f2;--card:#fff;--ink:#0e1b33;--mute:#5f6675;--line:#d9d6cc;--warn:#8a5a00;--warn-bg:#fbf3dc}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1424;--card:#141c30;--ink:#f1efe8;--mute:#a4abb9;--line:#2a3550;--sky:#18213a;--blue:#6b9bff;--green:#5fd39a;--red:#ff9b86;--warn:#f2b01e;--warn-bg:#2a2410}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans Thai",system-ui,sans-serif;overflow-x:hidden}
+.page{max-width:560px;margin:0 auto;padding:0 20px 56px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--ink)}
+nav .logo{height:34px;width:auto;display:block}
+.nav-r{display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--ink);background:transparent;color:var(--ink);padding:6px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+.sim{display:inline-block;margin-top:20px;border:1px solid var(--ink);padding:1px 8px;font-size:12.5px;font-weight:600;border-radius:4px}
+h1{font-size:clamp(30px,8vw,40px);line-height:1.2;margin:12px 0 6px;font-weight:600}
+.sub{color:var(--mute);margin:0 0 24px;font-size:15.5px;max-width:52ch}
+/* sections are ruled blocks, not cards */
+.blk{border-top:1px solid var(--ink);padding:20px 0 24px}
+.blk.red{border-top:3px solid var(--red)}
+.blk h2{font-size:22px;margin:0 0 6px;font-weight:600}
+.lbl{font-size:12.5px;font-weight:600;color:var(--mute);letter-spacing:.04em}
+.big{font-size:52px;font-weight:600;line-height:1.1;margin:4px 0 2px}
+.bar{height:6px;background:var(--line);margin-top:12px;border-radius:0}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .25s}
+.bar.warn i{background:var(--red)}
+.small{font-size:14px;color:var(--mute);margin:10px 0 0}
+/* numbered steps */
+.steps{list-style:none;display:flex;gap:0;margin:0 0 16px;padding:0;border-bottom:1px solid var(--line);counter-reset:st}
+.steps li{flex:1;display:flex;align-items:center;gap:8px;padding-bottom:10px;color:var(--mute);font-weight:600;font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px;counter-increment:st}
+.steps li::before{content:counter(st);width:24px;height:24px;border:1px solid var(--mute);border-radius:4px;display:grid;place-items:center;font-size:13px}
+.steps li.on{color:var(--ink);border-bottom-color:var(--ink)}
+.steps li.on::before{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stepno{font-size:12.5px;font-weight:600;color:var(--blue);letter-spacing:.04em;margin-bottom:4px}
+.amt{display:flex;align-items:baseline;gap:8px;margin:10px 0 6px}
+.amt span{font-size:40px;font-weight:600;font-family:"Newsreader","Noto Serif Thai",Georgia,serif}
+.amt input{flex:1;min-width:0;font-size:44px;font-weight:600;font-family:"Newsreader","Noto Serif Thai",Georgia,serif!important;color:var(--ink);background:transparent!important;border:0!important;border-bottom:2px solid var(--ink)!important;border-radius:0!important;padding:0 0 2px;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--blue);height:34px;margin:6px 0 0}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 4px}
+.quick button{border:1px solid var(--ink);background:transparent;color:var(--ink);padding:8px 4px;font:inherit;font-weight:600;cursor:pointer}
+.opts{display:grid;gap:8px;margin-top:12px}
+.opt{display:grid;grid-template-columns:1fr auto;gap:2px 12px;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:12px 14px;font:inherit;cursor:pointer;border-radius:6px}
+.opt.on{border-color:var(--ink);outline:1px solid var(--ink)}
+.opt b{font-size:17px}.opt .r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.opt small{color:var(--mute)}
+.rec{display:inline-block;color:var(--blue);font-size:11.5px;font-weight:700;letter-spacing:.04em;margin-left:8px;vertical-align:2px}
+.sugg{border-left:3px solid var(--blue);background:var(--sky);padding:10px 14px;font-size:14.5px;margin-top:10px;border-radius:0}
+.rows{margin-top:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.kv span{color:var(--mute)} .kv b{text-align:right;font-variant-numeric:tabular-nums}
+.kv.tot{font-size:19px;border-top:1px solid var(--ink)}
+.kv.tot b{font-family:"Newsreader","Noto Serif Thai",Georgia,serif}
+.kv.redtxt b,.kv.redtxt span{color:var(--red)}
+.redtxt{color:var(--red);font-weight:600}
+.btns{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:18px}
+.btns.two{grid-template-columns:1fr 1fr}
+.btns.one{grid-template-columns:1fr}
+.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;padding:12px 14px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:block;width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;border-color:var(--ink);color:var(--ink)}
+.wide{margin-top:10px}
+.danger{border:1px solid var(--warn);background:var(--warn-bg);color:var(--ink);padding:12px 14px;margin-top:14px;font-size:14.5px;border-radius:6px}
+.danger b{color:var(--warn)}
+.danger ul{margin:6px 0 0;padding-left:20px}.danger li{margin:4px 0}
+.typed{width:100%;font:inherit;font-size:22px;font-weight:600;margin-top:6px;padding:8px 12px}
+details.fold{background:transparent!important;border:0!important;border-top:1px solid var(--ink)!important;border-radius:0!important;padding:16px 0!important;margin:0}
+details.fold summary{cursor:pointer;font-weight:600;font-size:19px;list-style:none;display:flex;justify-content:space-between;font-family:"Newsreader","Noto Serif Thai",Georgia,serif}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::after{content:"+";font-size:22px;line-height:1}
+details.fold[open] summary::after{content:"–"}
+.ex{background:var(--sky);border-left:3px solid var(--line);padding:10px 14px;margin:12px 0;font-size:14.5px;border-radius:0}
+.pushback{border-left:3px solid var(--yellow);padding:4px 12px;margin:12px 0;font-size:14.5px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+td{padding:6px 0;border-top:1px solid var(--line)} td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+ol.how{margin:10px 0 0;padding-left:22px} ol.how li{margin:6px 0}
+.fine{margin:12px 0 0;padding:4px 0 4px 12px;border-left:3px solid var(--line);background:none;color:var(--mute);font-size:13px;border-radius:0!important}
+.fine.redtxt{border-left-color:var(--red)}
+.foot{border-top:1px solid var(--ink);margin-top:8px;padding-top:12px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;font-weight:600;font-size:14px;transition:.2s;z-index:9;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:700px){.page{max-width:760px}}
+@media (min-width:1000px){
+  .page{max-width:1120px;padding:0 40px 64px}
+  nav .logo{height:40px}
+  .cols{display:grid;grid-template-columns:1.15fr .85fr;gap:0;align-items:start}
+  .col+.col{border-left:1px solid var(--line);padding-left:36px;margin-left:36px}
+  h1{font-size:48px}
+  .big{font-size:64px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="nav-r"><a class="pill" href="dashboard.html" id="back"></a><button class="pill" id="lang">EN</button></div>
+  </nav>
+  <span class="sim" id="sim"></span>
+  <h1 id="h1"></h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="cols">
+  <div class="col">
+    <!-- limit -->
+    <section class="blk">
+      <div class="lbl" id="k_max"></div>
+      <div class="big" id="left">฿0</div>
+      <div class="bar" id="bar"><i></i></div>
+      <p class="small" id="limit_note"></p>
+    </section>
+
+    <!-- active loan -->
+    <section class="blk" id="loanCard" hidden>
+      <h2 id="l_h"></h2>
+      <div class="rows" id="l_rows"></div>
+      <p class="fine" id="l_health"></p>
+      <div class="btns two"><button class="btn" id="payMonth"></button><button class="btn ghost" id="repay"></button></div>
+      <button class="btn ghost wide" id="restruct"></button>
+      <p class="fine" id="rs_status" hidden></p>
+      <div id="rs" hidden>
+        <div class="sugg" id="rs_june"></div>
+        <div class="opts" id="rs_opts"></div>
+        <button class="btn wide" id="rs_send"></button>
+      </div>
+    </section>
+
+    <!-- empty state: no money in portfolio yet -->
+    <section class="blk" id="empty" hidden>
+      <h2 id="e_h"></h2>
+      <p class="small" id="e_p"></p>
+      <div class="btns one"><a class="btn" href="/investment.html" id="e_btn"></a></div>
+    </section>
+
+    <!-- wizard -->
+    <section class="blk" id="wiz">
+      <ol class="steps" id="dots"><li></li><li></li><li></li></ol>
+      <div class="stepno" id="stepno"></div>
+
+      <div id="s1">
+        <h2 id="s1_h"></h2>
+        <div class="amt"><span>฿</span><input type="number" id="amt" inputmode="numeric" min="0" step="100" aria-label="amount"></div>
+        <input type="range" id="rng" min="0" step="100">
+        <div class="quick" id="quick"></div>
+        <div class="btns one"><button class="btn" id="n1"></button></div>
+      </div>
+
+      <div id="s2" hidden>
+        <h2 id="s2_h"></h2>
+        <div class="sugg" id="june_rec"></div>
+        <div class="opts" id="opts"></div>
+        <div class="btns"><button class="btn ghost" id="b2"></button><button class="btn" id="n2"></button></div>
+      </div>
+
+      <div id="s3" hidden>
+        <h2 id="s3_h"></h2>
+        <div class="rows" id="sum"></div>
+        <div class="danger"><b id="d_h"></b><ul id="d_list"></ul></div>
+        <label class="lbl" for="typed" id="typed_l" style="display:block;margin-top:14px"></label>
+        <input type="text" class="typed" id="typed" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="btns"><button class="btn ghost" id="b3"></button><button class="btn" id="go" disabled></button></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="col">
+    <details class="fold" open>
+      <summary id="w_h"></summary>
+      <p id="w_p" style="margin:10px 0 0"></p>
+      <div class="ex" id="w_ex"></div>
+      <div class="pushback" id="w_push"></div>
+      <table id="caps"></table>
+      <p class="fine" id="w_reg"></p>
+    </details>
+    <details class="fold">
+      <summary id="h_h"></summary>
+      <ol class="how" id="steps"></ol>
+    </details>
+    <div class="foot">
+      <a class="btn ghost" href="/june.html" id="june"></a>
+      <p class="fine" id="fine"></p>
+    </div>
+  </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data/mira-data.js"></script>
+<script src="lend-core.js"></script>
+<script>
+const P = window.MIRA_DATA.portfolio, CC = P.class_curves, N = P.curve.length;
+const MIX = {low:{stocks:15,bonds:60,commodities:15,"real estate":5,currencies:5,crypto:0},
+             mid:{stocks:35,bonds:30,commodities:25,"real estate":5,currencies:0,crypto:5},
+             high:{stocks:50,bonds:10,commodities:20,"real estate":10,currencies:0,crypto:10}};
+// ponytail: sample caps, not a real risk model; replace with per-asset haircut data if this goes beyond a demo
+const CAP = {bonds:.70,commodities:.50,"real estate":.50,currencies:.50,stocks:.40,crypto:.20};
+const RATE = 0.03, MAXLTV = 0.9, PERIODS = [1,3,6,12];
+const I18N = {
+ th:{back:"← หน้าหลัก", sim:"จำลองเท่านั้น ไม่มีเงินจริง ไม่มีการกู้จริง",
+  h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ยต่ำ ทำตาม 3 ขั้นตอนง่ายๆ",
+  k_max:"ยืมได้สูงสุดตอนนี้",
+  pay_m:(p)=>`ชำระงวดนี้ ฿${p}`, pay_all:(p)=>`ชำระทั้งหมด ฿${p}`, l_prog:(a,b)=>`ชำระแล้ว ${a} จาก ${b} งวด`, l_next:"งวดถัดไปครบกำหนด", l_left:"ยอดคงเหลือที่ต้องชำระ",
+  days:(d)=>d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`, near_t:"ใกล้ครบกำหนดแล้ว กรุณาชำระงวดนี้ให้ทัน", paidm:"ชำระงวดนี้แล้ว (จำลอง)", paidall:"ชำระครบ ปิดหนี้แล้ว (จำลอง)",
+  rs_btn:"ให้ June ช่วยปรับโครงสร้างหนี้", rs_june:(n,p)=>`June แนะนำให้ปรับเป็น <b>${n} เดือน</b> จ่ายเดือนละประมาณ ฿${p} คำขอนี้จะส่งให้ผู้ให้ยืมตัดสินใจ ยังไม่เปลี่ยนจนกว่าผู้ให้ยืมอนุมัติ`,
+  rs_send:"ส่งคำขอให้ผู้ให้ยืม", rs_pending:(n)=>`ส่งคำขอปรับเป็น ${n} เดือนแล้ว รอผู้ให้ยืมตัดสินใจ`, rs_rejected:"ผู้ให้ยืมไม่อนุมัติ ใช้ตารางเดิมต่อ", rs_applied:(n)=>`ผู้ให้ยืมอนุมัติแล้ว ตารางใหม่ ${n} เดือน`, rs_sent:"ส่งคำขอแล้ว (จำลอง)",
+  e_h:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", e_p:"ใส่เงินเข้าพอร์ตในหน้าลงทุนก่อน แล้วกลับมาดูว่ายืมได้เท่าไร (จำลอง ไม่ใช่เงินจริง)", e_btn:"ไปเติมเงินในพอร์ต",
+  limit:(a,u,s)=>`สินทรัพย์ ฿${a} · ยืมไปแล้ว ฿${u} · ระดับปลอดภัยกว่า ไม่เกิน ฿${s}`,
+  stepno:(n)=>`ขั้นตอน ${n} จาก 3`,
+  s1_h:"อยากยืมเท่าไร", q:["25%","50%","75%","สูงสุด"], next:"ต่อไป", prev:"← กลับ",
+  s2_h:"จ่ายคืนภายในกี่เดือน", mo:(n)=>`${n} เดือน`, rec_tag:"June แนะนำ",
+  june_rec:(n,cap)=>`June แนะนำ <b>${n} เดือน</b> เพราะเงินที่จ่ายต่อเดือนไม่เกิน 30% ของเงินที่คุณใส่ต่อเดือน (฿${cap}) หรือเลือกเองจากรายการก็ได้`,
+  per_mo:(p)=>`฿${p}/เดือน`, int_of:(i)=>`ดอกเบี้ยรวม ฿${i}`,
+  s3_h:"ตรวจสอบและยืนยัน",
+  r:{amt:"ยืม",rate:"ดอกเบี้ยตัวอย่าง",per:"ระยะเวลา",pay:"จ่ายต่อเดือน",int:"ดอกเบี้ยรวม",total:"ยอดที่ต้องจ่ายคืนรวม",due:"ครบกำหนด"}, rate:"3% ต่อปี (ตัวอย่าง)",
+  d_h:"ข้อตกลงสำคัญ อ่านก่อนยืนยัน",
+  d_list:["ถ้าคุณไม่จ่ายคืนตามกำหนด ผู้ให้ยืมมีสิทธิ์ยึดสินทรัพย์ของคุณ สินทรัพย์นั้นจะตกเป็นของผู้ให้ยืม","สินทรัพย์ทั้งหมดของคุณจะถูกย้ายไปเป็นแบบความเสี่ยงต่ำเพื่อค้ำประกัน จนกว่าจะจ่ายคืนครบ","ถ้าราคาสินทรัพย์ตก อาจต้องจ่ายคืนก่อนกำหนด","หน้านี้เป็นการจำลอง ไม่มีเงินจริงและไม่มีการยึดจริง"],
+  typed_l:"พิมพ์คำว่า sure เพื่อยืนยัน", go:"ยืนยันและยืม (จำลอง)",
+  toast:"บันทึกการยืมจำลองแล้ว", repaid:"จ่ายคืนจำลองแล้ว",
+  l_h:"เงินที่ยืมอยู่ (จำลอง)", l_amt:"ยืมอยู่", l_pay:"จ่ายต่อเดือน", l_due:"ครบกำหนด", l_ratio:"ยืมเทียบกับสินทรัพย์",
+  health_ok:"ตอนนี้ยังอยู่ในเกณฑ์ปลอดภัย", health_bad:"เงินที่ยืมมากกว่า 90% ของสินทรัพย์แล้ว ในโลกจริงอาจโดนเรียกคืนก่อนกำหนด",
+  repay:"จ่ายคืนทั้งหมด (จำลอง)", none:"ไม่มีวงเงินเหลือให้ยืม",
+  w_h:"ความเสี่ยงที่ควรรู้", w_p:"ถ้าสินทรัพย์ราคาตก เงินที่ยืมอาจใหญ่เกินสินทรัพย์ที่ค้ำอยู่ และอาจต้องจ่ายคืนก่อนกำหนด",
+  w_ex:(a,l,d)=>`ตัวอย่าง: สินทรัพย์ ฿${fmtN(a)} ยืมเต็ม 90% = ฿${fmtN(l)} ถ้าสินทรัพย์ลดลง ${d}% เหลือ ฿${fmtN(a*(1-d/100))} เงินที่ยืม ฿${fmtN(l)} จะเท่ากับ ${Math.round(l/(a*(1-d/100))*100)}% ของสินทรัพย์ ซึ่งเกินเกณฑ์`,
+  w_push:(d)=>`ขอพูดตรงๆ: ยืม 90% ของสินทรัพย์ที่ราคาขึ้นลงเสี่ยงมาก พอร์ตตัวอย่างนี้เคยลดลงราว ${d}% ในช่วงที่แย่สุด และคริปโตกับหุ้นลดได้มากกว่านี้ ที่ 90% แทบไม่มีที่ว่างรองรับ`,
+  caps_h:"ยืมได้ปลอดภัยตามประเภท (ตัวอย่าง)", cls:{bonds:"พันธบัตร",commodities:"สินค้าโภคภัณฑ์","real estate":"อสังหาฯ",currencies:"สกุลเงิน",stocks:"หุ้น",crypto:"คริปโต"},
+  w_reg:"หมายเหตุ: ในประเทศไทยการให้ยืมเงินระหว่างบุคคลแบบนี้มีกฎหมายควบคุม หน้านี้เป็นแค่การจำลองเพื่อแสดงไอเดีย ไม่ใช่บริการจริง",
+  h_h:"ทำงานอย่างไร", steps:["เลือกจำนวนเงินที่ต้องการยืม","เลือกระยะเวลาจ่ายคืน ให้ June แนะนำหรือเลือกเอง","ยืนยัน แล้วจ่ายคืนรายเดือนพร้อมดอกเบี้ยต่ำ"],
+  june:"ถาม June ก่อนตัดสินใจ", fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
+ en:{back:"← Home", sim:"Simulation only. No real money, no real loan.",
+  h1:"Need money fast?", sub:"Borrow from other Mira users at a low rate. Just 3 easy steps.",
+  k_max:"You can borrow up to",
+  pay_m:(p)=>`Pay this month ฿${p}`, pay_all:(p)=>`Pay all ฿${p}`, l_prog:(a,b)=>`Paid ${a} of ${b} payments`, l_next:"Next payment due", l_left:"Left to pay",
+  days:(d)=>d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`, near_t:"Due soon. Please pay this month's payment on time.", paidm:"This month paid (simulated)", paidall:"All paid, loan closed (simulated)",
+  rs_btn:"Ask June to restructure my debt", rs_june:(n,p)=>`June suggests changing to <b>${n} months</b>, about ฿${p} per month. This request goes to the lender to decide. Nothing changes until the lender approves.`,
+  rs_send:"Send request to lender", rs_pending:(n)=>`Request to change to ${n} months sent. Waiting for the lender to decide.`, rs_rejected:"The lender declined. Your original schedule continues.", rs_applied:(n)=>`The lender approved. New schedule: ${n} months`, rs_sent:"Request sent (simulated)",
+  e_h:"You need money in your portfolio before you can borrow", e_p:"Add money to your portfolio on the investment page first, then come back to see how much you can borrow (simulated, not real money).", e_btn:"Add money to portfolio",
+  limit:(a,u,s)=>`Assets ฿${a} · Borrowed ฿${u} · Safer level: no more than ฿${s}`,
+  stepno:(n)=>`Step ${n} of 3`,
+  s1_h:"How much do you want?", q:["25%","50%","75%","Max"], next:"Next", prev:"← Back",
+  s2_h:"Repay within how many months?", mo:(n)=>`${n} month${n>1?"s":""}`, rec_tag:"June suggests",
+  june_rec:(n,cap)=>`June suggests <b>${n} month${n>1?"s":""}</b> so the monthly payment stays within 30% of your monthly amount (฿${cap}). Or pick your own from the list.`,
+  per_mo:(p)=>`฿${p}/month`, int_of:(i)=>`Total interest ฿${i}`,
+  s3_h:"Check and confirm",
+  r:{amt:"Borrow",rate:"Sample rate",per:"Period",pay:"Per month",int:"Total interest",total:"Total to repay",due:"Due date"}, rate:"3% per year (example)",
+  d_h:"Important terms. Read before confirming",
+  d_list:["If you do not repay on time, the lender has the right to take your assets, and those assets become the lender's.","All your assets will be moved into low-risk assets as security until the loan is repaid.","If asset prices fall, you may have to repay early.","This page is a simulation: no real money and nothing is really taken."],
+  typed_l:"Type the word sure to confirm", go:"Confirm and borrow (simulated)",
+  toast:"Simulated loan saved", repaid:"Simulated repayment done",
+  l_h:"Your loan (simulated)", l_amt:"Borrowed", l_pay:"Per month", l_due:"Due", l_ratio:"Loan vs assets",
+  health_ok:"Still inside the safe range.", health_bad:"The loan is above 90% of your assets. In real life it could be called back early.",
+  repay:"Repay all (simulated)", none:"No limit left to borrow",
+  w_h:"Risks to know", w_p:"If your assets fall in price, the loan can become too big for the assets behind it, and you may have to repay early.",
+  w_ex:(a,l,d)=>`Example: assets ฿${fmtN(a)}, borrow the full 90% = ฿${fmtN(l)}. If assets fall ${d}% to ฿${fmtN(a*(1-d/100))}, the ฿${fmtN(l)} loan equals ${Math.round(l/(a*(1-d/100))*100)}% of assets, over the limit.`,
+  w_push:(d)=>`Honest note: borrowing 90% of volatile assets is risky. This sample portfolio fell about ${d}% at its worst, and crypto and stocks can fall more. At 90% there is almost no room.`,
+  caps_h:"Safer borrowing by asset type (example)", cls:{bonds:"Bonds",commodities:"Commodities","real estate":"Real estate",currencies:"Currencies",stocks:"Stocks",crypto:"Crypto"},
+  w_reg:"Note: real peer-to-peer lending is regulated in Thailand. This page is a simulation to show the idea, not a real service.",
+  h_h:"How it works", steps:["Pick how much you want to borrow","Pick how long to repay: June suggests, or choose yourself","Confirm, then repay monthly with a low interest rate"],
+  june:"Ask June before deciding", fine:"Research only, not investment advice. Past results do not guarantee the future."}
+};
+let lang="th", S={amt:2000,risk:"mid",topup:0}, per=3, want=0, loan=null, userPer=false, step=1, rsOpen=false, rsPick=0;
+try{ lang=localStorage.getItem("mira_lang")||"th"; S.amt=+(localStorage.getItem("mira_monthly")||2000);
+  S.risk=localStorage.getItem("mira_risk")||"mid"; S.topup=+(localStorage.getItem("mira_topup")||0);
+  loan=JSON.parse(localStorage.getItem("mira_loan_active")||"null"); }catch(e){}
+if(!MIX[S.risk]) S.risk="mid";
+const $=id=>document.getElementById(id);
+function fmtN(n){return Math.round(n).toLocaleString("en-US")}
+const T=()=>I18N[lang];
+
+function mixIndex(w){ const ks=Object.keys(w).filter(k=>w[k]>0&&CC[k]), tot=ks.reduce((s,k)=>s+w[k],0), idx=[100];
+  for(let i=1;i<N;i++){ let r=0; for(const k of ks) r+=w[k]/tot*(CC[k][i]/CC[k][i-1]-1); idx.push(idx[i-1]*(1+r)); } return idx; }
+// assets = money the user has actually added (mira_topup); the historical DCA backtest is only used for the drawdown note
+function numbers(){ const w=MIX[S.risk], idx=mixIndex(w);
+  let peak=idx[0],dd=0; for(const v of idx){ peak=Math.max(peak,v); dd=Math.max(dd,1-v/peak); }
+  const tot=Object.keys(w).filter(k=>w[k]>0).reduce((s,k)=>s+w[k],0);
+  const safeRatio=Object.keys(w).reduce((s,k)=>s+(w[k]/tot)*(CAP[k]||.4),0);
+  return {value:Math.max(0,S.topup||0), dd:Math.round(dd*100), safeRatio}; }
+
+function calc(a,n){ const r=RATE/12, pay=a*r/(1-Math.pow(1+r,-n)); return {pay, int:pay*n-a}; }
+// ponytail: rule-based suggestion (shortest period with payment <= 30% of monthly amount), not a live AI call
+function recommend(a){ if(!a) return 3; for(const n of PERIODS) if(calc(a,n).pay<=S.amt*0.3) return n; return 12; }
+function dueDate(n,from){ const d=from?new Date(from):new Date(); d.setMonth(d.getMonth()+n);
+  return d.toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",year:"numeric"}); }
+const NEAR_DAYS=7, RS_PERIODS=[6,12,18,24];
+const paidN=l=>l.paid||0;
+// ponytail: principal left shrinks evenly per payment; not a true amortization split
+const outP=l=>l.amt*(l.months-paidN(l))/l.months;
+const owed=l=>l.pay*(l.months-paidN(l));
+function nextDue(l){ const d=new Date(l.start); d.setMonth(d.getMonth()+paidN(l)+1); return d; }
+const daysLeft=l=>Math.ceil((nextDue(l)-new Date())/864e5);
+function readReq(){ try{return JSON.parse(localStorage.getItem("mira_loan_request")||"null")}catch(e){return null} }
+function writeReq(r){ try{ if(r) localStorage.setItem("mira_loan_request",JSON.stringify(r)); else localStorage.removeItem("mira_loan_request"); }catch(e){} }
+function save(){ try{ if(loan) localStorage.setItem("mira_loan_active",JSON.stringify(loan)); else localStorage.removeItem("mira_loan_active"); }catch(e){} }
+const kv=(a,b,c)=>`<div class="kv ${c||""}"><span>${a}</span><b>${b}</b></div>`;
+
+function render(){
+  const t=T(), n=numbers(), max=n.value*MAXLTV, used=loan?outP(loan):0, left=Math.max(0,max-used);
+  const cap=Math.floor(left/100)*100;
+  document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย"; $("back").textContent=t.back;
+  $("sim").textContent=t.sim; $("h1").textContent=t.h1; $("sub").textContent=t.sub;
+  // limit
+  $("k_max").textContent=t.k_max; $("left").textContent="฿"+fmtN(cap);
+  const pct=max?Math.min(100,used/max*100):0; $("bar").firstElementChild.style.width=pct+"%"; $("bar").classList.toggle("warn",pct>=70);
+  $("limit_note").textContent=t.limit(fmtN(n.value),fmtN(used),fmtN(n.value*n.safeRatio));
+  // active loan
+  $("loanCard").hidden=!loan;
+  if(loan){
+    const dl=daysLeft(loan), near=dl<=NEAR_DAYS, p=outP(loan), ratio=n.value?p/n.value*100:0, r=readReq();
+    $("loanCard").classList.toggle("red",near);
+    $("l_h").textContent=t.l_h;
+    $("l_rows").innerHTML=kv(t.l_amt,"฿"+fmtN(p))+kv(t.l_pay,"฿"+fmtN(loan.pay))+kv(t.l_prog(paidN(loan),loan.months),"")
+      +kv(t.l_next,nextDue(loan).toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",year:"numeric"})+" · "+t.days(dl),near?"redtxt":"")
+      +kv(t.l_left,"฿"+fmtN(owed(loan)))+kv(t.l_ratio,Math.round(ratio)+"%");
+    $("l_health").textContent=near?t.near_t:ratio>90?t.health_bad:t.health_ok; $("l_health").className="fine"+(near?" redtxt":"");
+    $("payMonth").textContent=t.pay_m(fmtN(loan.pay)); $("repay").textContent=t.pay_all(fmtN(owed(loan)));
+    // restructure request (June suggests, lender decides)
+    const pend=r&&r.status==="pending";
+    $("restruct").textContent=t.rs_btn; $("restruct").disabled=!!pend;
+    const msg=!r?"":r.status==="pending"?t.rs_pending(r.toMonths):r.status==="rejected"?t.rs_rejected:r.status==="applied"?t.rs_applied(loan.months):"";
+    $("rs_status").hidden=!msg; $("rs_status").textContent=msg;
+    $("rs").hidden=!rsOpen||pend;
+    if(!$("rs").hidden){
+      const recM=RS_PERIODS.find(m=>calc(p,m).pay<=S.amt*0.3)||24; if(!rsPick) rsPick=recM;
+      $("rs_june").innerHTML=t.rs_june(recM,fmtN(calc(p,recM).pay));
+      $("rs_opts").innerHTML=RS_PERIODS.map(m=>{ const o=calc(p,m);
+        return `<button type="button" class="opt ${m===rsPick?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recM?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${t.per_mo(fmtN(o.pay))}</span><small></small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
+      $("rs_send").textContent=t.rs_send;
+    }
+  }
+  // empty state: nothing in the portfolio, so no borrowing
+  const noMoney=n.value<=0;
+  $("empty").hidden=!noMoney; $("wiz").hidden=noMoney;
+  $("e_h").textContent=t.e_h; $("e_p").textContent=t.e_p; $("e_btn").textContent=t.e_btn;
+  // wizard
+  want=Math.min(want,cap);
+  const recN=recommend(want); if(!userPer) per=recN;
+  const c=calc(want,per);
+  [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i<step)); $("stepno").textContent=t.stepno(step);
+  $("s1").hidden=step!==1; $("s2").hidden=step!==2; $("s3").hidden=step!==3;
+  // step 1
+  $("s1_h").textContent=t.s1_h; $("rng").max=cap; $("rng").value=want; $("amt").value=want||""; $("amt").max=cap;
+  $("quick").innerHTML=[.25,.5,.75,1].map((f,i)=>`<button type="button" data-f="${f}">${t.q[i]}</button>`).join("");
+  $("n1").textContent=cap<100?t.none:t.next; $("n1").disabled=!want;
+  // step 2
+  $("s2_h").textContent=t.s2_h; $("june_rec").innerHTML=t.june_rec(recN,fmtN(S.amt*0.3));
+  $("opts").innerHTML=PERIODS.map(m=>{ const o=calc(want,m);
+    return `<button type="button" class="opt ${m===per?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recN?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${t.per_mo(fmtN(o.pay))}</span><small>${dueDate(m)}</small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
+  $("b2").textContent=t.prev; $("n2").textContent=t.next;
+  // step 3
+  $("s3_h").textContent=t.s3_h;
+  $("sum").innerHTML=kv(t.r.amt,"฿"+fmtN(want))+kv(t.r.rate,t.rate)+kv(t.r.per,t.mo(per))+kv(t.r.pay,"฿"+fmtN(c.pay))+kv(t.r.int,"฿"+fmtN(c.int))+kv(t.r.due,dueDate(per))+kv(t.r.total,"฿"+fmtN(want+c.int),"tot");
+  $("d_h").textContent=t.d_h; $("d_list").innerHTML=t.d_list.map(s=>`<li>${s}</li>`).join("");
+  $("typed_l").textContent=t.typed_l; $("typed").placeholder="sure"; $("go").textContent=t.go; $("b3").textContent=t.prev;
+  $("go").disabled=!sureOk();
+  // info column
+  const a=Math.round(n.value/100)*100||10000, l=Math.round(a*0.9), d=Math.max(n.dd,10);
+  $("w_h").textContent=t.w_h; $("w_p").textContent=t.w_p;
+  $("w_ex").textContent=t.w_ex(a,l,d); $("w_push").textContent=t.w_push(n.dd);
+  const w=MIX[S.risk];
+  $("caps").innerHTML=`<tr><td colspan="2" class="lbl">${t.caps_h}</td></tr>`+Object.keys(w).filter(k=>w[k]>0)
+    .map(k=>`<tr><td>${t.cls[k]} (${w[k]}%)</td><td>${Math.round((CAP[k]||.4)*100)}%</td></tr>`).join("");
+  $("w_reg").textContent=t.w_reg; $("h_h").textContent=t.h_h;
+  $("steps").innerHTML=t.steps.map(s=>`<li>${s}</li>`).join(""); $("june").textContent=t.june; $("fine").textContent=t.fine;
+}
+const sureOk=()=>$("typed").value.trim().toLowerCase()==="sure";
+function toast(msg){ const e=$("toast"); e.textContent=msg; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),2200); }
+function setAmt(v){ v=Math.max(0,Math.min(+$("rng").max,Math.round((+v||0)/100)*100)); want=v; render(); }
+function goStep(n){ step=n; render(); $("wiz").scrollIntoView({behavior:"smooth",block:"start"}); }
+$("rng").oninput=e=>setAmt(e.target.value);
+$("amt").onchange=e=>setAmt(e.target.value);
+$("quick").onclick=e=>{ const b=e.target.closest("button"); if(b) setAmt(Math.floor(+$("rng").max*(+b.dataset.f)/100)*100); };
+$("opts").onclick=e=>{ const b=e.target.closest("button"); if(b){ per=+b.dataset.m; userPer=true; render(); } };
+$("n1").onclick=()=>goStep(2); $("b2").onclick=()=>goStep(1);
+$("n2").onclick=()=>{ $("typed").value=""; goStep(3); }; $("b3").onclick=()=>goStep(2);
+$("typed").oninput=()=>{ $("go").disabled=!sureOk(); };
+$("go").onclick=()=>{ if(!want||!sureOk()) return; const c=calc(want,per);
+  // move everything to low risk as security; previous level restored on repay
+  try{ if(!loan) localStorage.setItem("mira_loan_prev_risk",S.risk); localStorage.setItem("mira_risk","low"); }catch(e){}
+  S.risk="low";
+  // ponytail: a second borrow replaces the schedule with the combined principal on the new period (paid count resets)
+  loan={amt:(loan?outP(loan):0)+want, months:per, paid:0, pay:calc((loan?outP(loan):0)+want,per).pay, start:new Date().toISOString(), accepted:new Date().toISOString()};
+  // cloud mode (real users, paper money): also ask the shared pool for this amount; lenders fund it piece by piece
+  try{ if(window.MiraLend&&MiraLend.mode()==="cloud") MiraLend.borrow(want,per); }catch(e){}
+  want=0; userPer=false; step=1; $("typed").value=""; save(); render(); toast(T().toast); window.scrollTo({top:0,behavior:"smooth"}); };
+function clearLoan(){ loan=null;
+  try{ const p=localStorage.getItem("mira_loan_prev_risk"); if(p&&MIX[p]){ localStorage.setItem("mira_risk",p); S.risk=p; } localStorage.removeItem("mira_loan_prev_risk"); }catch(e){}
+  writeReq(null); save(); }
+const payFail=()=>toast(lang==="th"?"จ่ายไม่สำเร็จ ลองใหม่อีกครั้ง":"Payment failed. Please try again.");
+$("repay").onclick=async()=>{
+  if(window.MiraLend&&MiraLend.mode()==="cloud"){ const r=await MiraLend.repayAll(); if(!r.ok) return payFail(); }
+  clearLoan(); render(); toast(T().paidall); };
+$("payMonth").onclick=async()=>{ if(!loan) return;
+  if(window.MiraLend&&MiraLend.mode()==="cloud"){ const r=await MiraLend.repayMonth(); if(!r.ok) return payFail(); }
+  loan.paid=paidN(loan)+1;
+  if(loan.paid>=loan.months){ clearLoan(); render(); toast(T().paidall); } else { save(); render(); toast(T().paidm); } };
+$("restruct").onclick=()=>{ rsOpen=!rsOpen; rsPick=0; render(); };
+$("rs_opts").onclick=e=>{ const b=e.target.closest("button"); if(b){ rsPick=+b.dataset.m; render(); } };
+$("rs_send").onclick=()=>{ if(!loan||!rsPick) return; const p=outP(loan);
+  writeReq({status:"pending",toMonths:rsPick,newPay:calc(p,rsPick).pay,principal:p,createdAt:new Date().toISOString()});
+  rsOpen=false; render(); toast(T().rs_sent); };
+// a lender decision (set elsewhere) of "approved" rebuilds the schedule on the remaining principal
+(function applyReq(){ const r=readReq(); if(loan&&r&&r.status==="approved"){ const p=outP(loan);
+  loan={amt:p,months:r.toMonths,paid:0,pay:calc(p,r.toMonths).pay,start:new Date().toISOString(),accepted:loan.accepted};
+  writeReq({...r,status:"applied"}); save(); } })();
+$("lang").onclick=()=>{ lang=lang==="th"?"en":"th"; try{localStorage.setItem("mira_lang",lang)}catch(e){} render(); };
+render();
+if(location.hash==="#loanCard"&&loan) $("loanCard").scrollIntoView({block:"start"});
+</script>
+</body>
+</html>

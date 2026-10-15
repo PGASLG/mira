@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — เงินของฉันอยู่ที่ไหน</title>
+<script src="loader.js"></script>
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.65;overflow-x:hidden}
+.page{max-width:680px;margin:0 auto;padding:0 20px 64px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--ink)}
+nav .logo{height:30px;width:auto;display:block}
+.nav-r{display:flex;gap:6px;align-items:center}
+.pill{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.2;margin:24px 0 8px;font-weight:600}
+h2{font-size:21px;line-height:1.3;margin:40px 0 4px;padding-top:18px;border-top:1px solid var(--ink);font-weight:600}
+h3{margin:0 0 4px;font-size:18px}
+h4{margin:20px 0 6px;font-size:15px}
+.say{color:var(--mute);font-size:14.5px;margin:0 0 12px}
+.blk{padding:12px 0 4px}
+.up{color:var(--green)}.down{color:var(--red)}
+.note{font-size:12.5px;color:var(--mute);margin:8px 0 0}
+.m{color:var(--mute);font-size:14px}
+.lbl{font-size:12.5px;font-weight:600;color:var(--mute);letter-spacing:.04em}
+.cell,.kpi{padding:10px 12px;border:0;border-left:2px solid var(--ink);border-radius:0;background:transparent;text-align:left}
+.cell small,.kpi small{display:block;font-size:12.5px;color:var(--mute);font-weight:500}
+.cell b,.kpi b{font-size:22px;line-height:1.3}
+.row3,.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.btn{border:1px solid var(--blue);border-radius:6px;padding:11px 20px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:inline-block;white-space:nowrap}
+.btn.p{background:var(--blue);color:#fff}
+.btn.s{background:transparent;color:var(--ink);border-color:var(--ink);display:block;width:100%;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.act{margin-top:12px;padding:12px 14px;border-radius:6px;border:0;border-left:3px solid var(--yellow);background:var(--sky);font-size:14.5px}
+.june{display:flex;align-items:center;gap:14px;margin-top:20px;background:var(--blue);color:#fff;border:1px solid var(--blue);border-radius:6px;padding:14px 16px;width:100%;font:inherit;text-align:left;cursor:pointer}
+.june .ic{display:none}
+.june>span:nth-child(2){flex:1}
+.june b{display:block;font-size:17px}
+.june small{display:block;opacity:.9;font-size:13.5px}
+.fine{margin-top:32px;padding:12px 0 0;border-top:1px solid var(--line);color:var(--mute);font-size:12.5px;background:transparent;border-radius:0}
+.btstrip{margin:12px 0 0;padding:8px 0;border-top:1px dashed var(--line);font-size:12.5px;color:var(--mute)}
+h2[data-n]::before{content:attr(data-n) ". ";color:var(--blue)}
+h2.first{border-top:0;margin-top:20px;padding-top:0;font-size:15px;color:var(--mute);font-weight:600}
+.cols{display:grid;gap:0}
+.hero{padding:6px 0 4px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.action{display:flex;flex-direction:column;gap:6px}
+.action .btn{width:100%;margin:0;text-align:center;padding:13px 12px}
+.action .cap{font-size:12.5px;color:var(--mute);line-height:1.45}
+.hero .auto{margin-top:18px}
+.hero .auto .tx b{display:block}
+h2.firsth{margin-top:36px}
+details.more{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+details.more summary{cursor:pointer;color:var(--blue);font-weight:600;font-size:14.5px;padding:6px 0}
+.fxtop{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (min-width:560px){.trks{grid-template-columns:1fr 1fr;column-gap:24px}}
+@media (min-width:920px){
+  body .page{max-width:1060px}
+  #tp_r{display:none}
+  .cols{grid-template-columns:1.1fr .9fr;column-gap:56px;align-items:start}
+  .vault{font-size:64px}
+  h2.firsth{margin-top:20px}
+}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+@media (min-width:700px){.page{max-width:720px}}
+
+/* assets */
+.vault{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:52px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums lining-nums;margin:2px 0}
+.empty{margin:14px 0 0;padding:10px 14px;border-radius:6px;background:var(--sky);border-left:3px solid var(--yellow);font-weight:600}
+.sep{height:1px;background:var(--line);margin:20px 0}
+.tu{display:flex;gap:14px;align-items:center;justify-content:space-between}
+.tu b{font-size:18px}
+.auto{display:flex;gap:12px;align-items:center;margin-top:16px;padding:12px 0;border-top:1px solid var(--line)}
+.auto .tx{flex:1;font-size:14.5px}
+.auto .tx b{display:block}
+.sw{flex:none;width:48px;height:28px;border-radius:6px;border:1px solid var(--ink);background:transparent;position:relative;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:3px;background:var(--ink);transition:left .15s}
+.sw[aria-checked="true"]{background:var(--blue);border-color:var(--blue)}
+.sw[aria-checked="true"]::after{left:23px;background:#fff}
+.lnk{border:0;background:none;color:var(--blue);font:inherit;font-weight:600;font-size:13.5px;cursor:pointer;padding:0;margin-top:4px;text-align:left;text-decoration:underline}
+
+/* tracks */
+.trks{display:grid;gap:0;border-top:1px solid var(--line)}
+.trk{text-decoration:none;display:grid;gap:2px;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);border-radius:0;padding:16px 0;font:inherit;cursor:pointer;position:relative}
+.trk:hover .go{text-decoration:underline}
+.trk .tt{font-weight:600;font-size:16px}
+.trk .tv{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:30px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums lining-nums}
+.trk small{color:var(--mute);font-size:13.5px}
+.trk .go{position:absolute;right:0;top:16px;color:var(--blue);font-weight:600;font-size:13.5px}
+.trk.low .tt::before,.trk.high .tt::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+.trk.low .tt::before{background:var(--blue)}.trk.high .tt::before{background:var(--yellow)}
+
+/* report */
+.stban{padding:4px 0 12px 14px;margin-bottom:12px;border-left:4px solid var(--green)}
+.stban b{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:22px;display:block}
+.stban.s1{border-color:var(--yellow)}.stban.s2{border-color:var(--red)}
+.gauge{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:4px 0 14px;border:1px solid var(--ink);border-radius:6px;overflow:hidden}
+.gauge div{padding:9px 4px;text-align:center;font-size:14px;font-weight:600;color:var(--mute);border-left:1px solid var(--line)}
+.gauge div:first-child{border-left:0}
+.gauge .g0.on{background:var(--green);color:#fff}.gauge .g1.on{background:var(--yellow);color:#0e1b33}.gauge .g2.on{background:var(--red);color:#fff}
+.kpi span{display:block;font-size:12px;color:var(--mute);line-height:1.4}
+.imp{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px}
+.imp b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.fxspot{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:34px;font-weight:600;font-variant-numeric:tabular-nums lining-nums}
+.fxbar{position:relative;height:12px;border-radius:2px;background:var(--sky);border:1px solid var(--line);margin:38px 4px 6px}
+.fxbar i{position:absolute;top:-1px;bottom:-1px;border-radius:0}
+.fxbar .o{background:#1457d933}.fxbar .n{background:var(--blue)}
+.fxbar u{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+.fxbar .now{position:absolute;top:-32px;transform:translateX(-50%);font-size:12px;font-weight:600;white-space:nowrap;background:var(--ink);color:var(--bg);border-radius:4px;padding:1px 8px;font-style:normal}
+.fxlab{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:6px;font-weight:600;font-size:14px;transition:.3s;z-index:40;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* sheets: intro + top-up */
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(14,27,51,.5);display:grid;align-items:end;justify-items:center}
+.box{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--bg);border-top:2px solid var(--ink);padding:20px 20px 28px}
+.box .hd{display:flex;justify-content:space-between;align-items:center}
+.box .hd b{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:22px}
+.x{border:1px solid var(--line);background:transparent;color:var(--ink);width:34px;height:34px;border-radius:6px;font-size:16px;cursor:pointer}
+.money{display:flex;align-items:center;gap:8px;border:1px solid var(--ink);border-radius:6px;padding:6px 12px;background:var(--card);margin:6px 0 8px}
+.money span{font-weight:600;color:var(--mute)}
+.money input{border:0;background:transparent;color:var(--ink);font:inherit;font-size:22px;font-weight:600;width:100%;outline:0;font-variant-numeric:tabular-nums}
+label{font-size:13px;font-weight:600;color:var(--mute);display:block;margin-top:14px}
+.okbig{width:72px;height:72px;border-radius:6px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:40px;margin:10px auto}
+.ctr{text-align:center}
+.intro li{margin:10px 0;display:flex;gap:12px;align-items:flex-start;list-style:none}
+.intro ol{padding:0;margin:14px 0 0}
+.intro .n{flex:none;width:28px;height:28px;border-radius:4px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;font-size:14px}
+@media (min-width:700px){.sheet{align-items:center}.box{border:1px solid var(--ink)}.vault{font-size:60px}}
+.page .cell,.page .kpi{border-radius:0 !important;border:0 !important;border-left:2px solid var(--ink) !important;background:transparent !important}
+.page .act,.page .what{border-radius:6px !important;border:0 !important;border-left:3px solid var(--yellow) !important;background:var(--sky) !important}
+.page i{border-radius:2px !important}
+#tp_r{display:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="nav-r"><button class="pill" id="help" aria-label="help">?</button><a class="pill" href="/dashboard.html" id="back"></a><button class="pill" id="lang">EN</button></div>
+  </nav>
+
+  <h1 id="title"></h1>
+
+  <div class="cols">
+  <div class="col">
+    <!-- my money + actions -->
+    <section class="hero">
+      <div class="lbl" id="a_l"></div>
+      <div class="vault" id="vault">฿0</div>
+      <div class="row3">
+        <div class="cell"><small id="p1l"></small><b id="p1">฿0</b></div>
+        <div class="cell"><small id="p2l"></small><b id="p2">฿0</b></div>
+        <div class="cell"><small id="p3l"></small><b id="p3">฿0</b></div>
+      </div>
+      <div class="row3">
+        <div class="cell"><small id="a1l"></small><b id="a1">฿0</b></div>
+        <div class="cell"><small id="a2l"></small><b id="a2">฿0</b></div>
+        <div class="cell"><small id="a3l"></small><b id="a3">0%</b></div>
+      </div>
+      <div class="row3" id="lrow" hidden>
+        <div class="cell"><small id="l1l"></small><b id="l1">฿0</b></div>
+        <div class="cell"><small id="l2l"></small><b id="l2">฿0</b></div>
+        <div class="cell"><small id="l3l"></small><b id="l3">฿0</b></div>
+      </div>
+      <p class="note" id="wd"></p>
+      <p class="empty" id="empty" hidden></p>
+
+      <div class="actions">
+        <div class="action">
+          <button class="btn p" data-topup id="topup1"></button>
+          <span class="cap" id="tp_s"></span>
+        </div>
+        <div class="action">
+          <a class="btn s" href="lender.html" id="ld_b"></a>
+          <span class="cap" id="ld_s"></span>
+        </div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <div class="action">
+          <button class="btn s" data-mv="in" id="mv_in" style="display:block;width:100%;margin:0"></button>
+          <span class="cap" id="mv_in_s"></span>
+        </div>
+        <div class="action">
+          <button class="btn s" data-mv="out" id="mv_out" style="display:block;width:100%;margin:0"></button>
+          <span class="cap" id="mv_out_s"></span>
+        </div>
+      </div>
+      <span hidden id="tp_t"></span><span hidden id="ld_t"></span>
+      <p class="note" id="tp_r"></p>
+
+      <div class="auto">
+        <div class="tx"><b id="au_t"></b><span class="m" id="au_s"></span><button class="lnk" data-june="plan" id="au_l"></button></div>
+        <button class="sw" id="sw" role="switch" aria-checked="false" aria-label="auto"></button>
+      </div>
+      <span hidden id="au_h"></span>
+      <p class="btstrip" id="bt"></p>
+    </section>
+
+    <!-- tracks -->
+    <h2 id="h_trk"></h2>
+    <p class="say" id="s_trk"></p>
+    <div class="trks" id="trks"></div>
+  </div>
+
+  <div class="col">
+    <!-- risk report -->
+    <h2 id="h_st" class="firsth"></h2>
+    <p class="say" id="s_st" hidden></p>
+    <section class="blk" id="st_wrap">
+      <div class="stban" id="st_ban"><b id="st_head"></b><div id="st_txt"></div></div>
+      <div class="gauge" id="gauge"></div>
+      <div class="kpis">
+        <div class="kpi"><small id="e1l"></small><b id="e1"></b><span id="e1x"></span></div>
+        <div class="kpi"><small id="e2l"></small><b id="e2"></b><span id="e2x"></span></div>
+        <div class="kpi"><small id="e3l"></small><b id="e3"></b><span id="e3x"></span></div>
+      </div>
+      <details class="more"><summary id="more1"></summary>
+        <h4 id="imp_t"></h4>
+        <div id="imp"></div>
+        <div class="act" id="st_act"></div>
+        <p class="note" id="st_note"></p>
+      </details>
+    </section>
+
+    <!-- currency -->
+    <div id="fx_wrap">
+      <h2 id="h_fx"></h2>
+      <p class="say" id="s_fx" hidden></p>
+      <section class="blk">
+        <div class="fxtop"><div class="fxspot" id="fx_spot"></div><div id="fx_asof" class="m" style="font-size:13px"></div></div>
+        <div class="chips" id="fx_h" style="margin-top:12px"></div>
+        <div class="fxbar" id="fx_bar"></div>
+        <div class="fxlab"><span id="fx_lo"></span><span id="fx_hi"></span></div>
+        <div id="fx_txt" style="margin-top:12px;font-size:15px"></div>
+        <p class="note" id="fx_note"></p>
+      </section>
+    </div>
+
+    <button class="june" data-june="plan">
+      <span class="ic"></span>
+      <span><b id="j1"></b><small id="j2"></small></span><span>›</span>
+    </button>
+  </div>
+  </div>
+
+  <p class="fine" id="fine"></p>
+</div>
+
+<!-- first-time intro -->
+<div class="sheet" id="intro" hidden>
+  <div class="box intro" role="dialog" aria-modal="true">
+    <div class="hd"><b id="in_t"></b><button class="x" id="in_x" aria-label="close">✕</button></div>
+    <ol id="in_l"></ol>
+    <button class="btn p" id="in_ok" style="width:100%;margin-top:14px"></button>
+  </div>
+</div>
+
+<!-- top-up sheet -->
+<div class="sheet" id="sheet" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <div class="hd"><b id="sh_t"></b><button class="x" id="sh_x" aria-label="close">✕</button></div>
+    <div id="st_pick">
+      <label id="sh_l" style="margin-top:12px"></label>
+      <div class="money"><span>฿</span><input id="tamt" type="number" inputmode="numeric" min="5" max="100000" step="1" placeholder=""></div>
+            <button class="btn p" data-pm="card" id="go" style="width:100%;margin-top:14px"></button>
+      <p class="note" id="go_s"></p>
+      <p class="note" id="sh_note"></p>
+    </div>
+    <div id="st_done" hidden class="ctr">
+      <div class="okbig">✓</div>
+      <b style="font-size:22px" id="dn_t"></b>
+      <div class="m" id="dn_s"></div>
+      <button class="btn p" id="dn_inv" style="margin-top:14px;width:100%"></button>
+      <button class="btn s" id="dn_ok" style="margin-top:10px"></button>
+    </div>
+  </div>
+</div>
+<!-- move money: central cash <-> investment port -->
+<div class="sheet" id="mvsheet" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <div class="hd"><b id="mv_t"></b><button class="x" id="mv_x" aria-label="close">✕</button></div>
+    <p class="m" id="mv_info" style="margin:10px 0 0"></p>
+    <label id="mv_l"></label>
+    <div class="money"><span>฿</span><input id="mvamt" type="number" inputmode="numeric" min="1" step="1"></div>
+    <button class="btn p" id="mv_go" style="width:100%;margin-top:10px"></button>
+    <p id="mv_err" hidden style="color:var(--red);margin:12px 0 0;font-weight:600"></p>
+    <p id="mv_ok" hidden style="color:var(--green);margin:12px 0 0;font-weight:600"></p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="wallet.js"></script>
+<script src="lend-core.js"></script>
+<script src="data/mira-data.js"></script>
+<script src="mira-core.js"></script>
+<script>
+const {P,ST,FX,TRK,RK,store,trackValue,mixFor,stats}=MC;
+const WL=window.MiraWallet;
+const I18N={
+ th:{back:"← หน้าหลัก", title:"เงินของฉัน",
+  a_l:"สินทรัพย์ทั้งหมดของฉัน", p1l:"เงินกลาง (ยังไม่ทำงาน)", p2l:"พอร์ตลงทุน", p3l:"พอร์ตปล่อยกู้",
+  a1l:"ลงทุนไป", a2l:"กำไร", a3l:"การเติบโต",
+  wd:(x)=>`ถอนจากพอร์ตลงทุนกลับเงินกลางได้ทันที ฿${x} (ที่เหลือรอขายและรับเงินตามชนิดสินทรัพย์)`,
+  mv_in:"ลงทุน", mv_in_s:(c)=>`ย้ายจากเงินกลาง (มี ฿${c})`, mv_out:"ถอนกลับเงินกลาง", mv_out_s:(w)=>`ถอนได้ทันที ฿${w}`,
+  mv_t_in:"ย้ายเงินกลางไปลงทุน", mv_t_out:"ถอนกลับเงินกลาง", mv_l:"จำนวนเงิน (บาท)", mv_go:"ยืนยัน",
+  mv_i_in:(c)=>`เงินกลางที่ย้ายได้ ฿${c} · ย้ายแล้วเงินเริ่มทำงานในแทร็กทันที`,
+  mv_i_out:(w,i)=>`ถอนได้ทันที ฿${w} จากที่ลงทุนอยู่ ฿${i} · ถอนเข้าเงินกลางเท่านั้น ไม่ได้ถอนเข้าธนาคาร`,
+  e_amount:"ใส่จำนวนเงินก่อน", e_central:(m)=>`เงินกลางไม่พอ มีอยู่ ฿${m}`, e_exceeds:(m)=>`มากกว่าเงินที่ลงทุนอยู่ (฿${m})`,
+  e_wait:(c,d)=>`ถอนไม่สำเร็จ ขายสินทรัพย์ไม่ทัน ตอนนี้ถอนได้ ฿${c} ที่เหลือต้องรอ จะถอนเต็มได้ประมาณ ${d}`,
+  mv_d_in:(a)=>`ย้าย ฿${a} ไปลงทุนแล้ว`, mv_d_out:(a)=>`ถอน ฿${a} กลับเงินกลางแล้ว`, dn_inv:"ย้ายไปลงทุนเลย",
+  empty:"เริ่มต้นที่ ฿0 · เติมเงินเพื่อเริ่มลงทุน (จำลอง)",
+  bt:(v,d)=>`ผลย้อนหลัง (ไม่ใช่เงินของคุณ): ถ้าใส่ ฿10,000 ตามสัดส่วนนี้ตั้งแต่ ${d} จะเป็นประมาณ ฿${v}`,
+  tp_t:"เติมเงิน", more1:"ดูรายละเอียดความเสี่ยง", tp_s:"ใส่เงินครั้งเดียว ฿5 – ฿100,000", topup:"+ เติมเงิน",
+  l1l:"ปล่อยอยู่ (ล็อก)", l2l:"รอจับคู่", l3l:"ดอกเบี้ยสะสม",
+  ld_t:"ปล่อยเงิน", ld_s:"ให้คนอื่นยืม ได้ดอกเบี้ย ถอนส่วนที่รออยู่ได้", ld_on:(a)=>`ดอกเบี้ยสะสมตอนนี้ ฿${a} · ดูหรือถอนส่วนที่รออยู่ได้`, ld_b:"ปล่อยเงิน",
+  au_t:"ตัดเงินอัตโนมัติทุกเดือน", au_h:"เปิดไว้ เงินจะเข้าพอร์ตเองทุกเดือนตามจำนวนและวันที่ตั้งไว้ ปิดได้ทุกเมื่อ", tp_r:"ใส่เองได้ตั้งแต่ ฿5 ถึง ฿100,000 ต่อครั้ง (Stripe รับขั้นต่ำ ฿10)", below:"Stripe รับขั้นต่ำ ฿10 ต่อครั้ง ใส่ ฿10 ขึ้นไปนะ", au_on:(a,d,n)=>`เปิดอยู่ · ตัด ฿${a} ทุกวันที่ ${d} · ครั้งถัดไป ${n}`, au_off:"ปิดอยู่ · เงินจะไม่ถูกตัดเอง (เปิดหรือปิดได้เสมอ)",
+  au_l:"เปลี่ยนจำนวนหรือวันที่ กับ June AI", autodone:(a)=>`ตัดเงินอัตโนมัติ ฿${a} แล้ว (จำลอง)`,
+  h_trk:"เงินของคุณแบ่งเป็น 2 แทร็ก", s_trk:"แตะที่แทร็กเพื่อดูว่าถือหุ้นและกองทุนอะไรบ้าง",
+  trk:{low:"แทร็กเสี่ยงต่ำ",high:"แทร็กเสี่ยงสูง"},
+  trkd:{low:"เน้นของที่ขึ้นลงน้อย มีหุ้นส่วนน้อย",high:"มีหุ้นมากขึ้น กำไรอาจมากกว่า แต่ขึ้นลงแรงกว่า"},
+  tap:"ดูรายละเอียด", of:"ของเงินทั้งหมด", stockpart:(s)=>`หุ้น ${s}%`,
+  h_st:"รายงานความเสี่ยง ณ ตอนนี้", s_st:"สัญญาณง่ายๆ ว่าช่วงนี้ตลาดนิ่งหรือผันผวน",
+  gl:["นิ่ง","ระวังหน่อย","ผันผวนมาก"],
+  sh:["ตลาดนิ่ง สบายใจได้","ตลาดเริ่มแกว่ง ระวังหน่อย","ตลาดแกว่งแรง ควรระวัง"],
+  gt:[(r,d)=>`ตลาดช่วงนี้ขึ้นลงน้อยกว่าปกติ (${r}% ของระดับปกติ) ต่ำกว่าจุดสูงสุดล่าสุด ${d}%`,(r,d)=>`ตลาดเริ่มขึ้นลงแรงขึ้น (${r}% ของระดับปกติ) ต่ำกว่าจุดสูงสุดล่าสุด ${d}%`,(r,d)=>`ตลาดขึ้นลงแรง (${r}% ของระดับปกติ) ต่ำกว่าจุดสูงสุดล่าสุด ${d}% โมเดลจึงลดส่วนที่เสี่ยง`],
+  e1l:"ขึ้นลงเทียบปกติ", e2l:"ต่ำกว่าจุดสูงสุด", e3l:"เดือนแย่ (1 ใน 20)",
+  e1x:"100% = ปกติ", e2x:"ห่างจากจุดสูงสุดล่าสุด", e3x:"หุ้นอาจลดเท่านี้ ใน 1 เดือนที่แย่",
+  imp_t:"ถ้าเจอเดือนที่แย่ (ราว 1 ใน 20 เดือน) เงินของคุณอาจลดประมาณ",
+  act:(a,b,l)=>l===0?`โมเดลถือหุ้นเต็มตามแผน (แทร็กต่ำ ${a}% แทร็กสูง ${b}%) ไม่ต้องทำอะไร`:`โมเดลลดส่วนหุ้นแล้ว เหลือแทร็กต่ำ ${a}% แทร็กสูง ${b}% ถ้าอยากเปลี่ยนแผน คุยกับ June AI`,
+  st_note:(d)=>`ข้อมูล ณ ${d} นี่คือการวัดว่าตลาด "ขึ้นลงแรงแค่ไหนตอนนี้" ไม่ใช่การพยากรณ์ว่าตลาดจะตก`,
+  h_fx:"อัตราแลกเปลี่ยนเงินบาท (Currency Rate)", s_fx:"ถ้าคิดจะแลกเงินดอลลาร์ ลองดูช่วงที่ค่าเงินมักอยู่ ไม่ใช่การทายทิศทาง",
+  fxspot:(v)=>`1 ดอลลาร์ = ฿${v}`, fxasof:(d)=>`ราคาล่าสุด ณ ${d}`, fxh:(d)=>`${d} วัน`, fxnow:"ตอนนี้",
+  fxr:(lo,hi,p)=>`ในช่วงเวลานี้ ค่าเงินมีโอกาสราว ${p} ใน 100 ที่จะอยู่ระหว่าง ฿${lo}–฿${hi}`,
+  fxl:{o:"ช่วงกว้าง 95%",n:"ช่วง 50%"},
+  fxex:(a,b,lo,hi)=>`ตัวอย่าง: ฿${a} วันนี้แลกได้ประมาณ $${b} ถ้าค่าเงินอยู่ในช่วง 80% จะได้ประมาณ $${lo}–$${hi}`,
+  fxbe:(b)=>`ฝากเงินดอลลาร์ (FCD) ให้ไม่ขาดทุน ค่าเงินต้องไม่ต่ำกว่า ฿${b} ตอนแลกกลับ (ตัวอย่าง: ดอกเบี้ย 1% ต่อปี ค่าธรรมเนียมซื้อขาย 0.3% ให้ใส่ตัวเลขธนาคารของคุณเอง)`,
+  fxnar:"ในอดีตช่วงนี้แคบไปเล็กน้อย ควรเผื่อเพิ่มเอง",
+  fx_note:"เป็นช่วงที่เป็นไปได้ ไม่ใช่การทายทิศทาง ไม่ใช่คำแนะนำการลงทุน",
+  j1:"คุยกับ June AI เพื่อปรับแผน", j2:"หน้านี้ดูอย่างเดียว การเปลี่ยนจำนวน วัน หรือสัดส่วนทำผ่าน June",
+  in_t:"ยินดีต้อนรับสู่เงินของคุณ", in_ok:"เริ่มเลย",
+  in_l:["เงินของคุณมี 3 ที่: เงินกลาง (พักไว้ ไม่ทำงาน) พอร์ตลงทุน และพอร์ตปล่อยกู้","เติมเงินเข้าเงินกลางก่อน แล้วกด “ลงทุน” เมื่อพร้อมให้เงินทำงาน","แตะแทร็กเพื่อดูว่าถืออะไรบ้าง ถอนกลับเงินกลางได้เมื่อขายสินทรัพย์เสร็จ","ล่างสุดคือรายงานความเสี่ยงและค่าเงินบาท ไว้ดูก่อนตัดสินใจ"],
+  sh_t:"เติมเงิน", sh_l:"จำนวนเงินที่เติม (บาท) · ใส่เอง ฿5 – ฿100,000", ph:"ใส่จำนวนเงิน", sh_pm:"เลือกวิธีเติมเงิน",
+  go:"ไปชำระเงินที่ Stripe", go_s:"เลือกจ่ายด้วยบัตร PromptPay หรือวิธีอื่นได้ที่หน้าชำระเงินของ Stripe (โหมดทดลอง ไม่ตัดเงินจริง)",
+  sh_note:"พอร์ตนี้เป็นพอร์ตจำลอง เงินที่เติมเป็นตัวเลขทดลอง ไม่ได้นำไปลงทุนจริง",
+  badamt:"ใส่จำนวนตั้งแต่ ฿5 ถึง ฿100,000",
+  pp_amt:(a)=>`สแกน QR นี้เพื่อเติม ฿${a} (ตัวอย่าง)`, copy:"คัดลอก", open:"เปิดลิงก์", copied:"คัดลอกลิงก์แล้ว",
+  pp_wait:"กำลังรอการชำระเงิน…", pp_note:"เมื่อสแกนหรือเปิดลิงก์ จะมีขั้นตอนยืนยัน แล้วขึ้นว่าเสร็จสมบูรณ์ เงินจะเข้าบัญชีจำลองอัตโนมัติ",
+  pp_local:"ตอนนี้เปิดจากเครื่องนี้ (localhost) มือถือสแกนไม่ได้ ใช้ลิงก์ในเครื่องเดียวกัน หรือเปิดเว็บที่ deploy แล้ว",
+  back:"← เปลี่ยนวิธี", dn_t:"เสร็จสมบูรณ์", dn_s:(a)=>`เติม ฿${a} เข้าเงินกลางแล้ว · ยังไม่ได้ลงทุน`, ok:"ตกลง", added:(a)=>`เติมเงิน ฿${a} แล้ว (จำลอง)`,
+  fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต พอร์ตนี้เป็นพอร์ตจำลอง ไม่ใช่เงินจริง"},
+ en:{back:"← Home", title:"My money",
+  a_l:"All my assets", p1l:"Central cash (idle)", p2l:"Investment port", p3l:"Lending port",
+  a1l:"Invested", a2l:"Profit", a3l:"Growth",
+  wd:(x)=>`You can bring ฿${x} back to central cash right now (the rest waits for assets to sell and settle).`,
+  mv_in:"Invest", mv_in_s:(c)=>`Move from central cash (have ฿${c})`, mv_out:"Back to central cash", mv_out_s:(w)=>`Available now ฿${w}`,
+  mv_t_in:"Move central cash to invest", mv_t_out:"Bring back to central cash", mv_l:"Amount (THB)", mv_go:"Confirm",
+  mv_i_in:(c)=>`Central cash you can move: ฿${c} · it starts working in the tracks right away`,
+  mv_i_out:(w,i)=>`Available now ฿${w} of ฿${i} invested · goes to central cash only, not to a bank`,
+  e_amount:"Enter an amount first", e_central:(m)=>`Not enough central cash. You have ฿${m}`, e_exceeds:(m)=>`More than you have invested (฿${m})`,
+  e_wait:(c,d)=>`Could not withdraw: assets are not sold yet. You can take ฿${c} now; the rest has to wait, full amount around ${d}`,
+  mv_d_in:(a)=>`Moved ฿${a} into investing`, mv_d_out:(a)=>`Brought ฿${a} back to central cash`, dn_inv:"Invest it now",
+  empty:"Starting at ฿0 · add money to begin (paper)",
+  bt:(v,d)=>`Backtest (not your money): ฿10,000 split like this since ${d} would be about ฿${v}`,
+  tp_t:"Add money", more1:"Risk details", tp_s:"One-off, ฿5 – ฿100,000", topup:"+ Add money",
+  l1l:"Lent out (locked)", l2l:"Waiting", l3l:"Interest so far",
+  ld_t:"Lend money", ld_s:"Let others borrow, earn interest, pull back what waits", ld_on:(a)=>`Interest so far ฿${a} · view or pull back the waiting part`, ld_b:"Lend money",
+  au_t:"Monthly auto-debit", au_h:"When on, money goes into the portfolio by itself each month with the amount and day set. Turn off any time.", tp_r:"Enter any amount from ฿5 to ฿100,000 per top-up (Stripe accepts ฿10 minimum)", below:"Stripe accepts ฿10 minimum per payment. Please enter ฿10 or more.", au_on:(a,d,n)=>`On · ฿${a} on day ${d} · next ${n}`, au_off:"Off · no money is taken on its own (switch it on or off any time)",
+  au_l:"Change amount or day with June AI", autodone:(a)=>`Auto-debit ฿${a} done (simulated)`,
+  h_trk:"Your money in 2 tracks", s_trk:"Tap a track to see which stocks and funds it holds.",
+  trk:{low:"Low-Risk Track",high:"High-Risk Track"},
+  trkd:{low:"Mostly things that move less. A small share of stocks.",high:"More stocks. Could grow more, but moves a lot more."},
+  tap:"See details", of:"of your money", stockpart:(s)=>`${s}% stocks`,
+  h_st:"Risk report right now", s_st:"A simple signal: is the market calm or jumpy lately?",
+  gl:["Calm","Watch","Careful"],
+  sh:["Market is calm. Relax.","Market is getting jumpy. Take care.","Market is very jumpy. Be careful."],
+  gt:[(r,d)=>`The market is moving less than usual (${r}% of normal). It is ${d}% below its recent high.`,(r,d)=>`The market is getting bumpier (${r}% of normal). It is ${d}% below its recent high.`,(r,d)=>`The market is very bumpy (${r}% of normal). It is ${d}% below its recent high, so the model holds less risk.`],
+  e1l:"Bumpiness vs normal", e2l:"Below recent high", e3l:"Bad month (1 in 20)",
+  e1x:"100% = normal", e2x:"below its recent high", e3x:"stocks could drop this much in one bad month",
+  imp_t:"In a bad month (about 1 in 20), your money could fall by about",
+  act:(a,b,l)=>l===0?`The model holds stocks in full (Low track ${a}%, High track ${b}%). Nothing to do.`:`The model cut stocks to Low track ${a}%, High track ${b}%. To change the plan, talk to June AI.`,
+  st_note:(d)=>`Data as of ${d}. This measures how bumpy the market is now. It is not a crash forecast.`,
+  h_fx:"Currency rate (Thai baht)", s_fx:"If you plan to swap into US dollars, see where the rate tends to stay. It is not a call on direction.",
+  fxspot:(v)=>`1 US dollar = ฿${v}`, fxasof:(d)=>`Latest rate as of ${d}`, fxh:(d)=>`${d} days`, fxnow:"Now",
+  fxr:(lo,hi,p)=>`Over this period the rate has about ${p} in 100 chance to stay between ฿${lo} and ฿${hi}.`,
+  fxl:{o:"Wide 95% range",n:"50% range"},
+  fxex:(a,b,lo,hi)=>`Example: ฿${a} buys about $${b} today. If the rate stays in the 80% range you would get about $${lo}–$${hi}.`,
+  fxbe:(b)=>`To not lose on a US dollar deposit (FCD), the rate must not fall below ฿${b} when you swap back (example: 1% yearly interest, 0.3% buy/sell fee; use your own bank numbers).`,
+  fxnar:"In past tests this range was a little too narrow, so add your own margin.",
+  fx_note:"These are ranges, not a call on direction, and not investment advice.",
+  j1:"Talk to June AI to adjust the plan", j2:"This page is view-only. Amount, day and split changes go through June.",
+  in_t:"Welcome to your money", in_ok:"Let's go",
+  in_l:["Your money lives in 3 places: central cash (idle), the investment port and the lending port.","Add money to central cash first, then press “Invest” when you want it to work.","Tap a track to see what it holds. Bring money back to central cash once assets have sold and settled.","At the bottom: the risk report and the baht rate, to check before you decide."],
+  sh_t:"Add money", sh_l:"Amount to add (THB) · enter ฿5 – ฿100,000", ph:"Enter amount", sh_pm:"Choose how to pay",
+  go:"Continue to Stripe", go_s:"Pick card, PromptPay or other methods on the Stripe payment page (test mode, no real money).",
+  sh_note:"This is a paper portfolio. Money added here is a test number and is not invested for real.",
+  badamt:"Enter an amount from ฿5 to ฿100,000",
+  pp_amt:(a)=>`Scan this QR to add ฿${a} (demo)`, copy:"Copy", open:"Open link", copied:"Link copied",
+  pp_wait:"Waiting for payment…", pp_note:"When you scan or open the link there is a short confirm process, then it says Complete and the money lands in your paper account.",
+  pp_local:"You are on this computer (localhost), so a phone cannot scan it. Open the link on this device, or use the deployed site.",
+  back:"← Change method", dn_t:"Complete", dn_s:(a)=>`฿${a} was added to central cash · not invested yet`, ok:"OK", added:(a)=>`Added ฿${a} (simulated)`,
+  fine:"Research only, not investment advice. Past results do not guarantee the future. This is a paper portfolio, not real money."}
+};
+let lang=store.get("mira_lang","th"), amt=+store.get("mira_monthly",0)||0, day=+store.get("mira_day",5)||5, auto=store.get("mira_autocut","0")==="1";
+const rk=store.get("mira_risk"), sp=store.get("mira_split");
+let split=sp!==null&&!isNaN(+sp)?+sp:({low:10,mid:30,high:60}[rk]||30);
+const $=id=>document.getElementById(id), fmt=n=>Math.round(n).toLocaleString("en-US");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const save=(k,v)=>store.set(k,v);
+const riskOf=s=>s<=15?"low":s<=50?"mid":"high";   // keep shared mira_risk (low|mid|high) in step with the split
+save("mira_risk",riskOf(split));
+const frac=t=>t==="high"?split/100:1-split/100;
+function nextDate(){ const t=new Date(), d=new Date(t.getFullYear(),t.getMonth(),day); if(d<=t) d.setMonth(d.getMonth()+1);
+  return d.toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"long",year:"numeric"}); }
+
+function render(){
+  const T=I18N[lang]; document.documentElement.lang=lang; document.title="Mira — "+T.title;
+  $("lang").textContent=lang==="th"?"EN":"ไทย"; $("back").textContent=T.back; $("title").textContent=T.title;
+  const D={}; let inv=0, put=0;
+  for(const t of TRK){ D[t]=trackValue(t,frac(t)); inv+=D[t].value; put+=D[t].put; }
+  const cashC=MC.central(), L=MC.lend(), value=cashC+inv+L.total;   // three places, each counted once
+  const g=inv-put, gr=put?g/put*100:0, canNow=WL?Math.min(WL.withdrawable(),put):0;
+  $("a_l").textContent=T.a_l; $("vault").textContent="฿"+fmt(value);
+  $("p1l").textContent=T.p1l; $("p1").textContent="฿"+fmt(cashC);
+  $("p2l").textContent=T.p2l; $("p2").textContent="฿"+fmt(inv);
+  $("p3l").textContent=T.p3l; $("p3").textContent="฿"+fmt(L.total);
+  $("a1l").textContent=T.a1l; $("a1").textContent="฿"+fmt(put);
+  $("a2l").textContent=T.a2l; $("a2").textContent=(g>=0?"+":"-")+"฿"+fmt(Math.abs(g)); $("a2").className=g>0.5?"up":g<-0.5?"down":"";
+  $("a3l").textContent=T.a3l; $("a3").textContent=(gr>=0?"+":"-")+Math.abs(gr).toFixed(1)+"%"; $("a3").className=gr>0.05?"up":gr<-0.05?"down":"";
+  $("wd").textContent=put>0?T.wd(fmt(canNow)):"";
+  $("mv_in").textContent=T.mv_in; $("mv_in_s").textContent=T.mv_in_s(fmt(cashC));
+  $("mv_out").textContent=T.mv_out; $("mv_out_s").textContent=T.mv_out_s(fmt(canNow));
+  $("empty").hidden=value>0; $("empty").textContent=T.empty;
+  $("lrow").hidden=!L.on; $("l1l").textContent=T.l1l; $("l1").textContent="฿"+fmt(L.locked);
+  $("l2l").textContent=T.l2l; $("l2").textContent="฿"+fmt(L.waiting); $("l3l").textContent=T.l3l; $("l3").textContent="฿"+fmt(L.accrued);
+  $("ld_t").textContent=T.ld_t; $("ld_s").textContent=L.on?T.ld_on(fmt(L.accrued)):T.ld_s; $("ld_b").textContent=T.ld_b;
+  const btv=TRK.reduce((a,t)=>a+frac(t)*D[t].bt,0)*10000; $("bt").textContent=T.bt(fmt(btv),P.curve[0][0]);
+  $("tp_t").textContent=T.tp_t; $("more1").textContent=T.more1; $("tp_s").textContent=T.tp_s; $("tp_r").textContent=T.tp_r; $("au_h").textContent=T.au_h; $("topup1").textContent=T.topup;
+  $("au_t").textContent=T.au_t; $("sw").setAttribute("aria-checked",String(auto));
+  $("au_s").textContent=auto&&amt>0?T.au_on(fmt(amt),day,nextDate()):T.au_off; $("au_l").textContent=T.au_l; $("au_l").hidden=!(auto&&amt>0);
+  // 2. tracks
+  $("h_trk").textContent=T.h_trk; $("s_trk").textContent=T.s_trk;
+  $("trks").innerHTML=TRK.map(t=>{ const d=D[t], gt=d.value-d.put, st=Math.round(mixFor(t).stocks||0);
+    return `<a class="trk ${t}" href="track.html?t=${t}"><span class="go">${T.tap} ›</span>
+      <span class="tt">${T.trk[t]}</span><span class="tv">฿${fmt(d.value)}</span>
+      <small>${Math.round(frac(t)*100)}% ${T.of} • ${T.stockpart(st)}${d.put?` • <span class="${gt>=0?"up":"down"}">${gt>=0?"+":"-"}฿${fmt(Math.abs(gt))}</span>`:""}</small>
+      <small>${T.trkd[t]}</small></a>`; }).join("");
+  // 3. report
+  $("j1").textContent=T.j1; $("j2").textContent=T.j2; $("fine").textContent=T.fine;
+  stress(T,D); fxcard(T); sheetText(T); introText(T);
+}
+function stress(T,D){
+  const has=ST&&typeof ST.stress==="number"; $("st_wrap").hidden=!has; $("h_st").hidden=!has; $("s_st").hidden=!has; if(!has) return;
+  $("h_st").textContent=T.h_st; $("s_st").textContent=T.s_st;
+  const lv=Math.min(2,ST.stress), r=Math.round((ST.vol_ratio||0)*100), d=Math.abs(ST.drawdown_pct||0).toFixed(1);
+  $("gauge").innerHTML=[0,1,2].map(i=>`<div class="g${i} ${i===lv?"on":""}">${T.gl[i]}</div>`).join("");
+  $("st_ban").className="stban s"+lv; $("st_head").textContent=T.sh[lv]; $("st_txt").textContent=T.gt[lv](r,d);
+  const wm=typeof ST.worst_month_95_pct==="number"?ST.worst_month_95_pct:null;
+  $("e1l").textContent=T.e1l; $("e1").textContent=r+"%"; $("e1x").textContent=T.e1x;
+  $("e2l").textContent=T.e2l; $("e2").textContent=d+"%"; $("e2x").textContent=T.e2x;
+  $("e3l").textContent=T.e3l; $("e3").textContent=wm===null?"-":wm+"%"; $("e3x").textContent=T.e3x;
+  $("imp_t").textContent=T.imp_t;
+  $("imp").innerHTML=wm===null?"":TRK.map(t=>{ const v=D[t].value, loss=v*(mixFor(t).stocks||0)/100*wm/100;
+    return `<div class="imp"><span>${esc(T.trk[t])} · ฿${fmt(v)}</span><b class="down">-฿${fmt(loss)}</b></div>`; }).join("");
+  const sh=ST.stock_share_by_base; $("st_act").textContent=sh?T.act(Math.round(sh["20"]*100),Math.round(sh["60"]*100),lv):"";
+  $("st_note").textContent=T.st_note(ST.as_of||"");
+}
+let fxH="30";
+function fxcard(T){
+  const has=FX&&FX.horizons&&FX.horizons[fxH]; $("fx_wrap").hidden=!has; if(!has) return;
+  const h=FX.horizons[fxH], R=h.ranges, r95=R["95"], r80=R["80"], r50=R["50"];
+  $("h_fx").textContent=T.h_fx; $("s_fx").textContent=T.s_fx;
+  $("fx_spot").textContent=T.fxspot(FX.spot.toFixed(2)); $("fx_asof").textContent=T.fxasof(FX.as_of||"");
+  $("fx_h").innerHTML=["7","30","90"].map(d=>`<button class="chip ${d===fxH?"on":""}" data-h="${d}">${T.fxh(d)}</button>`).join("");
+  const lo=r95.rate_low, hi=r95.rate_high, pos=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+  $("fx_bar").innerHTML=`<i class="o" style="left:${pos(r80.rate_low).toFixed(1)}%;width:${(pos(r80.rate_high)-pos(r80.rate_low)).toFixed(1)}%"></i><i class="n" style="left:${pos(r50.rate_low).toFixed(1)}%;width:${(pos(r50.rate_high)-pos(r50.rate_low)).toFixed(1)}%"></i><u style="left:${pos(FX.spot).toFixed(1)}%"></u><em class="now" style="left:${pos(FX.spot).toFixed(1)}%">${T.fxnow} ฿${FX.spot.toFixed(2)}</em>`;
+  $("fx_lo").textContent="฿"+lo.toFixed(2); $("fx_hi").textContent="฿"+hi.toFixed(2);
+  let t=`<div>${T.fxr(r80.rate_low.toFixed(2),r80.rate_high.toFixed(2),80)}</div><div class="m" style="font-size:13.5px;margin-top:4px">${T.fxl.n}: ฿${r50.rate_low.toFixed(2)}–฿${r50.rate_high.toFixed(2)} · ${T.fxl.o}: ฿${lo.toFixed(2)}–฿${hi.toFixed(2)}</div>`;
+  t+=`<div class="act">${T.fxex(fmt(10000),(10000/FX.spot).toFixed(0),(10000/r80.rate_high).toFixed(0),(10000/r80.rate_low).toFixed(0))}</div>`;
+  if(/narrow/.test(h.calibration||"")) t+=`<div class="note">${T.fxnar}</div>`;
+  if(h.breakeven_rate) t+=`<div class="note">${T.fxbe(h.breakeven_rate.toFixed(2))}</div>`;
+  $("fx_txt").innerHTML=t; $("fx_note").textContent=T.fx_note;
+}
+
+/* ---- first-time intro ---- */
+function introText(T){ $("in_t").textContent=T.in_t; $("in_ok").textContent=T.in_ok; $("in_l").innerHTML=T.in_l.map((s,i)=>`<li><span class="n">${i+1}</span><span>${esc(s)}</span></li>`).join(""); }
+function closeIntro(){ $("intro").hidden=true; save("mira_intro_seen","1"); }
+
+/* ---- top-up sheet: PromptPay demo (QR + link) or Stripe page (card / PayPal / more) ---- */
+let tamt=0, pay=null, timer=null;
+const newId=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const paidIds=()=>{try{return JSON.parse(store.get("mira_paid_ids","[]"))}catch(e){return []}};
+function step(s){ ["pick","done"].forEach(x=>$("st_"+x).hidden=x!==s); }
+function sheetText(T){
+  $("sh_t").textContent=T.sh_t; $("sh_l").textContent=T.sh_l;
+  $("go").textContent=T.go; $("go_s").textContent=T.go_s; $("sh_note").textContent=T.sh_note;
+  $("tamt").placeholder=T.ph;
+  $("dn_ok").textContent=T.ok; $("dn_t").textContent=T.dn_t; $("dn_inv").textContent=T.dn_inv;
+}
+function openSheet(){ tamt=0; $("tamt").value=""; $("sheet").hidden=false; step("pick"); sheetText(I18N[lang]); }
+function closeSheet(){ $("sheet").hidden=true; clearInterval(timer); timer=null; pay=null; }
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
+function applyPaid(id,a){
+  a=Math.round(+a); if(!id||!(a>=1&&a<=100000)) return;
+  const ids=paidIds(); if(ids.includes(id)) return; ids.push(id); save("mira_paid_ids",JSON.stringify(ids.slice(-50)));
+  MC.addCentral(a);
+  try{localStorage.removeItem("mira_pay_"+id)}catch(e){}
+  const mine=pay&&pay.id===id; clearInterval(timer); timer=null; render();
+  if(mine){ $("dn_s").textContent=I18N[lang].dn_s(fmt(a)); step("done"); } else toast(I18N[lang].added(fmt(a)));
+}
+function chooseMethod(m){
+  const a=Math.round(+$("tamt").value||0);
+  if(!(a>=5&&a<=100000)){ toast(I18N[lang].badamt); return; }
+  tamt=a; pay={id:newId(),amt:a,method:m};
+  {
+    // real Stripe Checkout page when STRIPE_SECRET_KEY is set on the server; otherwise a clearly labelled demo screen
+    fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:pay.id,amt:a})})
+      .then(r=>r.json()).then(j=>{
+        if(j.error==="below_stripe_min"){ toast(I18N[lang].below); return; }
+        // Stripe Checkout cannot run inside an iframe (the dashboard embeds this page), so leave the frame
+        if(j.url){ try{ window.top.location.href=j.url; }catch(e){ window.open(j.url,"_blank"); } }
+        else if(j.demo) location.href="/pay.html?id="+pay.id+"&amt="+a+"&m=card"; })
+      .catch(()=>{ location.href="/pay.html?id="+pay.id+"&amt="+a+"&m=card"; });
+  }
+}
+// money paid on pay.html in this browser (same device) lands here
+function scanLocal(){ try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith("mira_pay_")) applyPaid(k.slice(9),localStorage.getItem(k)); } }catch(e){} }
+window.addEventListener("storage",e=>{ if(e.key&&e.key.startsWith("mira_pay_")&&e.newValue) applyPaid(e.key.slice(9),e.newValue); });
+
+// monthly auto-debit: only when the user switched it on; one charge per month on/after the charge day, recorded as a deposit
+function autoCut(){
+  try{
+    if(!auto||!(amt>0)) return;
+    const t=new Date(), cur=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0");
+    let last=store.get("mira_autocut_last",null);
+    if(!last){ const p=new Date(t.getFullYear(),t.getMonth()-1,1); last=t.getDate()>=day?cur:p.getFullYear()+"-"+String(p.getMonth()+1).padStart(2,"0"); save("mira_autocut_last",last); }
+    if(last!==cur&&t.getDate()>=day){ save("mira_autocut_last",cur); MC.addCentral(amt); if(WL) WL.toInvest(amt); render(); toast(I18N[lang].autodone(fmt(amt))); }
+  }catch(e){}
+}
+
+/* ---- move money: central cash <-> investment port (wallet.js does the work and the settlement check) ---- */
+let mvMode="in";
+const lotsSum=()=>MC.lots().reduce((a,x)=>a+x.a,0);
+function mvInfo(){ const T=I18N[lang], put=lotsSum(), can=WL?Math.min(WL.withdrawable(),put):0;
+  $("mv_info").textContent=mvMode==="in"?T.mv_i_in(fmt(MC.central())):T.mv_i_out(fmt(can),fmt(put)); }
+function openMove(mode){
+  mvMode=mode; const T=I18N[lang];
+  $("mv_t").textContent=mode==="in"?T.mv_t_in:T.mv_t_out; $("mv_l").textContent=T.mv_l; $("mv_go").textContent=T.mv_go;
+  mvInfo(); $("mvamt").value=""; $("mv_err").hidden=true; $("mv_ok").hidden=true; $("mvsheet").hidden=false;
+}
+function doMove(){
+  const T=I18N[lang], a=Math.round(+$("mvamt").value||0); $("mv_err").hidden=true; $("mv_ok").hidden=true;
+  if(!WL) return;
+  const r=mvMode==="in"?WL.toInvest(a):WL.fromInvest(a);
+  if(r.ok){ $("mv_ok").textContent=(mvMode==="in"?T.mv_d_in:T.mv_d_out)(fmt(r.amount)); $("mv_ok").hidden=false; $("mvamt").value=""; render(); mvInfo(); return; }
+  let m=T.e_amount;
+  if(r.error==="central") m=T.e_central(fmt(r.max||0));
+  else if(r.error==="exceeds") m=T.e_exceeds(fmt(r.max||0));
+  else if(r.error==="wait") m=T.e_wait(fmt(r.canNow||0), r.fullAt?new Date(r.fullAt).toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"long",year:"numeric"}):"-");
+  $("mv_err").textContent=m; $("mv_err").hidden=false;
+}
+document.addEventListener("click",e=>{
+  const mv=e.target.closest("[data-mv]"); if(mv){ openMove(mv.dataset.mv); return; }
+  if(e.target===$("mvsheet")||e.target.closest("#mv_x")){ $("mvsheet").hidden=true; return; }
+  if(e.target.closest("#mv_go")){ doMove(); return; }
+  if(e.target.closest("#dn_inv")){ closeSheet(); openMove("in"); return; }
+  const h=e.target.closest("[data-h]"); if(h){ fxH=h.dataset.h; render(); return; }
+  if(e.target.closest("[data-topup]")){ openSheet(); return; }
+  const pm=e.target.closest("[data-pm]"); if(pm){ chooseMethod(pm.dataset.pm); return; }
+  const j=e.target.closest("[data-june]"); if(j){ location.href="june.html?topic=plan"; return; }
+  if(e.target===$("sheet")||e.target.closest("#sh_x")||e.target.closest("#dn_ok")){ closeSheet(); return; }
+  if(e.target===$("intro")||e.target.closest("#in_x")||e.target.closest("#in_ok")){ closeIntro(); return; }
+});
+$("sw").onclick=()=>{
+  auto=!auto; save("mira_autocut",auto?"1":"0");
+  if(auto){ if(!(amt>0)){ amt=1000; save("mira_monthly",amt); save("mira_day",day); }
+    try{localStorage.removeItem("mira_autocut_last")}catch(e){} }
+  render(); autoCut();
+};
+$("help").onclick=()=>{ $("intro").hidden=false; };
+$("lang").onclick=()=>{ lang=lang==="th"?"en":"th"; save("mira_lang",lang); render(); };
+render(); scanLocal(); autoCut();
+if(store.get("mira_intro_seen","0")!=="1") $("intro").hidden=false;
+</script>
+</body>
+</html>

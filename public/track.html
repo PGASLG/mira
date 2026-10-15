@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — แทร็ก</title>
+<script src="loader.js"></script>
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.65;overflow-x:hidden}
+.page{max-width:680px;margin:0 auto;padding:0 20px 64px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--ink)}
+nav .logo{height:30px;width:auto;display:block}
+.nav-r{display:flex;gap:6px;align-items:center}
+.pill{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.2;margin:24px 0 8px;font-weight:600}
+h2{font-size:21px;line-height:1.3;margin:40px 0 4px;padding-top:18px;border-top:1px solid var(--ink);font-weight:600}
+h3{margin:0 0 4px;font-size:18px}
+h4{margin:20px 0 6px;font-size:15px}
+.say{color:var(--mute);font-size:14.5px;margin:0 0 12px}
+.blk{padding:12px 0 4px}
+.up{color:var(--green)}.down{color:var(--red)}
+.note{font-size:12.5px;color:var(--mute);margin:8px 0 0}
+.m{color:var(--mute);font-size:14px}
+.lbl{font-size:12.5px;font-weight:600;color:var(--mute);letter-spacing:.04em}
+.cell,.kpi{padding:10px 12px;border:0;border-left:2px solid var(--ink);border-radius:0;background:transparent;text-align:left}
+.cell small,.kpi small{display:block;font-size:12.5px;color:var(--mute);font-weight:500}
+.cell b,.kpi b{font-size:22px;line-height:1.3}
+.row3,.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.btn{border:1px solid var(--blue);border-radius:6px;padding:11px 20px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:inline-block;white-space:nowrap}
+.btn.p{background:var(--blue);color:#fff}
+.btn.s{background:transparent;color:var(--ink);border-color:var(--ink);display:block;width:100%;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.act{margin-top:12px;padding:12px 14px;border-radius:6px;border:0;border-left:3px solid var(--yellow);background:var(--sky);font-size:14.5px}
+.june{display:flex;align-items:center;gap:14px;margin-top:20px;background:var(--blue);color:#fff;border:1px solid var(--blue);border-radius:6px;padding:14px 16px;width:100%;font:inherit;text-align:left;cursor:pointer}
+.june .ic{display:none}
+.june>span:nth-child(2){flex:1}
+.june b{display:block;font-size:17px}
+.june small{display:block;opacity:.9;font-size:13.5px}
+.fine{margin-top:32px;padding:12px 0 0;border-top:1px solid var(--line);color:var(--mute);font-size:12.5px;background:transparent;border-radius:0}
+.btstrip{margin:12px 0 0;padding:8px 0;border-top:1px dashed var(--line);font-size:12.5px;color:var(--mute)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+@media (min-width:700px){.page{max-width:720px}}
+
+.big{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:48px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums lining-nums}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.dn{display:grid;gap:16px;justify-items:center}
+.donut{width:200px;height:200px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.donut .mid small{font-size:12px;color:var(--mute)}
+.donut .mid b{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:22px}
+.leg{width:100%;display:grid;gap:0}
+.leg button{display:grid;grid-template-columns:14px 1fr auto auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;padding:9px 4px;border-radius:0;cursor:pointer}
+.leg button.on{background:var(--sky)}
+.leg i{width:12px;height:12px;border-radius:2px;display:block}
+.leg .p{color:var(--mute);font-size:13.5px}
+.leg .a{font-weight:600;font-variant-numeric:tabular-nums}
+.what{margin:10px 0 0;padding:12px 14px;border-radius:6px;background:var(--sky);border-left:3px solid var(--yellow);font-size:14.5px;width:100%}
+.hr{display:grid;grid-template-columns:1fr 60px 92px;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px;align-items:start}
+.hr.hh{border-top:0;color:var(--mute);font-size:12.5px;font-weight:600}
+.hr span:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
+.hr i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+.facts{display:grid;gap:12px;margin-top:6px;width:100%}
+.fact{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.fact .e{flex:none;width:28px;height:28px;border-radius:4px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;font-size:14px}
+.fact b{display:block}
+@media (min-width:1000px){.donut{width:220px;height:220px}}
+.page .cell,.page .kpi{border-radius:0 !important;border:0 !important;border-left:2px solid var(--ink) !important;background:transparent !important}
+.page .act,.page .what{border-radius:6px !important;border:0 !important;border-left:3px solid var(--yellow) !important;background:var(--sky) !important}
+.page i{border-radius:2px !important}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="nav-r"><a class="pill" href="investment.html" id="back"></a><button class="pill" id="lang">EN</button></div>
+  </nav>
+
+  <h1 id="title"></h1>
+  <p class="say" id="sub"></p>
+
+  <section class="blk">
+    <div class="m" id="v_l"></div>
+    <div class="big" id="v"></div>
+    <div id="v_p" style="font-weight:700"></div>
+    <div class="row">
+      <div class="cell"><small id="c1l"></small><b id="c1"></b></div>
+      <div class="cell"><small id="c2l"></small><b id="c2"></b></div>
+      <div class="cell"><small id="c3l"></small><b id="c3"></b></div>
+    </div>
+  </section>
+
+  <p class="btstrip" id="bt"></p>
+
+  <h2 id="h_h"></h2>
+  <p class="say" id="s_h"></p>
+  <section class="blk">
+    <div id="hold"></div>
+    <div class="what" id="spxn" style="margin-top:12px"><span id="spx"></span></div>
+    <p class="note" id="how"></p>
+  </section>
+
+  <h2 id="h_in"></h2>
+  <p class="say" id="s_in"></p>
+  <section class="blk dn">
+    <div class="donut"><svg viewBox="0 0 42 42" id="donut"></svg><div class="mid"><small id="dn_l"></small><b id="dn_v"></b></div></div>
+    <div class="leg" id="leg"></div>
+    <div class="what" id="what" hidden></div>
+  </section>
+
+  <h2 id="h_f"></h2>
+  <section class="blk">
+    <div class="facts">
+      <div class="fact"><span class="e">1</span><span id="k1"></span></div>
+      <div class="fact"><span class="e">2</span><span id="k2"></span></div>
+      <div class="fact" id="k3w"><span class="e">3</span><span id="k3"></span></div>
+    </div>
+    <p class="note" id="k_cut" hidden></p>
+    <p class="note" id="k_note"></p>
+  </section>
+
+  <h2 id="h_ld"></h2>
+  <p class="say" id="s_ld"></p>
+  <a class="btn s" href="lender.html" id="ld_b" style="margin-top:0"></a>
+
+  <button class="june" id="june">
+    <span class="ic"><svg width="26" height="26" viewBox="0 0 44 44" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h28a3 3 0 013 3v15a3 3 0 01-3 3H20l-8 6v-6H8a3 3 0 01-3-3V13a3 3 0 013-3z"/><path d="M14 18h16M14 24h10"/></svg></span>
+    <span><b id="j1"></b><small id="j2"></small></span><span>›</span>
+  </button>
+  <p class="fine" id="fine"></p>
+</div>
+
+<script src="data/mira-data.js"></script>
+<script src="mira-core.js"></script>
+<script src="track.js"></script>
+</body>
+</html>

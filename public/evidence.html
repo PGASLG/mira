@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — Assets, Spread, Risk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="loader.js"></script>
+<style>
+:root{--blue:#1e7bff;--navy:#0b3a93;--sky:#e8f2ff;--bg:#f4f8ff;--card:#fff;--ink:#0f1f3d;--mute:#5b6b88;--line:#dbe5f5;--warn:#b36b00;--warn-bg:#fff4dc}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1226;--card:#121c36;--ink:#eaf1ff;--mute:#9fb0d0;--line:#24345a;--sky:#14264d;--warn:#ffc65c;--warn-bg:#3a2c0c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Prompt",system-ui,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px 40px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+nav img{height:26px;display:block}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+h1{font-size:26px;margin:14px 0 4px}
+.lead{color:var(--mute);margin:0 0 6px;font-size:15px}
+h2{font-size:18px;margin:30px 0 4px;display:flex;gap:10px;align-items:center}
+h2 span{width:28px;height:28px;border-radius:50%;background:var(--sky);color:var(--blue);display:grid;place-items:center;font-size:14px}
+.sub{color:var(--mute);font-size:13.5px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.assets{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.asset{font-size:13.5px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--card)}
+.asset b{display:block;font-size:13px;color:var(--blue)}
+.group{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--mute)}
+.bars .r{display:grid;grid-template-columns:110px 1fr 56px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+.bars .t{height:10px;border-radius:99px;background:var(--sky);overflow:hidden}
+.bars .t i{display:block;height:100%;background:var(--blue);border-radius:99px}
+.risk{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{text-align:center}
+.kpi b{display:block;font-size:30px;line-height:1.2;color:var(--navy)}
+@media (prefers-color-scheme:dark){.kpi b{color:#fff}}
+.kpi small{color:var(--mute);font-size:13px}
+.note{margin:10px 0 0;font-size:12.5px;color:var(--mute)}
+footer{margin-top:30px;padding:12px 14px;border-radius:14px;background:var(--warn-bg);font-size:13px}
+</style>
+
+<style id="of-style">
+.of{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px}
+.of h2{font-size:19px;margin:0 0 4px}
+.of .sub{color:var(--mute);font-size:14px;margin:0 0 14px}
+.of .btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.of .btns a{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:11px 18px;font:inherit;font-weight:700;font-size:15px;text-decoration:none}
+.of .btns a.p{background:linear-gradient(135deg,var(--blue),#0f5bd8);color:#fff}
+.of .btns a.o{border:1.5px solid var(--blue);color:var(--blue);background:var(--card)}
+.of .bt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.of .bt div{background:var(--bg,var(--sky));border:1px solid var(--line);border-radius:16px;padding:10px 6px;text-align:center}
+.of .bt small{display:block;color:var(--mute);font-size:12px}
+.of .bt b{display:block;font-size:15px;line-height:1.35}
+.of .bt i{font-style:normal;color:var(--mute);font-size:12.5px;display:block}
+.of .cap{color:var(--mute);font-size:12.5px;margin:8px 0 0}
+.of ul{margin:12px 0 0;padding-left:20px;font-size:14.5px}
+.of li{margin:3px 0}
+html[lang="en"] .of .th{display:none}
+html:not([lang="en"]) .of .en{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="/dashboard" target="_top" style="display:flex;align-items:center;gap:8px"><img src="assets/icon.png" alt="Mira logo" style="height:34px"><img src="assets/wordmark.png" alt="Mira"></a>
+    <button class="btn" id="lang">EN</button>
+  </nav>
+
+  <h1 data-t="title"></h1>
+  <p class="lead" data-t="lead"></p>
+
+  <h2><span>1</span><b data-t="h_assets"></b></h2>
+  <p class="sub" data-t="s_assets"></p>
+  <div class="card" id="assets"></div>
+
+  <h2><span>2</span><b data-t="h_spread"></b></h2>
+  <p class="sub" data-t="s_spread"></p>
+  <div class="card bars" id="spread"></div>
+
+  <h2><span>3</span><b data-t="h_risk"></b></h2>
+  <p class="sub" id="s_risk"></p>
+  <div class="card">
+    <div class="risk">
+      <div class="kpi"><b id="vol"></b><small data-t="k_vol"></small></div>
+      <div class="kpi"><b id="dd"></b><small data-t="k_dd"></small></div>
+    </div>
+    <p class="note" data-t="n_risk"></p>
+  </div>
+
+
+<section class="of" id="official-report">
+  <h2><span class="th">รายงานทางการของโมเดล Mira</span><span class="en">Official Mira model report</span></h2>
+  <p class="sub"><span class="th">ผลทดสอบย้อนหลังพร้อมกราฟ ผลตอบแทนรายปีและรายเดือน และกติกาการทดสอบไปข้างหน้า</span><span class="en">Backtest with charts, annual and monthly returns, and the forward-test rule.</span></p>
+  <div class="btns">
+    <a class="p" href="/model/report.html" target="_top"><span class="th">เปิดรายงาน</span><span class="en">Open the report</span></a>
+    <a class="o" href="/model/MIRA_OFFICIAL_REPORT.pdf" download><span class="th">ดาวน์โหลด PDF</span><span class="en">Download PDF</span></a>
+  </div>
+
+  <div class="bt" role="table">
+    <div><small><span class="th">ขาดทุนหนักสุด</span><span class="en">Worst fall</span></small><b>&minus;7.7%</b><i><span class="th">เทียบ</span><span class="en">vs</span> &minus;50.8%</i></div>
+    <div><small><span class="th">เติบโตต่อปี</span><span class="en">Growth a year</span></small><b>+5.9%</b><i><span class="th">เทียบ</span><span class="en">vs</span> +8.8%</i></div>
+    <div><small>Sharpe</small><b>0.76</b><i><span class="th">เทียบ</span><span class="en">vs</span> 0.52</i></div>
+  </div>
+  <p class="cap"><span class="th">ทดสอบย้อนหลัง 2001&ndash;2026 สัดส่วนหุ้น 60% เทียบกับถือหุ้นทั้งหมด</span><span class="en">Backtest 2001&ndash;2026, 60% stocks vs all-stocks.</span></p>
+
+  <ul>
+    <li><span class="th">เป็นการทดสอบจากข้อมูลในอดีต ไม่ใช่ผลจริง ผลในอดีตไม่รับประกันอนาคต</span><span class="en">This is a backtest on past data, not real results. Past results do not guarantee the future.</span></li>
+    <li><span class="th">การถือหุ้นทั้งหมดเติบโตเร็วกว่า (+8.8% ต่อปี เทียบ +5.9%)</span><span class="en">Holding all stocks grew faster (+8.8% a year vs +5.9%).</span></li>
+    <li><span class="th">ตัวตรวจจับเตือนก่อน 11 จาก 13 ช่วงตกหนัก แต่ประมาณ 7 ใน 10 ครั้งที่เตือนเป็นการเตือนผิด</span><span class="en">The detector flagged 11 of 13 big falls, but about 7 in 10 alarms were false.</span></li>
+    <li><span class="th">ในช่วงตลาดสงบ 2025&ndash;2026 วิธีนี้ทำให้การเติบโตลดลง</span><span class="en">In the calm 2025&ndash;2026 window it cost growth.</span></li>
+    <li><span class="th">การทดสอบไปข้างหน้าถูกลงทะเบียนกติกาไว้ล่วงหน้า เริ่มตั้งแต่ ต.ค. 2026</span><span class="en">The forward test rule was pre-registered, starting from October 2026.</span></li>
+    <li><span class="th">เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ไม่มีการรับประกันกำไร</span><span class="en">Research only, not investment advice, no profit promise.</span></li>
+  </ul>
+</section>
+  <footer><b data-t="disc"></b> <span id="live"></span></footer>
+</div>
+
+<script src="data/mira-data.js"></script>
+<script>
+const D = window.MIRA_DATA, P = D.portfolio;
+const I18N = {
+  th: {
+    title:"สินทรัพย์ การกระจาย และความเสี่ยง", lead:"สามอย่างที่ควรรู้ ก่อนตัดสินใจลงทุน",
+    h_assets:"สินทรัพย์ (Assets)", s_assets:"รายการสินทรัพย์ที่ Mira ติดตามอยู่ แบ่งตามประเภท",
+    h_spread:"การกระจาย (Spread)", s_spread:"สัดส่วนเงินที่กระจายไปในแต่ละประเภท (ถ่วงน้ำหนักเท่ากันทุกตัว)",
+    h_risk:"ความเสี่ยง (Risk)",
+    k_vol:"ความผันผวนต่อปี", k_dd:"ขาดทุนหนักสุดจากจุดสูงสุด",
+    n_risk:"คำนวณจากพอร์ตสมมติถ่วงน้ำหนักเท่ากัน ไม่ใช่เงินจริงของคุณ ผลในอดีตไม่รับประกันอนาคต",
+    disc:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน",
+    risk_sub:(r)=>`ช่วง ${r.window} (ใช้สินทรัพย์ที่มีข้อมูลครบ ${r.assets_used} ตัว)`,
+    live:(n)=>`บันทึกคำพยากรณ์แล้ว ${n} ข้อ`,
+    kinds:{commodities:"สินค้าโภคภัณฑ์",stocks:"หุ้น",bonds:"พันธบัตร",crypto:"คริปโต","real estate":"อสังหาริมทรัพย์",currencies:"ค่าเงิน",rates:"อัตราดอกเบี้ย",volatility:"ความผันผวน"},
+  },
+  en: {
+    title:"Assets, spread and risk", lead:"Three things to know before you invest",
+    h_assets:"Assets", s_assets:"What Mira tracks, grouped by type",
+    h_spread:"Spread", s_spread:"How money is spread across types (equal weight per asset)",
+    h_risk:"Risk",
+    k_vol:"Volatility per year", k_dd:"Worst fall from a peak",
+    n_risk:"Computed on an equal-weight sample portfolio, not your real money. Past results do not guarantee the future.",
+    disc:"Research only, not investment advice.",
+    risk_sub:(r)=>`Period ${r.window} (${r.assets_used} assets with complete data)`,
+    live:(n)=>`${n} forecasts logged`,
+    kinds:{commodities:"Commodities",stocks:"Stocks",bonds:"Bonds",crypto:"Crypto","real estate":"Real estate",currencies:"Currencies",rates:"Rates",volatility:"Volatility"},
+  }
+};
+let lang = "th"; try { lang = localStorage.getItem("mira_lang") || "th"; } catch (e) {}
+let total = D.total_forecasts;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  const T = I18N[lang];
+  document.documentElement.lang = lang;
+  document.getElementById("lang").textContent = lang === "th" ? "EN" : "ไทย";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = T[el.dataset.t]);
+  const groups = {};
+  P.assets.forEach(a => (groups[a.kind] = groups[a.kind] || []).push(a));
+  document.getElementById("assets").innerHTML = Object.entries(groups).map(([k, list]) =>
+    `<p class="group">${esc(T.kinds[k] || k)} · ${list.length}</p><div class="assets">` +
+    list.map(a => `<div class="asset"><b>${esc(a.symbol)}</b>${esc(a.name)}</div>`).join("") + `</div><div style="height:12px"></div>`).join("");
+  document.getElementById("spread").innerHTML = P.spread.map(s =>
+    `<div class="r"><span>${esc(T.kinds[s.kind] || s.kind)}</span><div class="t"><i style="width:${s.pct}%"></i></div><b>${s.pct}%</b></div>`).join("");
+  document.getElementById("s_risk").textContent = T.risk_sub(P.risk);
+  document.getElementById("vol").textContent = P.risk.vol_pct + "%";
+  document.getElementById("dd").textContent = P.risk.max_drawdown_pct + "%";
+  document.getElementById("live").textContent = "· " + T.live(total);
+}
+document.getElementById("lang").onclick = () => {
+  lang = lang === "th" ? "en" : "th";
+  try { localStorage.setItem("mira_lang", lang); } catch (e) {}
+  render();
+};
+render();
+
+// live count from Supabase (public read-only key); falls back to exported number
+fetch("supabase-config.json").then(r => r.json()).then(c =>
+  fetch(c.url + "/rest/v1/forecasts?select=id,resolve_note", {headers: {apikey: c.publishable_key, Authorization: "Bearer " + c.publishable_key}})
+).then(r => r.ok ? r.json() : Promise.reject()).then(rows => {
+  total = rows.filter(r => !(r.resolve_note || "").startsWith("duplicate")).length; render();
+}).catch(() => {});
+</script>
+</body>
+</html>

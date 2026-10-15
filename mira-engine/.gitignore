@@ -1,0 +1,4 @@
+data/work/
+data/local_fund.json
+__pycache__/
+.env*

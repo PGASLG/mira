@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — สวัสดี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet">
+<script src="loader.js"></script>
+<style>
+:root{--blue:#1e7bff;--navy:#0b3a93;--cyan:#4cc9ff;--yellow:#fdb913;--green:#12a15c;--red:#c43d3d;--sky:#e8f2ff;--bg:#f4f8ff;--card:#fff;--ink:#0f1f3d;--mute:#5b6b88;--line:#dbe5f5}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1226;--card:#121c36;--ink:#eaf1ff;--mute:#9fb0d0;--line:#24345a;--sky:#14264d;--green:#4cd790;--red:#ff8585}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Prompt",system-ui,sans-serif;overflow-x:hidden}
+.glow{position:fixed;inset:-20% -10% auto -10%;height:60vh;z-index:0;pointer-events:none;
+  background:radial-gradient(60% 60% at 25% 20%,rgba(30,123,255,.20),transparent 70%),radial-gradient(50% 50% at 85% 10%,rgba(253,185,19,.16),transparent 70%);
+  animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(3%,4%,0) scale(1.06)}}
+.page{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 20px 48px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;animation:fadeDown .6s both}
+nav .logo{height:38px;width:auto;display:block}
+.nav-r{display:flex;gap:8px;align-items:center}
+.lang{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.me{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;display:grid;place-items:center;font-weight:700}
+
+.hello{margin:18px 0 18px;font-family:"Mali","Prompt",cursive;font-size:clamp(30px,8vw,40px);line-height:1.3;font-weight:700;animation:fadeUp .7s .1s both}
+.hello em{font-style:normal;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--blue));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+@keyframes shine{to{background-position:-200% 0}}
+
+.sum{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:0 20px 50px rgba(11,58,147,.10);animation:fadeUp .7s .2s both}
+.sum .lbl{font-size:13px;font-weight:700;color:var(--mute)}
+.sum .val{font-size:42px;font-weight:700;color:var(--navy);line-height:1.15;margin:2px 0}
+@media (prefers-color-scheme:dark){.sum .val{color:#fff}}
+.sum .gain{display:inline-block;font-size:14px;font-weight:700;border-radius:999px;padding:3px 12px}
+.up{color:var(--green);background:rgba(18,161,92,.12)} .down{color:var(--red);background:rgba(196,61,61,.12)}
+.sum .note{margin:10px 0 0;font-size:12.5px;color:var(--mute)}
+
+h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s both}
+.acts{display:grid;gap:10px}
+.act{display:grid;grid-template-columns:52px 1fr 20px;gap:14px;align-items:center;width:100%;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 16px;text-align:left;font:inherit;color:inherit;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s;animation:fadeUp .7s both}
+.act:nth-child(1){animation-delay:.38s}.act:nth-child(2){animation-delay:.46s}.act:nth-child(3){animation-delay:.54s}.act:nth-child(4){animation-delay:.62s}
+.act:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(11,58,147,.12)}
+.act:active{transform:scale(.99)}
+.ic{width:52px;height:52px;border-radius:16px;background:var(--sky);display:grid;place-items:center}
+.ic svg{width:28px;height:28px}
+.act.main{background:linear-gradient(135deg,var(--blue),#0f5bd8);border:0;color:#fff;box-shadow:0 8px 22px rgba(30,123,255,.35)}
+.act.main .ic{background:rgba(255,255,255,.2)}
+.act.main small{color:rgba(255,255,255,.85)}
+.act b{display:block;font-size:17px;line-height:1.35}
+.act small{display:block;color:var(--mute);font-size:13.5px;line-height:1.45}
+.chev{font-size:22px;opacity:.6}
+.soon{font-size:11px;font-weight:700;background:var(--yellow);color:#4a3200;border-radius:999px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+
+.soon:empty{display:none}
+.fine{margin-top:26px;padding:12px 14px;border-radius:16px;background:var(--sky);color:var(--mute);font-size:12.5px;animation:fadeUp .7s .62s both}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--navy);color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;transition:.3s;z-index:9;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* tablet */
+@media (min-width:700px){
+  .page{max-width:760px}
+  .hello{font-size:44px}
+  .sum{padding:26px}
+  .sum .val{font-size:54px}
+  .act{padding:18px 20px}
+}
+/* desktop: summary on the left, actions on the right */
+@media (min-width:1000px){
+  .page{max-width:1120px;padding:0 40px 64px}
+  nav{padding:22px 0}
+  nav .logo{height:46px}
+  .layout{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:start;margin-top:36px}
+  .hello{font-size:56px;margin:0 0 26px}
+  .sum{padding:32px;border-radius:30px}
+  .sum .val{font-size:68px}
+  .sum .gain{font-size:16px;padding:5px 16px}
+  .sum .note{font-size:14px}
+  .right h2{margin-top:6px;font-size:22px}
+  .acts{gap:14px}
+  .act{grid-template-columns:64px 1fr 20px;padding:22px 24px;border-radius:26px}
+  .ic{width:64px;height:64px;border-radius:20px}
+  .ic svg{width:32px;height:32px}
+  .act b{font-size:19px}
+  .act small{font-size:14.5px}
+  .fine{max-width:520px}
+}
+@media (min-width:1500px){ .page{max-width:1280px} .hello{font-size:64px} .sum .val{font-size:76px} }
+
+/* nav actions: notifications + settings */
+.bell{position:relative;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.bell svg{width:22px;height:22px}
+.badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+.badge[hidden]{display:none}
+.setbtn{display:flex;align-items:center;gap:8px;border:1.5px solid var(--blue);background:var(--card);color:var(--blue);border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:14px;text-decoration:none}
+.setbtn svg{width:19px;height:19px}
+.np{position:fixed;top:64px;right:max(16px,calc(50% - 540px));width:min(380px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 24px 60px rgba(11,58,147,.22);z-index:20;padding:14px}
+.np[hidden]{display:none}
+.np h3{margin:0;font-size:17px}
+.np .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.np .mark{border:0;background:none;color:var(--blue);font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.ni{display:grid;grid-template-columns:36px 1fr;gap:10px;padding:10px 6px;border-top:1px solid var(--line);color:inherit;text-decoration:none;cursor:pointer}
+.ni .d{width:36px;height:36px;border-radius:12px;background:var(--sky);display:grid;place-items:center;font-size:16px}
+.ni b{display:block;font-size:14.5px;line-height:1.35}
+.ni span{color:var(--mute);font-size:13px;line-height:1.4}
+.ni.unread{background:rgba(30,123,255,.06)}
+.ni.unread b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:6px}
+.np .empty{color:var(--mute);font-size:14px;padding:14px 6px}
+.np .fn{color:var(--mute);font-size:12px;margin:8px 4px 0}
+.loanbar{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;margin-top:14px;padding:14px 16px;border-radius:20px;background:var(--card);border:2px solid var(--yellow)}
+.loanbar[hidden]{display:none}
+.loanbar.red{border-color:var(--red);background:rgba(196,61,61,.1)}
+.loanbar b{display:block;font-size:16px;line-height:1.35}
+.loanbar span{color:var(--mute);font-size:13.5px}
+.loanbar.red b{color:var(--red)}
+.loanbar a{background:var(--blue);color:#fff;text-decoration:none;font-weight:700;border-radius:999px;padding:10px 18px;white-space:nowrap}
+.loanbar.red a{background:var(--red)}
+
+/* withdraw */
+.wd-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.wd-btn{border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:6px;padding:10px 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.wd-btn:hover{background:var(--ink);color:var(--card)}
+.wd-btn[disabled]{opacity:.45;cursor:default;background:var(--card);color:var(--ink)}
+.wd-hint{color:var(--mute);font-size:13px;align-self:center}
+.wd-ov{position:fixed;inset:0;background:rgba(14,27,51,.55);z-index:60;display:grid;place-items:center;padding:16px}
+.wd-ov[hidden]{display:none}
+.wd-box{background:var(--card);border:1px solid var(--ink);border-radius:10px;max-width:480px;width:100%;max-height:92vh;overflow:auto;padding:22px}
+.wd-box h3{margin:0 0 4px;font-size:22px}
+.wd-box .sub{color:var(--mute);font-size:14px;margin:0 0 14px}
+.wd-lbl{font-size:13px;font-weight:600;color:var(--mute);margin:12px 0 6px;display:block}
+.wd-num{display:flex;align-items:center;gap:8px;border:1px solid var(--ink);border-radius:6px;padding:8px 12px;background:var(--card)}
+.wd-num span{color:var(--mute);font-weight:600}
+.wd-num input{border:0;outline:0;background:transparent;font:inherit;font-size:24px;font-weight:600;width:100%;color:var(--ink)}
+.wd-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.wd-chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.wd-warn{border:1px solid var(--ink);border-left:6px solid #b3392b;background:var(--bg);border-radius:6px;padding:12px 14px;margin:14px 0;font-size:14.5px}
+.wd-warn b{display:block;margin-bottom:4px}
+.wd-warn ul{margin:6px 0 0;padding-left:20px}
+.wd-warn li{margin:4px 0}
+.wd-phrase{font-weight:700;background:var(--sky);border-radius:4px;padding:2px 6px;user-select:all}
+.wd-act{display:flex;gap:10px;margin-top:16px}
+.wd-act button{border-radius:6px;padding:12px 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.wd-act .cancel{border:1px solid var(--ink);background:transparent;color:var(--ink)}
+.wd-act .go{flex:1;border:1px solid #b3392b;background:#b3392b;color:#fff}
+.wd-act .go[disabled]{opacity:.4;cursor:default}
+
+/* my money: three places */
+.ports{margin-top:16px;border-top:1px solid var(--ink)}
+.port{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.port h4{margin:0;font-size:16px}
+.port .sub2{color:var(--mute);font-size:13.5px}
+.port .amt{font-family:"Newsreader","Noto Serif Thai",serif;font-size:24px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.port .acts2{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.port .acts2 a,.port .acts2 button{border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:6px;padding:7px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+.port .acts2 button.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.port .acts2 button[disabled]{opacity:.45;cursor:default}
+.mv-err{border:1px solid var(--ink);border-left:6px solid #b3392b;background:var(--bg);border-radius:6px;padding:10px 12px;margin-top:12px;font-size:14.5px}
+.mv-ok{color:var(--green);font-weight:600;margin-top:12px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<div class="page">
+  <nav>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="nav-r">
+      <button class="bell" id="bell" aria-label="Notifications" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 004 0"/></svg><span class="badge" id="badge" hidden>0</span></button>
+      <a class="setbtn" href="/settings" target="_top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span id="setlbl"></span></a>
+      <button class="lang" id="lang">EN</button>
+    </div>
+  </nav>
+  <div class="np" id="np" hidden role="dialog" aria-label="Notifications">
+    <div class="top"><h3 id="np_h"></h3><button class="mark" id="np_mark"></button></div>
+    <div id="np_list"></div>
+    <p class="fn" id="np_fn"></p>
+  </div>
+
+  <div class="layout">
+  <div class="left">
+  <h1 class="hello"><span id="hi"></span> <em id="who"></em></h1>
+
+  <section class="sum">
+    <div class="lbl" id="lbl"></div>
+    <div class="val" id="val">฿0</div>
+    <span class="gain" id="gain"></span>
+    <p class="note" id="note"></p>
+    <div class="wd-row"><button class="wd-btn" id="wd-open"></button><span class="wd-hint" id="wd-hint"></span></div>
+    <div class="ports" id="ports"></div>
+  </section>
+
+  <div class="loanbar" id="loanbar" hidden>
+    <div><b id="lb_t"></b><span id="lb_s"></span></div>
+    <a href="lending.html#loanCard" id="lb_btn"></a>
+  </div>
+
+  </div>
+  <div class="right">
+  <h2 id="h_todo"></h2>
+  <div class="acts">
+    <a class="act main" href="investment.html">
+      <span class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 33l10-11 8 6 12-16"/><path d="M28 12h9v9"/></svg></span>
+      <span><b id="t1"></b><small id="t1s"></small></span><span class="chev">›</span></a>
+    <button class="act" id="june">
+      <span class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h28a3 3 0 013 3v15a3 3 0 01-3 3H20l-8 6v-6H8a3 3 0 01-3-3V13a3 3 0 013-3z"/><path d="M14 18h16M14 24h10"/></svg></span>
+      <span><b><span id="t2"></span><span class="soon" id="s1"></span></b><small id="t2s"></small></span><span class="chev">›</span></button>
+    <button class="act" id="lend">
+      <span class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="22" r="15"/><path d="M22 13v18M27 17.500c-1-1.500-2.800-2.300-5-2.300-3 0-5 1.400-5 3.600 0 4.800 10 2.400 10 7 0 2.200-2.200 3.600-5 3.600-2.300 0-4.200-.9-5.200-2.500"/></svg></span>
+      <span><b><span id="t3"></span><span class="soon" id="s2"></span></b><small id="t3s"></small></span><span class="chev">›</span></button>
+    <a class="act" id="lender" href="lender.html">
+      <span class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="22" r="15"/><path d="M22 14v16M16 22h12"/></svg></span>
+      <span><b id="t4"></b><small id="t4s"></small></span><span class="chev">›</span></a>
+  </div>
+  </div>
+  </div>
+
+  <p class="fine" id="fine"></p>
+</div>
+
+<div class="wd-ov" id="wd-modal" hidden role="dialog" aria-modal="true" aria-labelledby="wd-title">
+  <div class="wd-box">
+    <h3 id="wd-title"></h3>
+    <p class="sub" id="wd-sub"></p>
+    <label class="wd-lbl" for="wd-amt" id="wd-lblamt"></label>
+    <div class="wd-num"><span>&#3647;</span><input id="wd-amt" type="number" inputmode="numeric" min="0" step="100"></div>
+    <div class="wd-chips" id="wd-chips"></div>
+
+    <label class="wd-lbl" for="wd-dest" id="wd-lbldest"></label>
+    <select id="wd-dest" class="wd-num" style="width:100%;font:inherit;font-size:16px;padding:10px 12px"></select>
+    <div id="wd-last-wrap">
+      <label class="wd-lbl" for="wd-last" id="wd-lbllast"></label>
+      <div class="wd-num"><input id="wd-last" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1234" style="font-size:20px"></div>
+      <p class="sub" id="wd-lasthint" style="margin:6px 0 0;font-size:12.5px"></p>
+    </div>
+    <div class="wd-warn" id="wd-warn"></div>
+    <label class="wd-lbl" for="wd-type" id="wd-lbltype"></label>
+    <div class="wd-num"><input id="wd-type" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" style="font-size:18px"></div>
+    <div class="wd-act"><button class="cancel" id="wd-cancel"></button><button class="go" id="wd-go" disabled></button></div>
+  </div>
+</div>
+
+<div class="wd-ov" id="mv-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mv-title">
+  <div class="wd-box">
+    <h3 id="mv-title"></h3>
+    <p class="sub" id="mv-sub"></p>
+    <label class="wd-lbl" for="mv-amt" id="mv-lbl"></label>
+    <div class="wd-num"><span>&#3647;</span><input id="mv-amt" type="number" inputmode="numeric" min="0" step="100"></div>
+    <div class="wd-chips" id="mv-chips"></div>
+    <div id="mv-msg"></div>
+    <div class="wd-act"><button class="cancel" id="mv-cancel"></button><button class="go" id="mv-go" style="border-color:var(--blue);background:var(--blue)"></button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data/mira-data.js"></script>
+<script src="wallet.js"></script>
+<script src="lend-core.js"></script>
+<script>
+const P = window.MIRA_DATA.portfolio;
+const I18N = {
+  th:{lb_have:"คุณมีหนี้ที่ต้องชำระ", lb_near:"ใกล้ครบกำหนดชำระแล้ว", lb_s:(l,d)=>`คงเหลือ ฿${l} · งวดถัดไป ${d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`} (จำลอง)`, lb_btn:"ชำระหนี้",
+      start:"เริ่มต้นที่ ฿0 · เติมเงินเพื่อเริ่มลงทุน (จำลอง)", t3zero:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", hi:"สวัสดี", who:"คุณ", setlbl:"ตั้งค่า", np_h:"การแจ้งเตือน", np_mark:"อ่านทั้งหมดแล้ว", np_empty:"ยังไม่มีการแจ้งเตือน", np_fn:"สร้างจากแผนและข้อมูลของคุณบนเครื่องนี้ ไม่ใช่การแจ้งเตือนจากเซิร์ฟเวอร์",
+      n:{welcome:["ยินดีต้อนรับสู่ Mira","ดูเงินของคุณและคุยกับ June ได้เลย"],plan:["ยังไม่ได้ตั้งแผนใส่เงินรายเดือน","ตั้งจำนวนและวันตัดเงินได้ที่หน้าการลงทุน"],charge:(d,a)=>[d===0?"วันนี้ถึงวันใส่เงินรายเดือน":`อีก ${d} วันถึงวันใส่เงินรายเดือน`,`จำนวน ฿${a} (จำลอง)`],loan:["คุณมีสินเชื่อฉุกเฉินที่ยังไม่ได้คืน","ดูยอดและกำหนดคืนได้ที่หน้าสินเชื่อ"],stress:(n)=>["ตลาดผันผวนขึ้นกว่าปกติ",`ระดับความผันผวน ${n} จาก 3 (ไม่ใช่การพยากรณ์วิกฤต)`]}, lbl:"เงินของคุณตอนนี้",
+      up:(g)=>`เพิ่มขึ้น ฿${fmt(g)} จากที่ใส่ไป`, down:(g)=>`ลดลง ฿${fmt(-g)} จากที่ใส่ไป`,
+      note:"ตัวเลขจากพอร์ตจำลอง ไม่ใช่เงินจริง",
+      h_todo:"วันนี้อยากทำอะไร",
+      t1:"ดูว่าเงินไปไหนบ้าง", t1s:"รายละเอียดการลงทุนและความเสี่ยง",
+      t2:"คุยกับ June", t2s:"ถามเรื่องเงิน หรือขอปรับแผนด้วยกัน",
+      t3:"ต้องใช้เงินด่วน?", t3s:(l)=>`ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ยต่ำ สูงสุดราว ฿${l}`,
+      t4:"ปล่อยเงินให้คนอื่นยืม", t4s:"ให้เงินทำงานและได้ดอกเบี้ย (จำลอง)", t4a:(l,w,e)=>`ปล่อยอยู่ ฿${l} · รอจับคู่ ฿${w} · ดอกเบี้ย ฿${e}`,
+      soon:"เร็วๆ นี้", toast:"หน้านี้กำลังสร้างอยู่นะ",
+      fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
+  en:{lb_have:"You have a loan to repay", lb_near:"Payment due soon", lb_s:(l,d)=>`฿${l} left · next payment ${d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`} (simulated)`, lb_btn:"Pay debt",
+      start:"Starting at ฿0 · add money to begin (simulated)", t3zero:"You need money in your portfolio before you can borrow", hi:"Hello", who:"there", setlbl:"Settings", np_h:"Notifications", np_mark:"Mark all read", np_empty:"No notifications yet", np_fn:"Built from your plan and data on this device, not server alerts.",
+      n:{welcome:["Welcome to Mira","See your money and chat with June"],plan:["No monthly plan set yet","Set the amount and charge day on the investment page"],charge:(d,a)=>[d===0?"Today is your monthly top-up day":`${d} days to your monthly top-up`,`Amount ฿${a} (simulated)`],loan:["You have an emergency loan not yet repaid","See the balance and due date on the lending page"],stress:(n)=>["The market is bumpier than usual",`Volatility level ${n} of 3 (not a crash forecast)`]}, lbl:"Your money right now",
+      up:(g)=>`up ฿${fmt(g)} on what you put in`, down:(g)=>`down ฿${fmt(-g)} on what you put in`,
+      note:"Numbers come from a paper portfolio, not real money.",
+      h_todo:"What would you like to do?",
+      t1:"See where it all went", t1s:"Investment details and risk",
+      t2:"Talk to June", t2s:"Ask about money, or change your plan together",
+      t3:"Need money fast?", t3s:(l)=>`Borrow from other Mira users at a low rate, up to about ฿${l}`,
+      t4:"Lend your money", t4s:"Put money to work and earn interest (simulated)", t4a:(l,w,e)=>`Lent out ฿${l} · waiting ฿${w} · interest ฿${e}`,
+      soon:"soon", toast:"This one is still being built.",
+      fine:"Research only, not investment advice. Past results do not guarantee the future."}
+};
+let lang="th", amt=2000;
+try{ lang=localStorage.getItem("mira_lang")||"th"; amt=+(localStorage.getItem("mira_monthly")||amt);}catch(e){}
+const $=id=>document.getElementById(id);
+const LS=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
+// first visit: walkthrough + questions, then back here
+if(!LS("mira_onboarded","")){ location.replace("onboarding.html"); }
+function fmt(n){return Math.round(n).toLocaleString("en-US")}
+// Money starts at 0. The only money is what the user has added (mira_topup), simulated.
+function dca(){ const t=window.MiraWallet?MiraWallet.total():Math.max(0,+LS("mira_topup","0")||0); return {value:t, put:t}; }
+function render(){
+  const T=I18N[lang], r=dca(), g=r.value-r.put;
+  document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย";
+  $("hi").textContent=T.hi; $("who").textContent=LS("mira_name","")||T.who; $("setlbl").textContent=T.setlbl; $("lbl").textContent=T.lbl;
+  $("val").textContent="฿"+fmt(r.value);
+  if(r.put===0){ $("gain").textContent=T.start; $("gain").className="gain"; }
+  else { $("gain").textContent=(g>=0?"▲ ":"▼ ")+(g>=0?T.up(g):T.down(g)); $("gain").className="gain "+(g>=0?"up":"down"); }
+  $("note").textContent=T.note; $("h_todo").textContent=T.h_todo;
+  $("t1").textContent=T.t1; $("t1s").textContent=T.t1s; $("t2").textContent=T.t2; $("t2s").textContent=T.t2s;
+  $("t3").textContent=T.t3; $("t3s").textContent=r.value>0?T.t3s(fmt(r.value*0.9)):T.t3zero;
+  $("s1").textContent="";$("s2").textContent=""; $("fine").textContent=T.fine;
+  $("t4").textContent=T.t4;
+  const ln=lendNow(); $("t4s").textContent=ln?T.t4a(fmt(ln.amount),fmt(ln.waiting),ln.earned.toFixed(2)):T.t4s;
+  renderLoan();
+}
+// borrower side (lending.html owns mira_loan_*): banner turns red when the next payment is within 7 days
+function renderLoan(){
+  const T=I18N[lang], b=$("loanbar"); let l=null;
+  try{ l=JSON.parse(LS("mira_loan_active","null")); }catch(e){}
+  b.hidden=!l; if(!l) return;
+  const paid=l.paid||0, d=new Date(l.start); d.setMonth(d.getMonth()+paid+1);
+  const days=Math.ceil((d-new Date())/864e5), near=days<=7;
+  b.className="loanbar"+(near?" red":"");
+  $("lb_t").textContent=near?T.lb_near:T.lb_have; $("lb_s").textContent=T.lb_s(fmt(l.pay*(l.months-paid)),days); $("lb_btn").textContent=T.lb_btn;
+}
+// lender side (lend-core.js owns mira_lend_pool): locked (lent out), waiting (withdrawable), earned so far
+function lendNow(){
+  try{ if(!window.MiraLend) return null; const s=window.MiraLend.summary(); return s.on?{amount:s.locked,waiting:s.waiting,earned:s.earned}:null; }catch(e){return null}
+}
+
+// ---- notifications (built on this device from the plan and the model state) ----
+function daysToCharge(day){ const t=new Date(), a=new Date(t.getFullYear(),t.getMonth(),t.getDate()); let n=new Date(t.getFullYear(),t.getMonth(),day); if(n<a) n=new Date(t.getFullYear(),t.getMonth()+1,day); return Math.round((n-a)/864e5); }
+function buildNotes(){
+  const T=I18N[lang].n, out=[], now=new Date(), ym=now.getFullYear()+"-"+(now.getMonth()+1);
+  if(!LS("mira_monthly","")) out.push({id:"plan",i:"\u2699",t:T.plan[0],b:T.plan[1],href:"investment.html"});
+  else { const d=daysToCharge(+LS("mira_day","5")); if(d<=3){ const c=T.charge(d,fmt(+LS("mira_monthly","2000"))); out.push({id:"charge-"+ym,i:"\u23F0",t:c[0],b:c[1],href:"investment.html"}); } }
+  try{ if(JSON.parse(LS("mira_loan_active","null"))) out.push({id:"loan",i:"\uD83E\uDD1D",t:T.loan[0],b:T.loan[1],href:"lending.html"}); }catch(e){}
+  try{ const st=window.MIRA_DATA.model&&window.MIRA_DATA.model.state; if(st&&st.stress>=1){ const m=T.stress(st.stress); out.push({id:"stress-"+st.as_of+"-"+st.stress,i:"\uD83C\uDF21",t:m[0],b:m[1],href:"investment.html"}); } }catch(e){}
+  out.push({id:"welcome",i:"\u2728",t:T.welcome[0],b:T.welcome[1],href:"june.html"});
+  return out;
+}
+function readSet(){ try{ return new Set(JSON.parse(LS("mira_notif_read","[]"))); }catch(e){ return new Set(); } }
+function renderNotes(){
+  const T=I18N[lang], list=buildNotes(), seen=readSet(), unread=list.filter(n=>!seen.has(n.id)).length;
+  $("np_h").textContent=T.np_h; $("np_mark").textContent=T.np_mark; $("np_fn").textContent=T.np_fn;
+  const b=$("badge"); b.hidden=unread===0; b.textContent=unread;
+  $("np_list").innerHTML=list.length?list.map(n=>`<a class="ni ${seen.has(n.id)?"":"unread"}" data-id="${n.id}" href="${n.href}"><span class="d">${n.i}</span><span><b>${n.t}</b><span>${n.b}</span></span></a>`).join(""):`<div class="empty">${T.np_empty}</div>`;
+}
+function markRead(ids){ const s=readSet(); ids.forEach(i=>s.add(i)); try{localStorage.setItem("mira_notif_read",JSON.stringify([...s]))}catch(e){} }
+$("bell").onclick=(e)=>{ e.stopPropagation(); const np=$("np"); np.hidden=!np.hidden; $("bell").setAttribute("aria-expanded",String(!np.hidden)); };
+$("np_mark").onclick=()=>{ markRead(buildNotes().map(n=>n.id)); renderNotes(); };
+$("np_list").addEventListener("click",e=>{ const a=e.target.closest(".ni"); if(a) markRead([a.dataset.id]); });
+document.addEventListener("click",e=>{ if(!$("np").hidden && !e.target.closest("#np")){ $("np").hidden=true; $("bell").setAttribute("aria-expanded","false"); } });
+function toast(){ const t=$("toast"); t.textContent=I18N[lang].toast; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+$("june").onclick=()=>{location.href="june.html"};
+$("lend").onclick=()=>{location.href="lending.html"};
+$("lang").onclick=()=>{lang=lang==="th"?"en":"th";try{localStorage.setItem("mira_lang",lang)}catch(e){}render();renderNotes()};
+
+// ---- withdraw: choose amount, read the disclaimer, type the phrase ----
+const WD = {
+  th: { btn:"ถอนเงิน", none:"ยังไม่มีเงินให้ถอน", avail:(a)=>`ถอนได้สูงสุด ฿${a}`,
+        title:"ถอนเงิน", sub:"เลือกจำนวนเงินที่ต้องการถอนออกจากพอร์ต (จำลอง) ถอนได้เฉพาะเงินที่ไม่ได้ถูกยืมไป",
+        lblamt:"จำนวนที่ต้องการถอน (บาท)", max:"ถอนทั้งหมด", lbltype:(ph)=>`พิมพ์ข้อความนี้เพื่อยืนยัน: ${ph}`,
+        phrase:"I am sure to withdraw this money", cancel:"ยกเลิก", go:"ยืนยันถอนเงิน", done:(a,d)=>`ถอน ฿${a} ไป ${d} แล้ว (จำลอง)`,
+        lbldest:"ถอนไปที่", last:(pp)=>pp?"เลข 4 ตัวท้ายของเบอร์พร้อมเพย์":"เลข 4 ตัวท้ายของบัญชี",
+        lasthint:"เราเก็บแค่เลข 4 ตัวท้ายไว้แสดงผล ไม่เก็บเลขบัญชีเต็ม และยังไม่มีการโอนเงินจริง",
+        dests:[["scb","ธนาคารไทยพาณิชย์"],["kbank","ธนาคารกสิกรไทย"],["bbl","ธนาคารกรุงเทพ"],["ktb","ธนาคารกรุงไทย"],["bay","ธนาคารกรุงศรีอยุธยา"],["ttb","ทีเอ็มบีธนชาต"],["pp","พร้อมเพย์ (PromptPay)"]],
+        warnH:"อ่านก่อนถอน: เงินก้อนนี้จะหยุดเติบโตต่อเนื่อง",
+        warn:(a,g,r)=>[`เงิน ฿${a} จะออกจากพอร์ต และไม่ถูกนับในรายงานกำไรอีก`,
+                       `คุณจะเสียการเติบโตต่อเนื่องของเงินก้อนนี้ (ถ้าถือต่อ ตามผลทดสอบย้อนหลัง ${r}% ต่อปี อาจเพิ่มราว ฿${g} ใน 1 ปี ไม่รับประกัน และอาจติดลบได้)`,
+                       "การถอนแล้วใส่กลับใหม่ ถือเป็นการเริ่มนับใหม่ ไม่ต่อจากเดิม",
+                       "เป็นพอร์ตจำลอง ไม่มีเงินจริงถูกโอน"] },
+  en: { btn:"Withdraw", none:"Nothing to withdraw yet", avail:(a)=>`You can withdraw up to ฿${a}`,
+        title:"Withdraw money", sub:"Choose how much to take out of your portfolio (simulated). You can only withdraw money that has not been lent out.",
+        lblamt:"Amount to withdraw (THB)", max:"Withdraw all", lbltype:(ph)=>`Type this to confirm: ${ph}`,
+        phrase:"I am sure to withdraw this money", cancel:"Cancel", go:"Confirm withdrawal", done:(a,d)=>`Withdrew ฿${a} to ${d} (simulated)`,
+        lbldest:"Withdraw to", last:(pp)=>pp?"Last 4 digits of the PromptPay number":"Last 4 digits of the account",
+        lasthint:"We keep only the last 4 digits to display. The full number is not stored, and no real transfer happens yet.",
+        dests:[["scb","Siam Commercial Bank"],["kbank","Kasikornbank"],["bbl","Bangkok Bank"],["ktb","Krungthai Bank"],["bay","Krungsri"],["ttb","TMBThanachart"],["pp","PromptPay"]],
+        warnH:"Read before you withdraw: this money stops growing",
+        warn:(a,g,r)=>[`฿${a} leaves your portfolio and is no longer counted in the profit report.`,
+                       `You lose the continuous growth of this money (if kept, the backtest averaged ${r}% a year, roughly ฿${g} in a year; not guaranteed and it can be negative).`,
+                       "Putting it back later starts counting again from zero, not from where it was.",
+                       "This is a paper portfolio; no real money is transferred."] }
+};
+const WD_RATE = 5.9; // verified backtest growth per year (60% stocks, 2001-2026); see /results.html
+const avail = () => Math.max(0, Math.round(+LS("mira_topup","0")||0));
+function wdLabels(){
+  const T = WD[lang], a = avail(), b = $("wd-open"), h = $("wd-hint");
+  if (!b) return;
+  b.textContent = T.btn; b.disabled = a <= 0;
+  h.textContent = a > 0 ? T.avail(fmt(a)) : T.none;
+}
+function wdRefresh(){
+  const T = WD[lang], a = avail();
+  const amt = Math.min(a, Math.max(0, Math.round(+$("wd-amt").value || 0)));
+  $("wd-title").textContent = T.title; $("wd-sub").textContent = T.sub; $("wd-lblamt").textContent = T.lblamt;
+  $("wd-lbltype").innerHTML = T.lbltype('<span class="wd-phrase">' + T.phrase + '</span>');
+  $("wd-chips").innerHTML = [500,1000,5000].filter(v => v < a).map(v => `<button type="button" data-a="${v}">฿${fmt(v)}</button>`).join("")
+    + `<button type="button" data-a="${a}">${T.max} ฿${fmt(a)}</button>`;
+  const g = Math.round(amt * WD_RATE / 100), w = T.warn(fmt(amt), fmt(g), WD_RATE);
+  $("wd-warn").innerHTML = `<b>${T.warnH}</b><ul>${w.map(x => `<li>${x}</li>`).join("")}</ul>`;
+  $("wd-lbldest").textContent = T.lbldest;
+  const dsel = $("wd-dest"), prev = dsel.value || (localStorage.getItem("mira_wd_dest") || "scb");
+  dsel.innerHTML = T.dests.map(d => `<option value="${d[0]}">${d[1]}</option>`).join(""); dsel.value = prev;
+  $("wd-lbllast").textContent = T.last(dsel.value === "pp"); $("wd-lasthint").textContent = T.lasthint;
+  $("wd-cancel").textContent = T.cancel; $("wd-go").textContent = T.go;
+  const ok = amt > 0 && amt <= a && /^\d{4}$/.test($("wd-last").value.trim()) && $("wd-type").value.trim() === T.phrase;
+  $("wd-go").disabled = !ok;
+}
+function wdOpen(){ if (avail() <= 0) return; $("wd-amt").value = ""; $("wd-type").value = ""; $("wd-last").value = ""; $("wd-modal").hidden = false; wdRefresh(); $("wd-amt").focus(); }
+function wdClose(){ $("wd-modal").hidden = true; }
+$("wd-open").onclick = wdOpen;
+$("wd-cancel").onclick = wdClose;
+$("wd-modal").addEventListener("click", e => { if (e.target.id === "wd-modal") wdClose(); });
+$("wd-amt").addEventListener("input", wdRefresh);
+$("wd-type").addEventListener("input", wdRefresh);
+$("wd-last").addEventListener("input", wdRefresh);
+$("wd-dest").addEventListener("change", wdRefresh);
+$("wd-chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { $("wd-amt").value = b.dataset.a; wdRefresh(); } });
+$("wd-go").onclick = () => {
+  const T = WD[lang], a = avail(), amt = Math.min(a, Math.max(0, Math.round(+$("wd-amt").value || 0)));
+  const last = $("wd-last").value.trim(), dest = $("wd-dest").value;
+  if (!(amt > 0) || $("wd-type").value.trim() !== T.phrase || !/^\d{4}$/.test(last)) return;
+  const destName = (T.dests.find(d => d[0] === dest) || ["", dest])[1] + " •••• " + last;
+  try {
+    localStorage.setItem("mira_topup", String(a - amt));
+    const log = JSON.parse(localStorage.getItem("mira_withdrawals") || "[]");
+    log.push({ t: new Date().toISOString(), amount: amt, dest: dest, last4: last });
+    localStorage.setItem("mira_wd_dest", dest);
+    localStorage.setItem("mira_withdrawals", JSON.stringify(log));
+  } catch (e) {}
+  wdClose(); render(); renderNotes();
+  const t = $("toast"); t.textContent = T.done(fmt(amt), destName); t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2600);
+};
+const _renderBase = render;
+render = function(){ _renderBase(); wdLabels(); };
+
+
+// ---- my money: central cash, investment port, lending port ----
+const MV = {
+  th:{ portsH:"เงินของฉันอยู่ที่ไหน",
+       c:"เงินพัก (ส่วนกลาง)", cSub:"พักไว้เฉยๆ ยังไม่ทำงาน ถอนเข้าบัญชีธนาคารได้จากปุ่มถอนเงินด้านบน",
+       i:"พอร์ตลงทุน", iSub:(w)=>`ถอนกลับเงินพักได้ตอนนี้ ฿${w}`,
+       l:"พอร์ตปล่อยกู้", lSub:(a,b,c)=>(+a.replace(/,/g,'')+ +b.replace(/,/g,'')+ +c.replace(/,/g,''))>0?`ถูกจับคู่ ฿${a} · รอจับคู่ ฿${b} · ดอกเบี้ย ฿${c}`:"ยังไม่ได้ปล่อยกู้",
+       toI:"ใส่เข้าพอร์ตลงทุน", fromI:"ถอนกลับเงินพัก", detail:"ดูรายละเอียด", lendGo:"ไปหน้าปล่อยเงิน", topup:"เติมเงินเข้าเงินพัก",
+       inT:"ใส่เงินเข้าพอร์ตลงทุน", inS:"ย้ายเงินจากเงินพักเข้าไปทำงานในพอร์ตลงทุน",
+       outT:"ถอนจากพอร์ตลงทุนกลับเงินพัก", outS:"ขายสินทรัพย์ในพอร์ตแล้วพักไว้ที่เงินพัก (ยังไม่เข้าบัญชีธนาคาร) ขายได้เฉพาะส่วนที่ขายและรับเงินแล้ว",
+       amt:"จำนวน (บาท)", max:"ทั้งหมด", cancel:"ปิด", confirm:"ยืนยัน",
+       okIn:(a)=>`ใส่ ฿${a} เข้าพอร์ตลงทุนแล้ว`, okOut:(a)=>`ถอน ฿${a} กลับเงินพักแล้ว`,
+       errCentral:(m)=>`เงินพักมีไม่พอ (มี ฿${m})`,
+       errExceeds:(m)=>`ในพอร์ตมีแค่ ฿${m}`,
+       errWait:(c,d)=>`ถอนไม่สำเร็จ: ขายสินทรัพย์ไม่ทัน ตอนนี้ถอนได้เพียง ฿${c} ส่วนที่เหลือต้องรอให้สินทรัพย์ขายและรับเงินให้เสร็จ จะถอนเต็มจำนวนได้ประมาณ ${d}`,
+       errAmt:"ใส่จำนวนเงินที่มากกว่า 0" },
+  en:{ portsH:"Where my money is",
+       c:"Cash (central)", cSub:"Just sits there, not working. Withdraw to a bank with the Withdraw button above.",
+       i:"Investment port", iSub:(w)=>`You can move ฿${w} back to cash right now`,
+       l:"Lending port", lSub:(a,b,c)=>(+a.replace(/,/g,'')+ +b.replace(/,/g,'')+ +c.replace(/,/g,''))>0?`Matched ฿${a} · waiting ฿${b} · interest ฿${c}`:"Nothing lent yet",
+       toI:"Move into investment", fromI:"Move back to cash", detail:"Details", lendGo:"Go to lending", topup:"Add money to cash",
+       inT:"Move money into the investment port", inS:"Move money from cash so it goes to work in the investment tracks.",
+       outT:"Move money from investment back to cash", outS:"Sells assets in the port and parks the money in cash (not in your bank yet). Only the part already sold and settled can move.",
+       amt:"Amount (THB)", max:"All", cancel:"Close", confirm:"Confirm",
+       okIn:(a)=>`Moved ฿${a} into the investment port`, okOut:(a)=>`Moved ฿${a} back to cash`,
+       errCentral:(m)=>`Not enough cash (you have ฿${m})`,
+       errExceeds:(m)=>`The port only holds ฿${m}`,
+       errWait:(c,d)=>`Could not withdraw: the assets cannot be sold in time. You can move only ฿${c} now. The rest has to wait until the assets are sold and settled; the full amount should be free around ${d}.`,
+       errAmt:"Enter an amount above 0" }
+};
+let mvDir = "in";
+function mvDate(d){ return d ? d.toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"long",year:"numeric"}) : ""; }
+function renderPorts(){
+  const W = window.MiraWallet; if(!W || !$("ports")) return;
+  const T = MV[lang], c = Math.round(W.central()), iv = Math.round(W.invest()), wd = Math.floor(W.withdrawable()), L = W.lending();
+  $("ports").innerHTML =
+    `<div class="port"><div><h4>${T.c}</h4><div class="sub2">${T.cSub}</div></div><div class="amt">฿${fmt(c)}</div>
+       <div class="acts2"><a href="investment.html">${T.topup}</a><button class="p" id="mv-in" ${c<=0?"disabled":""}>${T.toI}</button></div></div>` +
+    `<div class="port"><div><h4>${T.i}</h4><div class="sub2">${T.iSub(fmt(wd))}</div></div><div class="amt">฿${fmt(iv)}</div>
+       <div class="acts2"><button id="mv-out" ${iv<=0?"disabled":""}>${T.fromI}</button><a href="investment.html">${T.detail}</a></div></div>` +
+    `<div class="port"><div><h4>${T.l}</h4><div class="sub2">${T.lSub(fmt(L.locked),fmt(L.waiting),fmt(L.accrued))}</div></div><div class="amt">฿${fmt(L.total)}</div>
+       <div class="acts2"><a href="lender.html">${T.lendGo}</a></div></div>`;
+  $("mv-in").onclick = ()=>mvOpen("in"); $("mv-out").onclick = ()=>mvOpen("out");
+}
+function mvMax(){ const W=MiraWallet; return mvDir==="in" ? Math.floor(W.central()) : Math.floor(W.invest()); }
+function mvRefresh(){
+  const T = MV[lang];
+  $("mv-title").textContent = mvDir==="in"?T.inT:T.outT; $("mv-sub").textContent = mvDir==="in"?T.inS:T.outS;
+  $("mv-lbl").textContent = T.amt; $("mv-cancel").textContent = T.cancel; $("mv-go").textContent = T.confirm;
+  const m = mvMax();
+  $("mv-chips").innerHTML = [500,1000,5000].filter(v=>v<m).map(v=>`<button type="button" data-a="${v}">฿${fmt(v)}</button>`).join("") + `<button type="button" data-a="${m}">${T.max} ฿${fmt(m)}</button>`;
+}
+function mvOpen(dir){ mvDir = dir; $("mv-amt").value = ""; $("mv-msg").innerHTML = ""; $("mv-modal").hidden = false; mvRefresh(); $("mv-amt").focus(); }
+function mvClose(){ $("mv-modal").hidden = true; }
+$("mv-cancel").onclick = mvClose;
+$("mv-modal").addEventListener("click", e=>{ if(e.target.id==="mv-modal") mvClose(); });
+$("mv-chips").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) $("mv-amt").value=b.dataset.a; });
+$("mv-go").onclick = ()=>{
+  const T = MV[lang], W = MiraWallet, a = Math.round(+$("mv-amt").value||0), msg = $("mv-msg");
+  const r = mvDir==="in" ? W.toInvest(a) : W.fromInvest(a);
+  if(r.ok){
+    msg.innerHTML = `<div class="mv-ok">${mvDir==="in"?T.okIn(fmt(a)):T.okOut(fmt(a))}</div>`;
+    render(); renderNotes(); mvRefresh(); $("mv-amt").value = "";
+    return;
+  }
+  let t = T.errAmt;
+  if(r.error==="central") t = T.errCentral(fmt(r.max));
+  if(r.error==="exceeds") t = T.errExceeds(fmt(r.max));
+  if(r.error==="wait") t = T.errWait(fmt(r.canNow), mvDate(r.fullAt));
+  msg.innerHTML = `<div class="mv-err">${t}</div>`;
+};
+const _renderBase2 = render;
+render = function(){ _renderBase2(); renderPorts(); };
+
+render(); renderNotes();
+</script>
+</body>
+</html>

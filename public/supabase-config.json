@@ -1,0 +1,6 @@
+{
+  "url": "https://uocileatihtjfpgxyjrd.supabase.co",
+  "publishable_key": "sb_publishable_xJScwhV6_w9qBF5CLP-ycw_Htq7lkug",
+  "tables": ["runs", "forecasts"],
+  "note": "Publishable key is public by design. RLS: anon read-only on runs/forecasts. Writes need service role (never put in web code)."
+}

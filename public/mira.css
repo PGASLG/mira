@@ -1,0 +1,114 @@
+/* Mira design system: "Editorial & calm".
+   Loaded last on every screen (via loader.js). It overrides the older soft/glow look:
+   - flat warm paper, one ink colour, brand blue and yellow used sparingly
+   - serif headings, grotesk body, big tabular numbers
+   - hairline rules instead of floating cards; small corners; no shadows, glows or gradients */
+
+:root{
+  --paper:#f7f6f2 !important;
+  --bg:#f7f6f2 !important;
+  --card:#ffffff !important;
+  --ink:#0e1b33 !important;
+  --mute:#5f6675 !important;
+  --line:#d9d6cc !important;
+  --sky:#eeece4 !important;
+  --blue:#1457d9 !important;
+  --navy:#0e1b33 !important;
+  --cyan:#1457d9 !important;
+  --yellow:#f2b01e !important;
+  --green:#1b7f4b !important;
+  --red:#b3392b !important;
+  --warn:#8a5a00 !important;
+  --warn-bg:#fbf3dc !important;
+  --m-radius:6px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#0d1424 !important;
+    --bg:#0d1424 !important;
+    --card:#141c30 !important;
+    --ink:#f1efe8 !important;
+    --mute:#a4abb9 !important;
+    --line:#2a3550 !important;
+    --sky:#18213a !important;
+    --blue:#6b9bff !important;
+    --navy:#f1efe8 !important;
+    --cyan:#6b9bff !important;
+    --yellow:#f2b01e !important;
+    --green:#5fd39a !important;
+    --red:#ff9b86 !important;
+    --warn:#f2b01e !important;
+    --warn-bg:#2a2410 !important;
+  }
+}
+
+/* ---- type ---- */
+html,body,button,input,select,textarea{
+  font-family:"IBM Plex Sans Thai","IBM Plex Sans","Noto Sans Thai",system-ui,sans-serif !important;
+}
+h1,h2,h3,.hello,.s-hero h1,.st-h,.s-sec h2,.s-cta h2,.sum .val,.val,.big,.profit,.now,.amount,.stat,.s-stat b,.kpi b,.kpis b{
+  font-family:"Newsreader","Noto Serif Thai","IBM Plex Sans Thai",Georgia,serif !important;
+  letter-spacing:-.01em;
+}
+h1,.hello,.s-hero h1{font-weight:600 !important}
+.hello em,h1 em{background:none !important;-webkit-text-fill-color:currentColor !important;color:var(--blue) !important;font-style:normal;animation:none !important}
+.val,.profit,.now,.amount,.stat,.s-stat b,.kpi b,.kpis b,.pot b,.a,.amt{font-variant-numeric:tabular-nums lining-nums}
+
+/* ---- remove the "AI look": glow, gradients, shadows, big radii ---- */
+.glow,.s-glow,.st-glow,.spark,.logo-float,#mira-glow{display:none !important}
+*,*::before,*::after{box-shadow:none !important;text-shadow:none !important}
+.btn,.btn-primary,.btn-ghost,.s-btn,.s-btn.p,.s-btn.o,.st-btn,.st-btn.p,.st-btn.o,.st-btn.d,.act,.act.main,
+.sum,.report,.s-cta,.cta2,.rep,.june,.tab,.tab.main{
+  background-image:none !important;
+}
+.btn-primary,.s-btn.p,.st-btn.p,.act.main,.tab.main,.june,.btn.p{background-color:var(--blue) !important;color:#fff !important;border:1px solid var(--blue) !important}
+.s-cta,.cta2{background-color:var(--ink) !important;color:var(--paper) !important}
+.s-cta .s-btn,.cta2 .btn{background:var(--yellow) !important;color:#0e1b33 !important;border:1px solid var(--yellow) !important}
+.report{background-color:var(--ink) !important;color:var(--paper) !important}
+
+button,.btn,.s-btn,.st-btn,.pill,.s-lang,.lang,.chip,.s-links a,.anch a,.st-chip,.st-seg button,.setbtn,.bell,.tab,
+input,select,textarea,.money,.st-money{
+  border-radius:var(--m-radius) !important;
+}
+.card,.s-card,.fcard,.sum,.st-card,.panel,.act,.np,.pot,.cell,.kpi,.bill,.what,.sec,.s-stat div,.bt div,.safe div,.faq details,.s-faq details,
+.rep,.of,.chat,.msg,.change,.ni,details,.step,.s-cta,.cta2,.report,.demo .card,.setup,.err,.note,.fine,.banner{
+  border-radius:10px !important;
+}
+.av,.avatar,.me,.logo-float,.st-av{border-radius:50% !important}
+
+/* ---- calmer surfaces ---- */
+body,.s-body,.st,.page,.wrap{background:var(--bg) !important;color:var(--ink) !important}
+.card,.s-card,.fcard,.st-card,.panel,.act,.sec,.rep,.of,.chat,.safe div,.s-stat div,.s-faq details,.faq details,.step,details{
+  background:var(--card) !important;border:1px solid var(--line) !important;
+}
+.s-card:hover,.fcard:hover,.act:hover{transform:none !important;border-color:var(--ink) !important}
+.s-head{background:var(--bg) !important;backdrop-filter:none !important;border-bottom:1px solid var(--ink) !important}
+.s-foot{border-top:1px solid var(--ink) !important}
+
+/* section numbering like a magazine */
+.s-sec{border-top:1px solid var(--line);padding-top:28px}
+.s-hero{border-top:0 !important}
+.s-hero .eyebrow,.eyebrow,.tag,.badge-tag{
+  background:transparent !important;border:0 !important;border-radius:0 !important;padding:0 !important;
+  font-size:12px !important;letter-spacing:.08em;text-transform:uppercase;color:var(--blue) !important;font-weight:600 !important;
+}
+.chip i{background:var(--green) !important}
+
+/* quiet inputs and controls */
+input,select,textarea{background:var(--card) !important;border:1px solid var(--line) !important;color:var(--ink) !important}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue) !important;outline-offset:1px;border-color:var(--blue) !important}
+.chip.on,.st-chip.on,.st-seg button.on,.st-tab.on,.risk button.on{background:var(--ink) !important;color:var(--paper) !important;border-color:var(--ink) !important}
+.st-tg.on{background:var(--ink) !important}
+.up{color:var(--green) !important;background:transparent !important}
+.down{color:var(--red) !important;background:transparent !important}
+
+/* motion: keep it small */
+@media (prefers-reduced-motion:no-preference){
+  .act,.s-card,.card{transition:border-color .15s !important}
+}
+
+/* back button, top-left next to the logo */
+.m-backwrap{display:flex;align-items:center;gap:14px}
+.m-back{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ink);color:var(--ink) !important;background:var(--card);
+  border-radius:var(--m-radius);padding:8px 14px;font-weight:600;font-size:15px;text-decoration:none;line-height:1.2;white-space:nowrap}
+.m-back:hover{background:var(--ink);color:var(--paper) !important}

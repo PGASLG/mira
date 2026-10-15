@@ -1,0 +1,33 @@
+{
+ "as_of": "2026-10-12",
+ "stress": 0,
+ "alarms": {
+  "volatility jump": false,
+  "drawdown >= 10%": false,
+  "below 200-day average": false
+ },
+ "vol_ratio": 0.77,
+ "drawdown_pct": -0.1,
+ "sigma_month_pct": 3.14,
+ "worst_month_95_pct": 5.2,
+ "e_size": 0.773,
+ "gate": 1.0,
+ "stock_share_by_base": {
+  "20": 0.2,
+  "40": 0.4,
+  "60": 0.6
+ },
+ "core_weights": {
+  "GLD": 0.018,
+  "SLV": 0.01,
+  "DBC": 0.021,
+  "DBA": 0.0347,
+  "SHY": 0.2913,
+  "HYG": 0.1063,
+  "EMB": 0.0625,
+  "UUP": 0.0547,
+  "VNQ": 0.0289
+ },
+ "core_cash_share": 0.3726,
+ "note": "research only, not investment advice; a stress level is volatility regime, not a crash forecast"
+}

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mira — เริ่มต้น</title>
+<script src="loader.js"></script>
+<style>
+:root{--blue:#1457d9;--ink:#0e1b33;--mute:#5f6675;--line:#d9d6cc;--bg:#f7f6f2;--card:#fff;--yellow:#f2b01e;--green:#1b7f4b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "IBM Plex Sans Thai",system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:18px 20px 56px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top img{height:36px;width:auto;display:block}
+.skip{border:0;background:none;color:var(--mute);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+.prog{display:flex;gap:4px;margin:18px 0 6px}
+.prog i{flex:1;height:4px;background:var(--line);border-radius:2px}
+.prog i.on{background:var(--ink)}
+.step{font-size:13px;color:var(--mute);margin:0 0 18px;letter-spacing:.04em}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.25;margin:0 0 10px}
+.lead{color:var(--mute);margin:0 0 22px}
+.opts{display:grid;gap:10px;margin:0 0 20px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:14px 16px;font:inherit;cursor:pointer}
+.opt:hover{border-color:var(--ink)}
+.opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.opt .dot{flex:none;width:20px;height:20px;border:1.5px solid var(--ink);border-radius:50%;margin-top:3px;position:relative}
+.opt.on .dot::after{content:"";position:absolute;inset:3px;background:var(--ink);border-radius:50%}
+.opt b{display:block}
+.opt small{color:var(--mute);font-size:14px}
+.num{display:flex;align-items:center;gap:8px;border:1px solid var(--ink);background:var(--card);border-radius:8px;padding:8px 14px;margin-bottom:12px}
+.num span{color:var(--mute);font-weight:600}
+.num input{border:0;outline:0;background:transparent;font:inherit;font-size:26px;font-weight:600;width:100%;color:var(--ink)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:7px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.chip:hover{border-color:var(--ink)}
+.nav{display:flex;gap:10px;margin-top:8px}
+.btn{border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:6px;padding:13px 22px;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff;flex:1}
+.btn[disabled]{opacity:.45;cursor:default}
+.slide{border-top:1px solid var(--ink);padding-top:16px}
+.slide .no{font-size:14px;color:var(--blue);font-weight:600;letter-spacing:.06em}
+.note{font-size:13px;color:var(--mute);margin:16px 0 0}
+.res{border:1px solid var(--ink);border-radius:10px;background:var(--card);padding:20px;margin-bottom:16px}
+.res h2{margin:0 0 4px;font-size:20px}
+.bar{display:flex;height:34px;border:1px solid var(--ink);border-radius:6px;overflow:hidden;margin:12px 0 8px}
+.bar div{display:flex;align-items:center;padding-left:10px;font-weight:600;font-size:14px;color:#fff;white-space:nowrap}
+.bar .lo{background:var(--blue)}
+.bar .hi{background:var(--ink)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:15.5px}
+.kv:first-of-type{border-top:0}
+.kv b{font-variant-numeric:tabular-nums}
+.why{margin:8px 0 0;padding-left:20px;color:var(--mute);font-size:15px}
+.why li{margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <img src="assets/logo-h.png" alt="Mira">
+    <button class="skip" id="skip"></button>
+  </div>
+  <div class="prog" id="prog"></div>
+  <p class="step" id="stepno"></p>
+  <div id="view"></div>
+</div>
+
+<script>
+const L = (k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
+const S = (k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+let lang = L("mira_lang","th");
+const fmt = n=>Math.round(n).toLocaleString("en-US");
+const $ = id=>document.getElementById(id);
+
+const T = {
+ th:{skip:"ข้ามไปก่อน", next:"ถัดไป", back:"ย้อนกลับ", start:"เริ่มเลย", of:(a,b)=>`ขั้นที่ ${a} จาก ${b}`,
+  tour:[
+   {no:"01",t:"ดูว่าเงินไปไหน",p:"เริ่มจาก ฿0 เติมเงินจำลองเมื่อพร้อม แล้วดูรายงานกำไร การกระจาย และความเสี่ยง เป็นภาษาง่ายๆ"},
+   {no:"02",t:"คุยกับ June",p:"ที่ปรึกษา AI ของ Mira อ่านข้อมูลของคุณ อธิบาย และช่วยปรับแผนให้ มีปุ่มย้อนกลับเสมอ"},
+   {no:"03",t:"ยืมและปล่อยเงิน",p:"ยืมฉุกเฉินจากผู้ใช้อื่น หรือปล่อยเงินรับดอกเบี้ย จับคู่กับผู้ยืมหลายคน (จำลอง)"},
+  ],
+  tourH:"ยินดีต้อนรับสู่ Mira", tourL:"สามอย่างที่คุณจะได้ใช้ ดูสั้นๆ ก่อนเริ่ม",
+  consentH:"ช่วยตอบคำถามสั้นๆ ไหม?", consentL:"ตอบประมาณ 2 นาที เพื่อให้ Mira แนะนำว่าควรแบ่งเงินไปแต่ละแทร็กอย่างไร",
+  consentA:"ได้ ช่วยแนะนำให้ฉัน", consentAs:"ใช้คำตอบของฉันเพื่อแนะนำการแบ่งเงิน เก็บในเครื่องและบัญชีของฉันเท่านั้น",
+  consentB:"ไม่ต้อง ใช้ค่าเริ่มต้นสมดุล", consentBs:"ฉันจะปรับเองทีหลังได้",
+  q:[
+   {k:"income",t:"รายได้ต่อเดือนของคุณ (หลังหักภาษี) ประมาณเท่าไร",p:"ประมาณคร่าวๆ ก็พอ",type:"num",chips:[15000,25000,40000,60000],def:25000},
+   {k:"essential",t:"ค่าใช้จ่ายจำเป็นต่อเดือน",p:"ค่าเช่า ค่าอาหาร ค่าเดินทาง ค่าน้ำไฟ",type:"num",chips:[8000,12000,18000,25000],def:12000},
+   {k:"debt",t:"ผ่อนหนี้ต่อเดือนเท่าไร",p:"บัตรเครดิต รถ เรียน ถ้าไม่มีใส่ 0",type:"num",chips:[0,2000,5000,10000],def:0},
+   {k:"saved",t:"ตอนนี้มีเงินเก็บฉุกเฉินเท่าไร",p:"เงินที่ไม่ได้ลงทุนอยู่ ใช้ได้ทันที",type:"num",chips:[0,10000,30000,100000],def:0},
+   {k:"goal",t:"เป้าหมายหลักของเงินก้อนนี้",p:"เลือกที่ใกล้เคียงที่สุด",type:"opt",opts:[["emergency","มีเงินสำรองฉุกเฉิน","กันไว้เผื่อเหตุไม่คาดฝัน"],["buy","เก็บซื้อของใหญ่","รถ บ้าน เรียนต่อ ภายใน 1–3 ปี"],["grow","ให้เงินโตระยะยาว","ไม่รีบใช้ 3 ปีขึ้นไป"]]},
+   {k:"horizon",t:"จะไม่แตะเงินก้อนนี้นานแค่ไหน",p:"ยิ่งนาน ยิ่งรับความขึ้นลงได้",type:"opt",opts:[["short","ไม่ถึง 1 ปี",""],["mid","1–3 ปี",""],["long","มากกว่า 3 ปี",""]]},
+   {k:"react",t:"ถ้าเงิน ฿100 ลดเหลือ ฿80 ใน 1 เดือน คุณจะทำอย่างไร",p:"ตอบตามความรู้สึกจริง",type:"opt",opts:[["sell","ขายออก กลัวลดต่อ","นอนไม่หลับ"],["hold","ถือไว้เฉยๆ","ไม่ทำอะไร"],["buy","ใส่เพิ่ม ถือว่าถูกลง","ทนความผันผวนได้"]]},
+   {k:"exp",t:"เคยลงทุนมาก่อนไหม",p:"",type:"opt",opts:[["none","ยังไม่เคย",""],["some","เคยบ้าง","กองทุน หุ้น คริปโต"],["lots","ลงทุนเป็นประจำ",""]]},
+  ],
+  resH:"แผนแบ่งเงินที่แนะนำ", resL:"คำนวณจากคำตอบของคุณด้วยกติกาง่ายๆ ไม่ใช่คำแนะนำเฉพาะตัว คุณปรับได้ทุกเมื่อ",
+  low:"แทร็กปลอดภัย", high:"แทร็กเติบโต",
+  kvMonthly:"ใส่เดือนละ (แนะนำ)", kvLow:"เข้าแทร็กปลอดภัย", kvHigh:"เข้าแทร็กเติบโต", kvEmg:"เงินสำรองฉุกเฉินที่ควรมี (3 เดือน)",
+  emgOk:"เงินสำรองของคุณพอแล้ว", emgGap:(g)=>`ยังขาดอีก ฿${g} ควรเก็บเพิ่มก่อน`,
+  why:{debt:"มีหนี้ต้องผ่อน จึงลดสัดส่วนที่เสี่ยง",emg:"เงินสำรองยังไม่ถึง 3 เดือน จึงเน้นแทร็กปลอดภัย",short:"ระยะสั้น จึงเน้นแทร็กปลอดภัย",long:"ระยะยาว รับความขึ้นลงได้มากขึ้น",sell:"คุณกังวลเมื่อเงินลด จึงไม่ควรเสี่ยงมาก",buy:"คุณรับความผันผวนได้ จึงเพิ่มแทร็กเติบโตได้บ้าง",none:"ยังไม่เคยลงทุน จึงเริ่มแบบระวัง"},
+  apply:"ใช้แผนนี้", june:"ให้ June อธิบายและปรับ", redo:"ทำใหม่",
+  fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ไม่มีการรับประกันกำไร พอร์ตนี้เป็นพอร์ตจำลอง"},
+ en:{skip:"Skip for now", next:"Next", back:"Back", start:"Let's go", of:(a,b)=>`Step ${a} of ${b}`,
+  tour:[
+   {no:"01",t:"See where your money went",p:"Start from ฿0, add simulated money when ready, then see profit, spread and risk in plain words."},
+   {no:"02",t:"Talk to June",p:"Mira's AI helper reads your info, explains, and helps adjust your plan, always with undo."},
+   {no:"03",t:"Borrow and lend",p:"Borrow in an emergency from other users, or lend to earn interest, matched with many borrowers (simulated)."},
+  ],
+  tourH:"Welcome to Mira", tourL:"Three things you will use. A quick look before you start.",
+  consentH:"Help us with a few questions?", consentL:"About 2 minutes, so Mira can suggest how to split your money between tracks.",
+  consentA:"Yes, suggest for me", consentAs:"Use my answers to suggest a split. Kept on this device and my account only.",
+  consentB:"No, use the balanced default", consentBs:"I can adjust it myself later.",
+  q:[
+   {k:"income",t:"Roughly how much do you earn a month (after tax)?",p:"A rough number is fine",type:"num",chips:[15000,25000,40000,60000],def:25000},
+   {k:"essential",t:"Essential spending per month",p:"Rent, food, transport, utilities",type:"num",chips:[8000,12000,18000,25000],def:12000},
+   {k:"debt",t:"Debt payments per month",p:"Credit card, car, study. Put 0 if none.",type:"num",chips:[0,2000,5000,10000],def:0},
+   {k:"saved",t:"How much emergency savings do you have now?",p:"Money not invested, usable right away",type:"num",chips:[0,10000,30000,100000],def:0},
+   {k:"goal",t:"Main goal for this money",p:"Pick the closest one",type:"opt",opts:[["emergency","Build an emergency fund","A cushion for surprises"],["buy","Save for something big","Car, home, study within 1–3 years"],["grow","Grow it long term","Not needed for 3+ years"]]},
+   {k:"horizon",t:"How long will you leave this money alone?",p:"Longer means more room for ups and downs",type:"opt",opts:[["short","Under 1 year",""],["mid","1–3 years",""],["long","More than 3 years",""]]},
+   {k:"react",t:"If ฿100 fell to ฿80 in a month, what would you do?",p:"Answer how you really feel",type:"opt",opts:[["sell","Sell, I'd worry","Can't sleep"],["hold","Hold and wait","Do nothing"],["buy","Add more, it's cheaper","I can handle swings"]]},
+   {k:"exp",t:"Have you invested before?",p:"",type:"opt",opts:[["none","Never",""],["some","A little","Funds, stocks, crypto"],["lots","Regularly",""]]},
+  ],
+  resH:"Your suggested split", resL:"Worked out from your answers with simple rules. Not personal advice. You can change it any time.",
+  low:"Safe track", high:"Growth track",
+  kvMonthly:"Put in per month (suggested)", kvLow:"Into the safe track", kvHigh:"Into the growth track", kvEmg:"Emergency fund to hold (3 months)",
+  emgOk:"Your emergency fund is enough", emgGap:(g)=>`Still short by ฿${g}. Build that first`,
+  why:{debt:"You have debt payments, so less risk.",emg:"Emergency fund is under 3 months, so more safe track.",short:"Short time horizon, so more safe track.",long:"Long horizon, so more room for swings.",sell:"A fall would worry you, so keep risk lower.",buy:"You can handle swings, so a bit more growth track.",none:"New to investing, so start careful."},
+  apply:"Use this plan", june:"Ask June to explain and adjust", redo:"Start over",
+  fine:"Research only, not investment advice, no profit promise. This is a paper portfolio."}
+};
+
+const ans = {};
+let phase = "tour", idx = 0, consent = true;
+const TOTAL = () => 3 + 1 + T[lang].q.length;
+function stepNumber(){ return phase==="tour" ? idx+1 : phase==="consent" ? 4 : phase==="q" ? 5+idx : TOTAL(); }
+function renderProg(){
+  const n = TOTAL(), cur = stepNumber();
+  $("prog").innerHTML = Array.from({length:n},(_,i)=>`<i class="${i<cur?"on":""}"></i>`).join("");
+  $("stepno").textContent = phase==="result" ? "" : T[lang].of(cur, n);
+  $("skip").textContent = T[lang].skip;
+}
+
+// simple, explainable rules: split = % of monthly money into the growth (higher risk) track
+function recommend(a){
+  const why = [];
+  let score = 2;
+  const emgMonths = a.essential ? a.saved / a.essential : 0;
+  if (a.debt > 0) { score -= 1; why.push("debt"); }
+  if (emgMonths < 3) { score -= 1; why.push("emg"); }
+  if (a.horizon === "short") { score -= 1; why.push("short"); }
+  if (a.horizon === "long") { score += 1; why.push("long"); }
+  if (a.react === "sell") { score -= 1; why.push("sell"); }
+  if (a.react === "buy") { score += 1; why.push("buy"); }
+  if (a.exp === "none") why.push("none");
+  if (a.goal === "emergency" || a.goal === "buy") score -= 1;
+  if (a.exp === "lots") score += 1;
+  const split = Math.max(10, Math.min(60, 10 + Math.max(0, Math.min(5, score + 1)) * 10));
+  const free = Math.max(0, a.income - a.essential - a.debt);
+  const monthly = Math.max(0, Math.round(free * (a.saved >= a.essential * 3 ? 0.4 : 0.25) / 100) * 100);
+  const emgTarget = a.essential * 3;
+  const gap = Math.max(0, emgTarget - a.saved);
+  const risk = split <= 20 ? "low" : split <= 40 ? "mid" : "high";
+  return { split, monthly, emgTarget, gap, risk, why: why.slice(0, 4) };
+}
+
+function view(){
+  const t = T[lang]; renderProg();
+  if (phase === "tour") {
+    const s = t.tour[idx];
+    $("view").innerHTML = `<h1>${idx===0?t.tourH:s.t}</h1><p class="lead">${idx===0?t.tourL:""}</p>
+      <div class="slide"><div class="no">${s.no}</div><h2 style="margin:4px 0 6px;font-size:24px">${s.t}</h2><p style="margin:0;color:var(--mute)">${s.p}</p></div>
+      <div class="nav" style="margin-top:28px">${idx>0?`<button class="btn" id="b">${t.back}</button>`:""}<button class="btn p" id="n">${t.next}</button></div>`;
+    $("n").onclick = () => { if (idx < 2) idx++; else { phase = "consent"; idx = 0; } view(); };
+    if ($("b")) $("b").onclick = () => { idx--; view(); };
+  } else if (phase === "consent") {
+    $("view").innerHTML = `<h1>${t.consentH}</h1><p class="lead">${t.consentL}</p>
+      <div class="opts">
+        <button class="opt ${consent?"on":""}" data-c="1"><span class="dot"></span><span><b>${t.consentA}</b><small>${t.consentAs}</small></span></button>
+        <button class="opt ${!consent?"on":""}" data-c="0"><span class="dot"></span><span><b>${t.consentB}</b><small>${t.consentBs}</small></span></button>
+      </div>
+      <div class="nav"><button class="btn" id="b">${t.back}</button><button class="btn p" id="n">${consent?t.next:t.start}</button></div>
+      <p class="note">${t.fine}</p>`;
+    document.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { consent = b.dataset.c === "1"; S("mira_consent_profile", consent?"1":"0"); view(); });
+    $("b").onclick = () => { phase = "tour"; idx = 2; view(); };
+    $("n").onclick = () => { if (consent) { phase = "q"; idx = 0; view(); } else finish(null); };
+  } else if (phase === "q") {
+    const q = t.q[idx];
+    let body = "";
+    if (q.type === "num") {
+      const v = ans[q.k] ?? q.def;
+      body = `<div class="num"><span>฿</span><input id="inp" type="number" inputmode="numeric" min="0" value="${v}"></div>
+        <div class="chips">${q.chips.map(c=>`<button class="chip" data-v="${c}">฿${fmt(c)}</button>`).join("")}</div>`;
+    } else {
+      body = `<div class="opts">${q.opts.map(o=>`<button class="opt ${ans[q.k]===o[0]?"on":""}" data-o="${o[0]}"><span class="dot"></span><span><b>${o[1]}</b>${o[2]?`<small>${o[2]}</small>`:""}</span></button>`).join("")}</div>`;
+    }
+    $("view").innerHTML = `<h1>${q.t}</h1><p class="lead">${q.p}</p>${body}
+      <div class="nav"><button class="btn" id="b">${t.back}</button><button class="btn p" id="n" ${q.type==="opt"&&!ans[q.k]?"disabled":""}>${idx===t.q.length-1?t.start:t.next}</button></div>`;
+    if (q.type === "num") {
+      const inp = $("inp"); ans[q.k] = ans[q.k] ?? q.def;
+      inp.oninput = () => { ans[q.k] = Math.max(0, +inp.value || 0); };
+      document.querySelectorAll("[data-v]").forEach(c => c.onclick = () => { ans[q.k] = +c.dataset.v; inp.value = c.dataset.v; });
+    } else {
+      document.querySelectorAll("[data-o]").forEach(o => o.onclick = () => { ans[q.k] = o.dataset.o; view(); });
+    }
+    $("b").onclick = () => { if (idx > 0) idx--; else phase = "consent"; view(); };
+    $("n").onclick = () => { if (idx < t.q.length - 1) { idx++; view(); } else finish(ans); };
+  }
+}
+
+function finish(a) {
+  if (!a) {
+    S("mira_split", "30"); S("mira_risk", "mid"); S("mira_onboarded", "1");
+    location.href = "/dashboard.html"; return;
+  }
+  const t = T[lang], r = recommend(a), lo = 100 - r.split;
+  phase = "result"; renderProg();
+  $("view").innerHTML = `<h1>${t.resH}</h1><p class="lead">${t.resL}</p>
+    <div class="res">
+      <div class="bar"><div class="lo" style="width:${lo}%">${t.low} ${lo}%</div><div class="hi" style="width:${r.split}%">${r.split}%</div></div>
+      <div class="kv"><span>${t.kvMonthly}</span><b>฿${fmt(r.monthly)}</b></div>
+      <div class="kv"><span>${t.kvLow}</span><b>฿${fmt(r.monthly*lo/100)} (${lo}%)</b></div>
+      <div class="kv"><span>${t.kvHigh}</span><b>฿${fmt(r.monthly*r.split/100)} (${r.split}%)</b></div>
+      <div class="kv"><span>${t.kvEmg}</span><b>฿${fmt(r.emgTarget)}</b></div>
+      <p style="margin:10px 0 0;font-weight:600;color:${r.gap?"#8a5a00":"var(--green)"}">${r.gap?t.emgGap(fmt(r.gap)):t.emgOk}</p>
+      <ul class="why">${r.why.map(w=>`<li>${t.why[w]}</li>`).join("")}</ul>
+    </div>
+    <div class="nav" style="flex-wrap:wrap">
+      <button class="btn p" id="ap">${t.apply}</button>
+      <button class="btn" id="jn">${t.june}</button>
+      <button class="btn" id="rd">${t.redo}</button>
+    </div>
+    <p class="note">${t.fine}</p>`;
+  const save = () => {
+    S("mira_profile", JSON.stringify({ ...a, split: r.split, risk: r.risk, monthly: r.monthly, at: new Date().toISOString() }));
+    S("mira_split", String(r.split)); S("mira_risk", r.risk); S("mira_monthly", String(r.monthly || 0)); S("mira_onboarded", "1");
+  };
+  $("ap").onclick = () => { save(); location.href = "/dashboard.html"; };
+  $("jn").onclick = () => { save(); location.href = "/june.html"; };
+  $("rd").onclick = () => { phase = "q"; idx = 0; view(); };
+}
+
+$("skip").onclick = () => { S("mira_onboarded", "1"); location.href = "/dashboard.html"; };
+view();
+</script>
+</body>
+</html>

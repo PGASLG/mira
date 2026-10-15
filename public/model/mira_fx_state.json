@@ -1,0 +1,105 @@
+{
+ "as_of": "2026-10-12",
+ "spot": 33.615,
+ "horizons": {
+  "7": {
+   "days": 7,
+   "median": 33.611,
+   "ranges": {
+    "50": {
+     "rate_low": 33.435,
+     "rate_high": 33.791,
+     "fcd_result_pct_low": -1.11,
+     "fcd_result_pct_high": -0.06
+    },
+    "80": {
+     "rate_low": 33.24,
+     "rate_high": 33.992,
+     "fcd_result_pct_low": -1.69,
+     "fcd_result_pct_high": 0.54
+    },
+    "95": {
+     "rate_low": 32.993,
+     "rate_high": 34.277,
+     "fcd_result_pct_low": -2.42,
+     "fcd_result_pct_high": 1.38
+    }
+   },
+   "method": "blend",
+   "breakeven_rate": 33.811,
+   "breakeven_move_pct": 0.58,
+   "smallest_range_containing_breakeven": 80,
+   "calibration": "the 80% range held the outcome 75% to 79% of the time (holdout 2015-2024)",
+   "edge_vs_random_walk": "about 2% better than a plain random walk"
+  },
+  "30": {
+   "days": 30,
+   "median": 33.615,
+   "ranges": {
+    "50": {
+     "rate_low": 33.2,
+     "rate_high": 34.035,
+     "fcd_result_pct_low": -1.74,
+     "fcd_result_pct_high": 0.73
+    },
+    "80": {
+     "rate_low": 32.831,
+     "rate_high": 34.418,
+     "fcd_result_pct_low": -2.84,
+     "fcd_result_pct_high": 1.86
+    },
+    "95": {
+     "rate_low": 32.423,
+     "rate_high": 34.851,
+     "fcd_result_pct_low": -4.04,
+     "fcd_result_pct_high": 3.14
+    }
+   },
+   "method": "rw_now",
+   "breakeven_rate": 33.79,
+   "breakeven_move_pct": 0.52,
+   "smallest_range_containing_breakeven": 50,
+   "calibration": "the 80% range held 70% to 73%: a little too narrow, widen your own margin",
+   "edge_vs_random_walk": "about 1%, not distinguishable from zero"
+  },
+  "90": {
+   "days": 90,
+   "median": 33.615,
+   "ranges": {
+    "50": {
+     "rate_low": 32.885,
+     "rate_high": 34.362,
+     "fcd_result_pct_low": -2.52,
+     "fcd_result_pct_high": 1.86
+    },
+    "80": {
+     "rate_low": 32.241,
+     "rate_high": 35.048,
+     "fcd_result_pct_low": -4.43,
+     "fcd_result_pct_high": 3.89
+    },
+    "95": {
+     "rate_low": 31.536,
+     "rate_high": 35.831,
+     "fcd_result_pct_low": -6.52,
+     "fcd_result_pct_high": 6.22
+    }
+   },
+   "method": "rw_hist",
+   "breakeven_rate": 33.734,
+   "breakeven_move_pct": 0.35,
+   "smallest_range_containing_breakeven": 50,
+   "calibration": "the 80% range held 64% to 73%: too narrow, treat the 90-day range as a floor on risk",
+   "edge_vs_random_walk": "none: nothing beat the plain random walk"
+  }
+ },
+ "example_inputs": {
+  "thb": 100000.0,
+  "usd_rate_pct": 1.0,
+  "buy_spread_pct": 0.3,
+  "sell_spread_pct": 0.3,
+  "tax_on_interest_pct": 0.0,
+  "label": "EXAMPLE ONLY: replace with your bank numbers; tax rule not verified"
+ },
+ "note": "research only, not investment advice; ranges are not forecasts of direction"
+}

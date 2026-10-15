@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Caveat:wght@600;700&family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="loader.js"></script>
+<style>
+:root{
+  --blue:#1e7bff; --navy:#0b3a93; --sky:#e8f2ff; --cyan:#4cc9ff; --yellow:#fdb913;
+  --bg:#f4f8ff; --card:#fff; --ink:#0f1f3d; --mute:#5b6b88; --line:#dbe5f5; --green:#12a15c;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1226; --card:#121c36; --ink:#eaf1ff; --mute:#9fb0d0; --line:#24345a; --sky:#14264d; --green:#4cd790;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Prompt","Noto Sans Thai",system-ui,sans-serif;overflow-x:hidden}
+.glow{position:fixed;inset:-20% -10% auto -10%;height:70vh;z-index:0;pointer-events:none;
+  background:radial-gradient(60% 60% at 25% 20%,rgba(30,123,255,.22),transparent 70%),
+             radial-gradient(50% 50% at 85% 10%,rgba(253,185,19,.18),transparent 70%);
+  animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(3%,4%,0) scale(1.06)}}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:0 20px 48px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;animation:fadeDown .6s both}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:var(--navy)}
+.brand img{height:34px;width:auto;display:block}
+.nav-logo{height:40px;width:auto;display:block}
+.wm-nav{height:26px;width:auto;display:block}
+.wm{display:block;height:clamp(64px,13vw,96px);width:auto;margin:0;clip-path:inset(0 100% 0 0);animation:wmwrite 1.6s .3s cubic-bezier(.6,0,.2,1) forwards}
+@keyframes wmwrite{to{clip-path:inset(0 0 0 0)}}
+.brand .name{font-family:"Caveat",cursive;font-size:38px;font-weight:700;line-height:1}
+
+/* handwriting */
+.write{display:block;width:min(100%,360px);height:auto;overflow:visible;margin:6px 0 0}
+.w-t{font-family:"Caveat",cursive;font-weight:700;font-size:150px;fill:transparent;stroke:var(--blue);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 2.6s .3s cubic-bezier(.5,0,.3,1) forwards,ink .7s 2.7s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes ink{to{fill:var(--navy);stroke:var(--navy)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .w-t{animation-name:draw,inkd}}
+@keyframes inkd{to{fill:#eaf1ff;stroke:#eaf1ff}}
+.underline{display:block;width:min(60%,200px);height:16px;margin:8px 0 18px;overflow:visible}
+.underline path{fill:none;stroke:var(--yellow);stroke-width:5;stroke-linecap:round;stroke-dasharray:300;stroke-dashoffset:300;animation:draw 1s 1.6s ease forwards}
+.vision{font-family:"Caveat",cursive;font-size:clamp(24px,4.6vw,32px);line-height:1.25;color:var(--navy);margin:6px 0 4px;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vision{color:var(--ink)}}
+.vision span{display:inline-block;opacity:0;transform:translateY(8px) rotate(-2deg);animation:pen .5s forwards}
+@keyframes pen{to{opacity:1;transform:none}}
+.vision-th{color:var(--mute);font-size:14px;margin:8px 0 12px;opacity:0;animation:fadeUp .8s 5.4s forwards}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand{color:var(--ink)}}
+.nav-r{display:flex;gap:8px;align-items:center}
+.lang{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:13px 24px;font:inherit;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#0f5bd8);color:#fff;box-shadow:0 8px 22px rgba(30,123,255,.38)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(30,123,255,.46)}
+.btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover{transform:translateY(-2px)}
+.btn-sm{padding:8px 18px;font-size:14px}
+
+.hero{display:grid;gap:36px;align-items:center;padding:28px 0 8px}
+@media(min-width:860px){.hero{grid-template-columns:1.05fr .95fr;padding:40px 0 16px}}
+.chip{display:inline-flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;color:var(--mute);animation:fadeUp .7s .1s both}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(18,161,92,.5)}100%{box-shadow:0 0 0 9px rgba(18,161,92,0)}}
+h1{font-family:"Mali","Prompt",cursive;font-size:clamp(24px,5vw,34px);line-height:1.6;margin:6px 0 12px;font-weight:700;animation:fadeUp .7s .2s both}
+.rot{display:inline;color:var(--blue);white-space:nowrap}
+.rot::after{content:"";display:inline-block;width:3px;height:1em;margin-left:3px;vertical-align:-.12em;background:var(--blue);border-radius:2px;animation:caret .9s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--blue));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+@keyframes shine{to{background-position:-200% 0}}
+.lead{color:var(--mute);font-size:16px;margin:0 0 24px;max-width:34em;animation:fadeUp .7s .32s both}
+.cta{display:flex;flex-wrap:wrap;gap:12px;animation:fadeUp .7s .44s both}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;animation:fadeUp .7s .56s both}
+.trust span{font-size:12.5px;font-weight:700;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+
+/* illustrative card */
+.demo{position:relative;animation:fadeUp .8s .3s both}
+.logo-float{position:absolute;right:6px;top:-44px;width:92px;animation:float 4.5s ease-in-out infinite;z-index:2;filter:drop-shadow(0 10px 14px rgba(11,58,147,.25))}
+.logo-float img{width:100%;height:auto;display:block}
+.spark{position:absolute;left:-12px;top:-18px;width:36px;height:36px;animation:float 3.6s ease-in-out -1s infinite}
+.spark b{position:absolute;height:6px;border-radius:6px;background:var(--yellow);animation:blink 1.8s infinite}
+.spark b:nth-child(1){width:16px;left:0;top:14px;transform:rotate(-65deg)}
+.spark b:nth-child(2){width:18px;left:12px;top:2px;transform:rotate(-30deg);animation-delay:.3s}
+.spark b:nth-child(3){width:16px;left:18px;top:18px;animation-delay:.6s}
+@keyframes blink{50%{opacity:.35}}
+@keyframes float{50%{transform:translateY(-9px)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:0 20px 50px rgba(11,58,147,.12)}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.card .lbl{font-size:12px;font-weight:800;color:var(--mute);letter-spacing:.04em}
+.amount{font-size:34px;font-weight:800;color:var(--ink);line-height:1.15}
+.tag{font-size:12px;font-weight:800;color:var(--green);background:rgba(18,161,92,.12);border-radius:999px;padding:3px 10px}
+.split{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--sky);margin:16px 0 14px}
+.split i{display:block;height:100%;width:0;transition:width 1.3s cubic-bezier(.2,.8,.2,1)}
+.split i:nth-child(1){background:var(--blue)} .split i:nth-child(2){background:var(--cyan)} .split i:nth-child(3){background:var(--green)}
+.go .split i:nth-child(1){width:50%} .go .split i:nth-child(2){width:30%;transition-delay:.25s} .go .split i:nth-child(3){width:20%;transition-delay:.5s}
+.pots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pot{border:1px solid var(--line);border-radius:16px;padding:10px 6px;text-align:center;background:var(--bg);opacity:0;transform:translateY(10px);transition:.6s}
+.go .pot{opacity:1;transform:none}
+.go .pot:nth-child(2){transition-delay:.15s}.go .pot:nth-child(3){transition-delay:.3s}
+.pot small{display:block;color:var(--mute);font-size:12px;font-weight:700}
+.pot b{font-size:17px}
+.pot span{display:block;font-size:12px;color:var(--mute)}
+.eg{margin:12px 2px 0;font-size:12px;color:var(--mute)}
+
+/* steps */
+.sec{font-size:20px;margin:48px 0 14px;font-weight:700}
+.steps{display:grid;gap:12px}
+@media(min-width:700px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;opacity:0;transform:translateY(18px);transition:.6s}
+.step.in{opacity:1;transform:none}
+.step .n{width:34px;height:34px;border-radius:50%;background:var(--sky);color:var(--blue);font-weight:800;display:grid;place-items:center;margin-bottom:8px}
+.step h3{margin:0 0 4px;font-size:17px}
+.step p{margin:0;color:var(--mute);font-size:14px}
+footer{margin-top:34px;padding:14px;border-radius:16px;background:var(--sky);color:var(--mute);font-size:12.5px}
+footer b{color:var(--ink)} footer a{color:var(--blue);font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--navy);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:14px;transition:.35s;z-index:9;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .wm{clip-path:none}.underline path{stroke-dashoffset:0}
+  .vision span,.vision-th{opacity:1;transform:none}
+  .pot,.step{opacity:1;transform:none}.split i:nth-child(1){width:50%}.split i:nth-child(2){width:30%}.split i:nth-child(3){width:20%}
+}
+</style>
+
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <nav>
+    <div class="brand"><img class="nav-logo" src="assets/logo-h.png" alt="Mira"></div>
+    <nav class="s-links" aria-label="main"><a href="/features.html"><span class="th">ฟีเจอร์</span><span class="en">Features</span></a><a href="/results.html"><span class="th">ผลทดสอบ</span><span class="en">Results</span></a><a href="/how-it-works.html"><span class="th">เริ่มยังไง</span><span class="en">How it works</span></a><a href="/safety.html"><span class="th">ความปลอดภัยและข้อมูล</span><span class="en">Safety and data</span></a><a href="/faq.html"><span class="th">คำถามที่พบบ่อย</span><span class="en">FAQ</span></a></nav>
+    <div class="nav-r">
+      <button class="lang" id="lang" aria-label="Switch language">EN</button>
+      <button class="btn btn-primary btn-sm" data-signin data-t="signin"></button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <img class="wm" src="assets/wordmark.png" alt="Mira">
+      <svg class="underline" viewBox="0 0 260 18" aria-hidden="true"><path d="M4 12 C 50 2, 90 18, 135 8 S 220 4, 256 11"/></svg>
+      <h1><span data-t="h1pre"></span> <span class="rot" id="rot" aria-live="polite"></span> <span data-t="h1post"></span></h1>
+      <p class="lead" data-t="lead"></p>
+      <div class="cta">
+        <button class="btn btn-primary" data-signin><span data-t="signin_big"></span> →</button>
+        <a class="btn btn-ghost" href="/evidence" data-t="evidence"></a>
+        <a class="btn btn-ghost" href="/demo.html"><span class="th">ลองใช้แบบสาธิต</span><span class="en">Try the demo</span></a>
+      </div>
+      <div class="trust">
+        <span data-t="t1"></span><span data-t="t2"></span><span data-t="t3"></span>
+      </div>
+    </div>
+
+    <div class="demo" id="demo">
+      <div class="spark" aria-hidden="true"><b></b><b></b><b></b></div>
+      <div class="card">
+        <div class="top"><span class="lbl" data-t="d_lbl"></span><span class="tag" data-t="d_tag"></span></div>
+        <div class="amount">฿<span id="count">0</span></div>
+        <div class="split"><i></i><i></i><i></i></div>
+        <div class="pots">
+          <div class="pot"><small data-t="p1"></small><b>฿2,500</b><span>50%</span></div>
+          <div class="pot"><small data-t="p2"></small><b>฿1,500</b><span>30%</span></div>
+          <div class="pot"><small data-t="p3"></small><b>฿1,000</b><span>20%</span></div>
+        </div>
+        <p class="eg" data-t="d_eg"></p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+  
+
+
+
+
+
+<div id="home-extra">
+  <section class="s-sec s-reveal" style="margin-top:36px">
+    <h2><span class="th">ทำไมต้อง Mira</span><span class="en">Why Mira</span></h2>
+    <p class="lead"><span class="th">สามอย่างที่ทำให้ Mira ต่างจากแอปการเงินทั่วไป</span><span class="en">Three things that set Mira apart.</span></p>
+    <div class="s-grid c3">
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 33l10-11 8 6 12-16"/><path d="M28 12h9v9"/></svg></div><h3><span class="th">เห็นเงินของคุณชัดๆ</span><span class="en">See your money clearly</span></h3><p><span class="th">เริ่มจาก ฿0 รายงานกำไรมาก่อน แล้วแผนภาพว่าเงินกระจายไปที่ไหน</span><span class="en">Start from ฿0. Profit first, then a diagram of where it is spread.</span></p><a class="more" href="/features.html"><span class="th">อ่านต่อ</span><span class="en">Learn more</span> &rarr;</a></div>
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6h14l8 8v24H12z"/><path d="M26 6v8h8M17 24h12M17 30h12"/></svg></div><h3><span class="th">พูดตรงเรื่องผลทดสอบ</span><span class="en">Honest about the results</span></h3><p><span class="th">แสดงทั้งส่วนที่ดีและไม่ดี ไม่ซ่อนว่าหุ้นล้วนเติบโตเร็วกว่า</span><span class="en">Good and bad shown, including that all-stocks grew faster.</span></p><a class="more" href="/results.html"><span class="th">อ่านต่อ</span><span class="en">Learn more</span> &rarr;</a></div>
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="20" width="26" height="18" rx="4"/><path d="M15 20v-5a7 7 0 0114 0v5"/></svg></div><h3><span class="th">ข้อมูลของคุณ คุณคุมได้</span><span class="en">Your data, your control</span></h3><p><span class="th">ดาวน์โหลด ลบ และถอนความยินยอมได้ตามสิทธิ PDPA</span><span class="en">Download, delete and withdraw consent under your PDPA rights.</span></p><a class="more" href="/safety.html"><span class="th">อ่านต่อ</span><span class="en">Learn more</span> &rarr;</a></div>
+    </div>
+  </section>
+
+  <section class="s-sec s-reveal">
+    <h2><span class="th">ผลทดสอบโมเดลโดยสรุป</span><span class="en">The model results at a glance</span></h2>
+    <p class="lead"><span class="th">ทดสอบย้อนหลัง 2001–2026 สัดส่วนหุ้น 60% เทียบกับถือหุ้นทั้งหมด</span><span class="en">Backtest 2001–2026, 60% stocks vs all-stocks.</span></p>
+    <div class="s-stat">
+      <div><small><span class="th">ขาดทุนหนักสุด</span><span class="en">Worst fall</span></small><b>&minus;7.7%</b><i><span class="th">เทียบ</span><span class="en">vs</span> &minus;50.8%</i></div>
+      <div><small><span class="th">เติบโตต่อปี</span><span class="en">Growth a year</span></small><b>+5.9%</b><i><span class="th">เทียบ</span><span class="en">vs</span> +8.8%</i></div>
+      <div><small>Sharpe</small><b>0.76</b><i><span class="th">เทียบ</span><span class="en">vs</span> 0.52</i></div>
+    </div>
+    <p style="margin-top:16px"><a class="s-btn o" href="/results.html"><span class="th">ดูผลทดสอบและข้อจำกัด</span><span class="en">See the results and limits</span> &rarr;</a></p>
+  </section>
+
+  <section class="s-sec s-reveal">
+    <div class="s-grid c4">
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h28a3 3 0 013 3v15a3 3 0 01-3 3H20l-8 6v-6H8a3 3 0 01-3-3V13a3 3 0 013-3z"/><path d="M14 18h16M14 24h10"/></svg></div><h3><span class="th">June ที่ปรึกษา AI</span><span class="en">June, AI helper</span></h3><p><span class="th">ถามหรือขอปรับแผนด้วยกัน มีปุ่มย้อนกลับ</span><span class="en">Ask or change your plan together, with undo.</span></p></div>
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="22" r="15"/><path d="M22 13v18M27 17.500c-1-1.500-2.800-2.300-5-2.300-3 0-5 1.400-5 3.600 0 4.800 10 2.400 10 7 0 2.200-2.200 3.600-5 3.600-2.300 0-4.200-.9-5.200-2.500"/></svg></div><h3><span class="th">ยืมฉุกเฉิน</span><span class="en">Emergency borrowing</span></h3><p><span class="th">ดอกเบี้ยต่ำจากผู้ใช้อื่น (จำลอง)</span><span class="en">Low rate from other users (simulated).</span></p></div>
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 30c4-10 8-14 14-14s8 6 18-6"/><path d="M30 10h8v8"/><path d="M8 36h28"/></svg></div><h3><span class="th">ปล่อยเงินรับดอกเบี้ย</span><span class="en">Earn by lending</span></h3><p><span class="th">กระจายเป็นก้อนเล็กๆ (จำลอง)</span><span class="en">Spread in small pieces (simulated).</span></p></div>
+      <div class="s-card s-reveal"><div class="ic"><svg viewBox="0 0 44 44" fill="none" stroke="#1e7bff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 33l10-11 8 6 12-16"/><path d="M28 12h9v9"/></svg></div><h3><span class="th">บิลรายเดือน</span><span class="en">Monthly bill</span></h3><p><span class="th">ตั้งจำนวนและวันตัดเงินเอง</span><span class="en">Set the amount and day yourself.</span></p><a class="more" href="/how-it-works.html"><span class="th">อ่านต่อ</span><span class="en">Learn more</span> &rarr;</a></div>
+    </div>
+  </section>
+
+  <section class="s-cta s-reveal">
+    <h2><span class="th">พร้อมเริ่มจาก ฿0 แล้วหรือยัง</span><span class="en">Ready to start from ฿0?</span></h2>
+    <p><span class="th">สมัครฟรี ตั้งชื่อผู้ใช้ แล้วเริ่มดูเงินของคุณ</span><span class="en">Sign up free, pick a username, and start looking at your money.</span></p>
+    <button class="s-btn" data-signin><span class="th">เริ่มต้น / เข้าสู่ระบบ</span><span class="en">Get started / Sign in</span> &rarr;</button>
+  </section>
+</div>
+
+<footer class="s-foot">
+  <div class="s-wrap">
+    <div class="row">
+      <div><b>Mira</b><br><span class="th">เงินเดือนแรก ควรได้มากกว่าการเดา</span><span class="en">Your first paycheck deserves more than guesswork.</span></div>
+      <nav>
+        <a href="/features.html"><span class="th">ฟีเจอร์</span><span class="en">Features</span></a>
+        <a href="/results.html"><span class="th">ผลทดสอบ</span><span class="en">Results</span></a>
+        <a href="/how-it-works.html"><span class="th">เริ่มยังไง</span><span class="en">How it works</span></a>
+        <a href="/safety.html"><span class="th">ความปลอดภัยและข้อมูล</span><span class="en">Safety and data</span></a>
+        <a href="/faq.html">FAQ</a>
+        <a href="/model/report.html"><span class="th">รายงานฉบับเต็ม</span><span class="en">Full report</span></a>
+      </nav>
+    </div>
+    <p class="legal"><span class="th">เพื่อการวิจัยและทดสอบแบบจำลองเท่านั้น ไม่ใช่คำแนะนำการลงทุน ไม่มีการรับประกันกำไร และอาจขาดทุนได้ ผลในอดีตไม่รับประกันอนาคต</span><span class="en">For research and simulation only. Not investment advice. No profit is promised and you can lose money. Past results do not guarantee the future.</span></p>
+  </div>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const I18N = {
+  th: {
+    signin:"เข้าสู่ระบบ", signin_big:"เริ่มต้น / เข้าสู่ระบบ", evidence:"ดูหลักฐานที่ Mira วัดได้",
+    chip:"สำหรับเงินเดือนก้อนแรกของคุณ · ไม่ต้องรู้ศัพท์การเงิน",
+    h1pre:"ไม่ว่าคุณจะมี", h1post:"ก็เริ่มดูแลเงินกับ Mira ได้เลย",
+    amounts:["5 บาท","10 บาท","50 บาท","100 บาท","ไม่มีเครดิตกู้เงิน"],
+    lead:"เริ่มจากเท่าไรก็ได้ Mira ช่วยแบ่งเงิน เก็บเงินสำรองฉุกเฉิน และเห็นความเสี่ยงก่อนตัดสินใจลงทุน เป็นภาษาที่เข้าใจง่าย (Mira ไม่ใช่บริการปล่อยกู้)",
+    t1:"พูดตรง ไม่โม้", t2:"ไม่สัญญากำไร", t3:"ทุกตัวเลขตรวจสอบได้",
+    d_lbl:"เงินในพอร์ตของคุณ (เริ่มจาก ฿0)", d_tag:"ภาพประกอบ",
+    p1:"พันธบัตร", p2:"หุ้น", p3:"ของจริง (ทอง น้ำมัน)",
+    d_eg:"ภาพประกอบ: เติมเงินแล้วดูว่าเงินกระจายไปที่ไหน เป็นพอร์ตจำลอง ไม่ใช่คำแนะนำเฉพาะตัว",
+    steps_h:"เริ่มต้นใน 3 ขั้นตอน",
+    s1h:"บอกรายได้ของคุณ", s1p:"ใส่เงินเดือนและเป้าหมาย ข้อมูลอยู่ในเครื่องคุณ",
+    s2h:"แบ่งเงินให้อัตโนมัติ", s2p:"ได้แผนแบ่งเงินง่ายๆ สำหรับค่าใช้จ่าย ใช้ส่วนตัว และเงินสำรอง",
+    s3h:"เห็นความเสี่ยงก่อนลงทุน", s3p:"Mira โชว์ความน่าจะเป็นพร้อมระดับหลักฐานจริง ว่าแม่นแค่ไหน",
+    foot_b:"คำเตือน:", foot:"Mira เป็นโครงการวิจัยและทดสอบแบบกระดาษ ไม่ได้ใช้เงินจริง ไม่ใช่คำแนะนำการลงทุน การลงทุนมีความเสี่ยง ผลในอดีตไม่รับประกันอนาคต",
+    foot_link:"ดูผลการวัดทั้งหมด",
+    soon:"ระบบเข้าสู่ระบบกำลังจะมา เดี๋ยวเชื่อมในขั้นต่อไป",
+  },
+  en: {
+    signin:"Sign in", signin_big:"Get started / Sign in", evidence:"See what Mira has measured",
+    chip:"Built for your very first paycheck · zero jargon",
+    h1pre:"Whether you have", h1post:"you can start taking care of your money with Mira.",
+    amounts:["฿5","฿10","฿50","฿100","no loan credit at all"],
+    lead:"Start with any amount. Mira helps you split your money, build an emergency cushion, and see risk before you invest, in plain language. (Mira is not a lender.)",
+    t1:"Plain-spoken, no hype", t2:"No profit promises", t3:"Every number traceable",
+    d_lbl:"YOUR PORTFOLIO (STARTS AT ฿0)", d_tag:"Illustration only",
+    p1:"Bonds", p2:"Stocks", p3:"Real goods (gold, oil)",
+    d_eg:"Illustration: add money and see where it is spread. A paper portfolio, not personal advice.",
+    steps_h:"Start in 3 steps",
+    s1h:"Tell Mira your income", s1p:"Enter salary and goals. Your data stays on your device.",
+    s2h:"Split it automatically", s2p:"Get a simple plan for bills, spending and a safety net.",
+    s3h:"See risk before investing", s3p:"Mira shows probabilities with the real level of evidence behind them.",
+    foot_b:"Disclaimer:", foot:"Mira is a research and paper-testing project. No real money is used. Not investment advice. Investing carries risk; past results do not guarantee the future.",
+    foot_link:"See all measured results",
+    soon:"Sign-in is coming; we will connect it in the next step.",
+  }
+};
+let lang = "th";
+try { lang = localStorage.getItem("mira_lang") || "th"; } catch (e) {}
+function render(){
+  const T = I18N[lang];
+  document.documentElement.lang = lang;
+  document.getElementById("lang").textContent = lang === "th" ? "EN" : "ไทย";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = T[el.dataset.t]);
+}
+document.getElementById("lang").onclick = () => {
+  lang = lang === "th" ? "en" : "th";
+  try { localStorage.setItem("mira_lang", lang); } catch (e) {}
+  render();
+};
+// Sign-in goes to the Clerk page
+document.querySelectorAll("[data-signin]").forEach(b => b.onclick = () => { location.href = "/sign-in"; });
+render();
+
+// typewriter: "how much do you have" types in with a caret, holds, deletes, next
+const rot = document.getElementById("rot");
+const seg = t => Array.from(new Intl.Segmenter("th", {granularity:"grapheme"}).segment(t), x => x.segment);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function typeLoop(){
+  await sleep(3600);
+  for (let i = 0;; i++) {
+    const g = seg(I18N[lang].amounts[i % I18N[lang].amounts.length]);
+    for (let k = 1; k <= g.length; k++) { rot.textContent = g.slice(0, k).join(""); await sleep(95); }
+    await sleep(1500);
+    for (let k = g.length - 1; k >= 0; k--) { rot.textContent = g.slice(0, k).join(""); await sleep(40); }
+    await sleep(250);
+  }
+}
+if (matchMedia("(prefers-reduced-motion:reduce)").matches) rot.textContent = I18N[lang].amounts[0];
+else typeLoop();
+
+// entrance: fill the split bar + count up the example salary
+const demo = document.getElementById("demo"), cnt = document.getElementById("count");
+const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+setTimeout(() => demo.classList.add("go"), 350);
+if (reduce) cnt.textContent = "5,000";
+else {
+  const t0 = performance.now(), dur = 1400;
+  (function tick(t){
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    cnt.textContent = Math.round(5000 * e).toLocaleString("en-US");
+    if (k < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+// steps reveal on scroll
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { x.target.classList.add("in"); io.unobserve(x.target); } }), {threshold:.2});
+document.querySelectorAll(".step").forEach((s, i) => { s.style.transitionDelay = (i * 120) + "ms"; io.observe(s); });
+</script>
+<script src="site.js"></script>
+</body>
+</html>

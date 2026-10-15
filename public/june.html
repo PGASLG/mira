@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mira — คุยกับ June</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet">
+<script src="loader.js"></script>
+<style>
+:root{--blue:#1e7bff;--navy:#0b3a93;--cyan:#4cc9ff;--yellow:#fdb913;--green:#12a15c;--red:#c43d3d;--sky:#e8f2ff;--bg:#f4f8ff;--card:#fff;--ink:#0f1f3d;--mute:#5b6b88;--line:#dbe5f5}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1226;--card:#121c36;--ink:#eaf1ff;--mute:#9fb0d0;--line:#24345a;--sky:#14264d;--green:#4cd790;--red:#ff8585}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Prompt",system-ui,sans-serif;overflow:hidden}
+.app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;max-width:1180px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:8px}
+header .logo{height:34px;width:auto;display:block}
+.hr{display:flex;gap:8px}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:6px 13px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none}
+.pill.sm{padding:4px 11px;font-size:12.5px;font-weight:600}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:1fr;gap:14px;padding:0 16px 12px}
+@media (min-width:960px){.main{grid-template-columns:1fr 340px}}
+
+/* chat */
+.chat{min-height:0;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.who{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.who .tools{margin-left:auto;display:flex;gap:6px}
+.av{width:40px;height:40px;border-radius:8px;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none;font:600 22px/1 "Newsreader","Noto Serif Thai",Georgia,serif}
+.who b{display:block;line-height:1.2;font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:19px;font-weight:600}
+.who small{color:var(--mute);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#aab4c8;display:inline-block}
+.dot.on{background:var(--green)}.dot.busy{background:var(--yellow)}
+.msgwrap{position:relative;flex:1;min-height:0;display:flex}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.toend{position:absolute;right:14px;bottom:10px;width:38px;height:38px;border-radius:6px;border:1px solid var(--ink);background:var(--card);color:var(--ink);font-size:18px;font-weight:700;cursor:pointer}
+.toend[hidden]{display:none}
+.who{flex-wrap:wrap}
+.histp{position:absolute;inset:0;z-index:2;background:var(--card);overflow-y:auto;padding:16px}
+.histp[hidden]{display:none}
+.histp h2{font:600 17px "Newsreader","Noto Serif Thai",Georgia,serif;margin:0 0 8px}
+.hrow{display:flex;gap:8px;align-items:stretch;border-top:1px solid var(--line)}
+.hrow .open{flex:1;text-align:left;background:none;border:0;color:var(--ink);font:inherit;padding:10px 0;cursor:pointer}
+.hrow .open small{display:block;color:var(--mute);font-size:12.5px}
+.hrow .open.cur b{color:var(--blue)}
+.hrow .del{background:none;border:0;color:var(--mute);font:inherit;font-size:13px;cursor:pointer}
+.m{max-width:84%;padding:10px 14px;border-radius:8px;white-space:pre-wrap;word-wrap:break-word;animation:pop .25s both}
+.m.j{align-self:flex-start;background:transparent;border-left:2px solid var(--ink);border-radius:0;padding:4px 0 4px 14px;max-width:88%}
+.m.u{align-self:flex-end;background:var(--blue);color:#fff}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.typing{align-self:flex-start;display:flex;gap:5px;border-left:2px solid var(--ink);padding:8px 14px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:bn 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bn{0%,80%,100%{transform:scale(.6);opacity:.5}40%{transform:scale(1);opacity:1}}
+.change{align-self:stretch;border:1px solid var(--green);border-left-width:3px;background:transparent;border-radius:8px;padding:10px 14px;font-size:14.5px;display:flex;justify-content:space-between;gap:10px;align-items:center;animation:pop .25s both}
+.change b{color:var(--green)}
+.change button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:4px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
+.change button:disabled{opacity:.6;cursor:default}
+.err,.notice{align-self:stretch;border:1px solid var(--line);border-left:3px solid var(--yellow);background:var(--warn-bg,#fbf3dc);color:var(--ink);border-radius:8px;padding:10px 14px;font-size:14px;display:flex;gap:10px;justify-content:space-between;align-items:center;animation:pop .25s both}
+.notice{font-size:13.5px;color:var(--mute);border-color:var(--line);background:transparent}
+.err button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:4px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 10px}
+.chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chips button:hover{border-color:var(--ink)}
+.box{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);align-items:flex-end}
+.box textarea{flex:1;resize:none;max-height:120px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:10px 14px;font:inherit;outline:0}
+.box textarea:focus{border-color:var(--blue)}
+.ib{width:44px;height:44px;border-radius:8px;border:0;flex:none;display:grid;place-items:center;cursor:pointer}
+.ib.send{background:var(--blue);color:#fff}
+.ib.mic{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.ib.mic.on{background:var(--red);color:#fff;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.7}}
+.ib:disabled{opacity:.5;cursor:default}
+
+/* info panel */
+.side{display:none;flex-direction:column;gap:12px;overflow-y:auto}
+@media (min-width:960px){.side{display:flex}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.panel h2{font:600 17px "Newsreader","Noto Serif Thai",Georgia,serif;margin:0 0 8px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-top:1px solid var(--line);font-size:14.5px}
+.kv:first-of-type{border-top:0}
+.kv span{color:var(--mute)}
+.kv b{font:600 20px "Newsreader","Noto Serif Thai",Georgia,serif;font-variant-numeric:tabular-nums lining-nums}
+.flash{animation:flash 1.2s}
+@keyframes flash{0%{background:rgba(253,185,19,.4)}100%{background:transparent}}
+.up{color:var(--green)}.down{color:var(--red)}
+.small{font-size:12.5px;color:var(--mute);margin:8px 0 0}
+.mobinfo{display:block;padding:0 16px 8px}
+@media (min-width:960px){.mobinfo{display:none}}
+.mobinfo details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 14px}
+.mobinfo summary{cursor:pointer;font-weight:600;font-size:14.5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="hr"><a class="pill" href="/dashboard.html" id="back"></a><button class="pill" id="lang">EN</button></div>
+  </header>
+
+  <div class="mobinfo"><details><summary id="m_sum"></summary><div id="m_info"></div></details></div>
+
+  <div class="main">
+    <section class="chat">
+      <div class="who">
+        <div class="av">M</div>
+        <div><b>June</b><small><span class="dot" id="dot"></span><span id="status"></span></small></div>
+        <div class="tools"><button type="button" class="pill sm" id="newc"></button><button type="button" class="pill sm" id="histb"></button><button type="button" class="pill sm" id="copy"></button><button type="button" class="pill sm" id="clear"></button></div>
+      </div>
+      <div class="msgwrap">
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <button type="button" class="toend" id="toend" hidden aria-label="latest">↓</button>
+        <div class="histp" id="histp" hidden></div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <form class="box" id="form">
+        <button type="button" class="ib mic" id="mic" aria-label="voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button>
+        <textarea id="inp" rows="1" autocomplete="off"></textarea>
+        <button class="ib send" id="send" aria-label="send"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14-7-5 15-3-6-6-2z"/></svg></button>
+      </form>
+    </section>
+
+    <aside class="side">
+      <div class="panel"><h2 id="p_h"></h2><div id="p_info"></div><p class="small" id="p_note"></p></div>
+      <div class="panel"><h2 id="c_h"></h2><p class="small" id="c_t" style="margin:0"></p></div>
+    </aside>
+  </div>
+</div>
+
+<script src="data/mira-data.js"></script>
+<script type="module">
+const MD = window.MIRA_DATA || {};
+const MODEL = MD.model || {};
+const RISK_SPLIT = {low:10,mid:30,high:60};           // same mapping investment.html / track.html use (mira_split = high %)
+const riskOf = s => s<=15?"low":s<=50?"mid":"high";
+const I18N = {
+ th:{back:"← หน้าหลัก", ph:"พิมพ์ถาม June ได้เลย...", st_off:"ยังไม่ได้เริ่มคุย", st_conn:"กำลังเชื่อมต่อ...", st_on:"ออนไลน์", st_voice:"กำลังฟังอยู่",
+  chips0:["ช่วยวางแผนให้ทีละขั้น","เติมเงินจำลอง 1,000 บาท","แผนนี้ทำงานยังไง","ตลาดตอนนี้เป็นยังไง"],
+  chips:["ตอนนี้ได้กำไรเท่าไร","ช่วยตรวจแผน บอกว่าควรทำอะไรต่อ","เดือนนี้ควรใส่เงินเท่าไร","เติมเงินให้ 1,000 บาท"],
+  p_h:"ข้อมูลของคุณ (June เห็นอยู่)", p_note:"June แก้ได้เฉพาะแผนจำลองนี้ ทุกการเปลี่ยนมีปุ่มย้อนกลับ ไม่ใช่เงินจริง ไม่ใช่คำแนะนำการลงทุน",
+  m_sum:"ข้อมูลของคุณที่ June เห็น", c_h:"June ทำอะไรได้", c_t:"อ่านข้อมูลของคุณ อธิบายเป็นภาษาง่ายๆ ปรับเงินที่ใส่ต่อเดือน เปลี่ยนระดับความเสี่ยง และเติมเงินจำลอง June ไม่บอกให้ซื้อหรือขายอะไร และไม่สัญญาผลตอบแทน",
+  k:{value:"เงินตอนนี้",put:"เงินที่ใส่ไป",profit:"กำไร",monthly:"ใส่ต่อเดือน",day:"ตัดเงินวันที่",risk:"ระดับความเสี่ยง",limit:"วงเงินฉุกเฉิน",mkt:"ตลาดผันผวน"},
+  lvl:{low:"ต่ำ",mid:"กลาง",high:"สูง"}, stress:["สงบ","เฝ้าระวัง","ระวัง","ระวังมาก"],
+  hello0:"สวัสดีค่ะ June เองนะคะ ตอนนี้ในแผนมีเงินจำลอง ฿0 ค่ะ ไม่เป็นไรเลย เริ่มจากเติมก้อนเล็กๆ ก่อนก็ได้ ให้ June อธิบายแผนเป็นภาษาง่ายๆ ไหมคะ (ทั้งหมดเป็นเงินจำลอง ไม่ใช่เงินจริงนะคะ)",
+  hello:"สวัสดีค่ะ June เองนะคะ ถามเรื่องเงินได้เลย หรือบอกให้ปรับแผนก็ได้ค่ะ",
+  helloT:{low:"เห็นว่าคุณกำลังดูกองเสี่ยงต่ำอยู่ค่ะ อยากให้ June อธิบายหรือปรับแผนตรงไหน บอกได้เลยนะคะ",high:"เห็นว่าคุณกำลังดูกองเสี่ยงสูงอยู่ค่ะ อยากให้ June อธิบายหรือปรับแผนตรงไหน บอกได้เลยนะคะ",plan:"มาปรับแผนกันค่ะ บอก June ได้เลยว่าอยากเปลี่ยนอะไร เช่น เงินต่อเดือน วันตัดเงิน หรือระดับความเสี่ยง"},
+  chg:{amt:(a,d)=>`ตั้งเงินใส่ต่อเดือนเป็น ฿${a} ตัดวันที่ ${d}`,risk:(l)=>`เปลี่ยนระดับความเสี่ยงเป็น ${l}`,top:(a)=>`เติมเงินจำลอง ฿${a}`}, undo:"ย้อนกลับ", undone:"ย้อนกลับแล้ว",
+  nokey:"ยังไม่ได้ใส่ Agent ID ในไฟล์ <code>june-config.json</code>", fail:"เชื่อมต่อ June ไม่สำเร็จ ลองใหม่อีกครั้งในอีกสักครู่",
+  micdeny:"ต้องอนุญาตไมโครโฟนก่อนจึงจะคุยด้วยเสียงได้", nomic:"อุปกรณ์นี้ใช้ไมโครโฟนไม่ได้ ลองพิมพ์คุยแทนนะคะ",
+  notReal:"ยังไม่ได้เปลี่ยนจริง — June พูดเหมือนเปลี่ยนแล้ว แต่แผนของคุณยังเหมือนเดิม ลองบอกใหม่ให้ชัดอีกครั้ง",
+  retry:"ลองอีกครั้ง", resend:"ส่งอีกครั้ง", dropped:"การเชื่อมต่อหลุด กำลังเชื่อมใหม่...", slow:"June ตอบช้ากว่าปกติ",
+  newc:"แชทใหม่", hist:"ประวัติ", histT:"แชทที่ผ่านมา", noHist:"ยังไม่มีแชทเก่า", del:"ลบ", cur:"แชทนี้", copy:"คัดลอก", copied:"คัดลอกแล้ว", clear:"ล้าง", clearQ:"ล้างบทสนทนานี้ใช่ไหม?", empty:"ยังไม่มีข้อความให้คัดลอก", me:"ฉัน", sent:"ส่งข้อความไม่สำเร็จ"},
+ en:{back:"← Home", ph:"Type a question for June...", st_off:"Not started", st_conn:"Connecting...", st_on:"Online", st_voice:"Listening",
+  chips0:["Plan it with me step by step","Add simulated ฿1,000","How does the plan work?","How is the market now?"],
+  chips:["What is my profit now?","Review my plan, what should I do next?","How much should I put in?","Add ฿1,000 for me"],
+  p_h:"Your info (June can see it)", p_note:"June can only change this simulated plan. Every change has an undo. Not real money, not investment advice.",
+  m_sum:"Your info that June sees", c_h:"What June can do", c_t:"Read your info, explain in plain words, change your monthly amount, change your risk level and add simulated money. June never tells you to buy or sell, and never promises returns.",
+  k:{value:"Money now",put:"Put in",profit:"Profit",monthly:"Per month",day:"Charge day",risk:"Risk level",limit:"Emergency limit",mkt:"Market bumpiness"},
+  lvl:{low:"Low",mid:"Medium",high:"High"}, stress:["Calm","Watch","Careful","Very careful"],
+  hello0:"Hi, I'm June. Your plan has ฿0 of simulated money right now, and that's totally fine. You can start by adding a small amount. Want me to explain how the plan works in plain words? (Everything here is simulated, not real money.)",
+  hello:"Hi, I'm June. Ask me anything about your money, or tell me to change your plan.",
+  helloT:{low:"I see you're looking at the low-risk track. Tell me what you'd like explained or changed.",high:"I see you're looking at the high-risk track. Tell me what you'd like explained or changed.",plan:"Let's adjust your plan. Tell me what to change, like the monthly amount, charge day or risk level."},
+  chg:{amt:(a,d)=>`Monthly amount set to ฿${a}, charged on day ${d}`,risk:(l)=>`Risk level changed to ${l}`,top:(a)=>`Added simulated ฿${a}`}, undo:"Undo", undone:"Undone",
+  nokey:"No Agent ID in <code>june-config.json</code> yet", fail:"Could not connect to June. Please try again in a moment.",
+  micdeny:"Please allow the microphone to talk by voice.", nomic:"This device can't use the microphone. Please type instead.",
+  notReal:"Not actually changed — June worded it as if it was done, but your plan is the same. Please ask again more clearly.",
+  retry:"Try again", resend:"Send again", dropped:"Connection dropped, reconnecting...", slow:"June is replying slower than usual",
+  newc:"New chat", hist:"History", histT:"Past chats", noHist:"No past chats yet", del:"Delete", cur:"This chat", copy:"Copy", copied:"Copied", clear:"Clear", clearQ:"Clear this conversation?", empty:"No messages to copy yet", me:"Me", sent:"Message could not be sent"}
+};
+let lang="th";
+const S={amt:2000,day:5,risk:"mid",topup:0,split:null,name:""};
+const $=id=>document.getElementById(id), fmt=n=>Math.round(n).toLocaleString("en-US");
+const T=()=>I18N[lang];
+const ls=(k)=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+function readLS(){
+  const l=ls("mira_lang"); if(l==="th"||l==="en") lang=l;
+  const a=ls("mira_monthly"); if(a!==null&&!isNaN(+a)) S.amt=+a;
+  const d=ls("mira_day"); if(d!==null&&!isNaN(+d)) S.day=+d;
+  const r=ls("mira_risk"); if(RISK_SPLIT[r]!==undefined) S.risk=r;
+  const sp=ls("mira_split"); S.split=(sp!==null&&sp!==""&&!isNaN(+sp))?+sp:null;
+  if(S.split!==null) S.risk=riskOf(S.split);
+  S.topup=Math.max(0,+(ls("mira_topup")||0)||0); S.name=ls("mira_name")||"";
+}
+readLS();
+function save(){ try{ localStorage.setItem("mira_monthly",S.amt); localStorage.setItem("mira_day",S.day); localStorage.setItem("mira_risk",S.risk);
+  localStorage.setItem("mira_topup",S.topup);
+  if(S.split===null) localStorage.removeItem("mira_split"); else localStorage.setItem("mira_split",S.split); }catch(e){} }
+
+function numbers(){ const v=Math.max(0,S.topup||0); return {value:v,put:v,profit:0,limit:v*0.9}; }
+function consentOn(){ return ls("mira_consent_june")!=="0"; }
+function vars(){ if(!consentOn()) return {user_name:lang==="th"?"คุณ":"there",portfolio_value:"unknown",total_put_in:"unknown",profit:"unknown",monthly_amount:"unknown",pay_day:"unknown",risk_level:"unknown",loan_limit:"unknown"};
+  const n=numbers(); return {user_name:S.name||(lang==="th"?"คุณ":"there"),portfolio_value:fmt(n.value),total_put_in:fmt(n.put),profit:fmt(n.profit),
+  monthly_amount:fmt(S.amt),pay_day:String(S.day),risk_level:S.risk,loan_limit:fmt(n.limit)}; }
+const isZero=()=>consentOn()&&numbers().value===0;
+// onboarding answers (public/onboarding.html): used only if the user agreed (mira_consent_profile) and June sharing is on
+function getProfile(){
+  if(ls("mira_consent_profile")==="0"||!consentOn()) return null;
+  try{ const p=JSON.parse(ls("mira_profile")||"null"); return p&&typeof p==="object"?p:null; }catch(e){ return null; }
+}
+function whyBits(p){ // easy-words reasons, same rules as onboarding: debt / thin cash / short horizon / nervous = lower; long horizon / calm / experience = higher
+  const th=lang==="th", low=[], up=[];
+  const months=(+p.essential>0&&+p.saved>=0)?(+p.saved/+p.essential):null;
+  if(+p.debt>0) low.push(th?"คุณมีหนี้อยู่":"you have some debt");
+  if(months!==null&&months<3) low.push(th?"เงินสำรองยังไม่ถึง 3 เดือน":"your emergency cash is under 3 months");
+  if(p.horizon==="short") low.push(th?"เป้าหมายอยู่ในระยะสั้น":"your goal is short-term");
+  if(p.react==="sell") low.push(th?"ถ้าตลาดตก คุณอาจกังวลและอยากขาย":"a market drop might make you nervous");
+  if(p.horizon==="long") up.push(th?"เป้าหมายอยู่ในระยะยาว":"your goal is long-term");
+  if(p.react==="hold"||p.react==="buy") up.push(th?"คุณรับความแกว่งได้":"you can sit through swings");
+  if(p.exp==="some"||p.exp==="lots") up.push(th?"คุณมีประสบการณ์มาบ้าง":"you have some experience");
+  return {low,up};
+}
+function profileHello(p){
+  const th=lang==="th", sp=Math.round(+p.split);
+  if(!(sp>=0&&sp<=100)) return "";
+  const {low,up}=whyBits(p), j=a=>a.join(th?" และ":" and ");
+  let why="";
+  if(low.length&&up.length) why=th?`เพราะ ${j(low)} จึงลดสัดส่วนลงหน่อย แต่ ${j(up)} จึงไม่ต้องลดมาก`:`${j(low)}, so the share is lowered a bit, but ${j(up)}, so not by much`;
+  else if(low.length) why=th?`เพราะ ${j(low)} จึงเลือกให้เติบโตน้อยลงเพื่อความสบายใจ`:`${j(low)}, so the growth share is kept smaller for peace of mind`;
+  else if(up.length) why=th?`เพราะ ${j(up)} จึงเพิ่มสัดส่วนส่วนที่เติบโตได้`:`${j(up)}, so the growth share can be a bit bigger`;
+  else why=th?"ตามคำตอบที่คุณให้ไว้":"based on the answers you gave";
+  const z=isZero()?(th?" ตอนนี้ในแผนมีเงินจำลอง ฿0 เริ่มจากเติมก้อนเล็กๆ ได้เลยค่ะ":" Your plan has ฿0 right now, so you can start with a small amount."):"";
+  return th?`สวัสดีค่ะ June เองนะคะ จากคำตอบที่คุณให้ไว้ แผนที่เสนอคือใส่ราว ${sp}% ของเงินรายเดือนไปส่วนที่เติบโตได้ ${why}ค่ะ ถ้าอยากปรับ บอก June ได้เลย จะช่วยตั้งให้ (เป็นข้อเสนอแนะ ไม่ใช่คำแนะนำการลงทุน เงินในแอปเป็นเงินจำลอง)${z}`
+    :`Hi, I'm June. From your answers, the suggested plan puts about ${sp}% of your monthly money into the growth part: ${why}. Tell me if you'd like it adjusted and I'll set it for you. (A suggestion, not investment advice; money here is simulated.)${z}`;
+}
+
+// ---- query params from other screens ----
+const Q=new URLSearchParams(location.search);
+const TRACK=["low","high"].includes(Q.get("track"))?Q.get("track"):"", TOPIC=Q.get("topic")==="plan"?"plan":"";
+
+// ---- panel ----
+let prev={};
+function renderInfo(){
+  const t=T(), n=numbers(), st=MODEL.state;
+  const rows=[["value",t.k.value,"฿"+fmt(n.value)],["put",t.k.put,"฿"+fmt(n.put)],
+    ["profit",t.k.profit,`<span class="${n.profit>=0?"up":"down"}">${n.profit>=0?"+":"-"}฿${fmt(Math.abs(n.profit))}</span>`],
+    ["monthly",t.k.monthly,"฿"+fmt(S.amt)],["day",t.k.day,String(S.day)],["risk",t.k.risk,t.lvl[S.risk]],["limit",t.k.limit,"฿"+fmt(n.limit)]];
+  if(st&&typeof st.stress==="number") rows.push(["mkt",t.k.mkt,t.stress[Math.min(3,Math.max(0,st.stress))]]);
+  const html=rows.map(([k,a,b])=>`<div class="kv ${prev[k]!==undefined&&prev[k]!==b?"flash":""}"><span>${a}</span><b>${b}</b></div>`).join("");
+  rows.forEach(([k,,b])=>prev[k]=b);
+  $("p_info").innerHTML=html; $("m_info").innerHTML=html;
+}
+function renderText(){
+  const t=T(); document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย"; $("back").textContent=t.back;
+  $("inp").placeholder=t.ph; $("p_h").textContent=t.p_h; $("p_note").textContent=t.p_note; $("m_sum").textContent=t.m_sum;
+  $("c_h").textContent=t.c_h; $("c_t").textContent=t.c_t; $("copy").textContent=t.copy; $("newc").textContent=t.newc; $("histb").textContent=t.hist; $("clear").textContent=t.clear;
+  const chips=isZero()?t.chips0:t.chips;
+  $("chips").innerHTML=""; chips.forEach(c=>{ const b=document.createElement("button"); b.type="button"; b.textContent=c; $("chips").appendChild(b); });
+  if(consentOn()&&!getProfile()&&ls("mira_consent_profile")!=="0"){ const a=document.createElement("a"); a.href="/onboarding.html"; a.target="_top"; a.className="pill sm"; a.style.alignSelf="center";
+    a.textContent=lang==="th"?"ตอบคำถามสั้นๆ เพื่อให้ June ช่วยตรงขึ้น":"Answer a few questions so June can tailor advice"; $("chips").appendChild(a); }
+  setStatus(state); renderInfo();
+}
+let state="off";
+function setStatus(s){ state=s; const t=T();
+  $("status").textContent={off:t.st_off,conn:t.st_conn,on:t.st_on,voice:t.st_voice}[s];
+  $("dot").className="dot "+(s==="on"||s==="voice"?"on":s==="conn"?"busy":"");
+  $("send").disabled=(s==="conn"); }
+
+// ---- history (sessionStorage, survives page navigation in this tab) ----
+const CK="mira_june_chats", IK="mira_june_cur";     // chats live in localStorage (this device), current chat id per tab
+let chats=[]; try{ const c=JSON.parse(localStorage.getItem(CK)||"[]"); if(Array.isArray(c)) chats=c.filter(x=>x&&x.id&&Array.isArray(x.h)); }catch(e){}
+let curId=""; try{ curId=sessionStorage.getItem(IK)||""; }catch(e){}
+let hist=[]; { const c=chats.find(x=>x.id===curId); if(c) hist=c.h.filter(e=>e&&typeof e.t==="string"); else curId=""; }
+const persist=()=>{ hist=hist.slice(-60);
+  if(hist.some(e=>e.k==="m")){ if(!curId) curId="c"+Date.now().toString(36);
+    let c=chats.find(x=>x.id===curId); if(!c){ c={id:curId,h:[]}; chats.unshift(c); }
+    c.h=hist; c.ts=Date.now(); const f=hist.find(e=>e.k==="m"&&e.w==="u"); c.title=f?f.t.slice(0,40):"…"; }
+  chats=chats.sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
+  try{ localStorage.setItem(CK,JSON.stringify(chats)); sessionStorage.setItem(IK,curId); }catch(e){} };
+const nearBottom=()=>{ const m=$("msgs"); return m.scrollHeight-m.scrollTop-m.clientHeight<140; };
+function scroll(force){ const m=$("msgs"); if(force||nearBottom()){ m.scrollTop=m.scrollHeight; $("toend").hidden=true; } else $("toend").hidden=false; }
+$("msgs").addEventListener("scroll",()=>{ $("toend").hidden=nearBottom(); });
+$("toend").onclick=()=>{ const m=$("msgs"); m.scrollTop=m.scrollHeight; $("toend").hidden=true; };
+
+// ---- messages ----
+function mkMsg(text,who){ const d=document.createElement("div"); d.className="m "+who; d.textContent=text; $("msgs").appendChild(d); return d; }
+function addMsg(text,who,store=true){ const d=mkMsg(text,who); if(store){ hist.push({k:"m",w:who,t:text}); persist(); } scroll(who==="u"); return d; }
+function mkCard(text){ const d=document.createElement("div"); d.className="change"; const s=document.createElement("span"); s.innerHTML="<b>✓</b> "; s.append(text); d.appendChild(s); $("msgs").appendChild(d); return d; }
+function mkNotice(text){ const d=document.createElement("div"); d.className="notice"; d.setAttribute("role","status"); d.textContent="⚠ "+text; $("msgs").appendChild(d); return d; }
+function addErr(html,retryLabel,retryFn){ const d=document.createElement("div"); d.className="err"; d.setAttribute("role","alert");
+  const s=document.createElement("span"); s.innerHTML=html; d.appendChild(s);
+  if(retryFn){ const b=document.createElement("button"); b.type="button"; b.textContent=retryLabel||T().retry; b.onclick=()=>{ d.remove(); retryFn(); }; d.appendChild(b); }
+  $("msgs").appendChild(d); scroll(true); return d; }
+let typingEl=null, typingTimer=null, lastUser="";
+function showTyping(){ if(typingEl) return; typingEl=document.createElement("div"); typingEl.className="typing"; typingEl.innerHTML="<i></i><i></i><i></i>"; $("msgs").appendChild(typingEl); scroll(true);
+  clearTimeout(typingTimer); typingTimer=setTimeout(()=>{ if(typingEl){ hideTyping(); addErr(T().slow,T().resend,()=>send(lastUser,true)); } },30000); }
+function hideTyping(){ if(typingEl){ typingEl.remove(); typingEl=null; } clearTimeout(typingTimer); }
+
+function restore(){
+  hist.forEach(e=>{ if(e.k==="m") mkMsg(e.t,e.w); else if(e.k==="c") mkCard(e.t); else if(e.k==="n") mkNotice(e.t); });
+  const m=$("msgs"); m.style.scrollBehavior="auto"; m.scrollTop=m.scrollHeight; m.style.scrollBehavior="";
+}
+
+// ---- turn tracking + "did it really change?" guard ----
+let turn={mut:false,notices:[]};
+const resetTurn=()=>{ turn={mut:false,notices:[]}; };
+// past-tense "I changed it" claims; "ตั้งไว้ที่ ..." only describes the current value so it is not a claim by itself
+const CLAIM_TH=/(ตั้ง(ไว้)?ให้|ตั้งไว้.{0,15}แล้ว|เปลี่ยน(แล้ว|ให้)|ปรับ(แล้ว|ให้)|แก้(แล้ว|ให้)|เติม(เงิน)?(ให้)?แล้ว|เพิ่ม(เงิน)?(ให้)?แล้ว|ทำให้แล้ว|เรียบร้อย|บันทึก(แล้ว|ให้))/;
+const ASKING_TH=/(ไหม|มั้ย|หรือเปล่า|หรือไม่|\?|ดีคะ|ดีครับ)/;   // offers like "ให้ปรับให้ไหมคะ" are not claims
+const CLAIM_EN=/\b(done|all set|i(?:'ve| have)? (?:set|changed|updated|added|adjusted|raised|lowered)|(?:has|have) been (?:set|changed|updated|added|adjusted)|is now (?:set|changed|updated)|now set to|successfully (?:set|changed|updated|added))\b/i;
+const claimsChange=msg=>(CLAIM_TH.test(msg)&&!(ASKING_TH.test(msg)&&!/แล้ว|เรียบร้อย/.test(msg)))||CLAIM_EN.test(msg);
+function guard(msg){
+  if(turn.mut||!claimsChange(msg)) return;
+  const el=mkNotice(T().notReal); turn.notices.push(el); hist.push({k:"n",t:T().notReal}); persist(); scroll(false);
+}
+function markMutation(){ turn.mut=true; turn.notices.forEach(el=>{ el.remove(); const i=hist.map(e=>e.k).lastIndexOf("n"); if(i>=0) hist.splice(i,1); }); turn.notices=[]; persist(); }
+
+// ---- changes June makes (with undo) ----
+function changeCard(text,snapshot){
+  const d=mkCard(text);
+  const b=document.createElement("button"); b.type="button"; b.textContent=T().undo;
+  b.onclick=()=>{ Object.assign(S,snapshot); save(); renderText(); b.disabled=true; b.textContent=T().undone; pushContext("The user undid the last change. Now: "+JSON.stringify(vars())); };
+  d.appendChild(b); hist.push({k:"c",t:text}); persist(); scroll(true);
+}
+const snap=()=>({amt:S.amt,day:S.day,risk:S.risk,topup:S.topup,split:S.split});
+const noConsent="The user turned off sharing plan data. Do not change it.";
+const clientTools={
+  get_plan: async()=>JSON.stringify({...vars(),note:"simulated paper portfolio, not real money"}),
+  set_monthly_amount: async(p)=>{ if(!consentOn()) return noConsent;
+    const a=Math.round(Number(p.amount)), d=p.day!==undefined&&p.day!==null?Math.round(Number(p.day)):S.day;
+    if(!(a>=0&&a<=1000000)) return "Invalid amount. Must be between 0 and 1,000,000.";
+    if(!(d>=1&&d<=28)) return "Invalid day. Must be between 1 and 28.";
+    const before=snap(); S.amt=a; S.day=d; save(); renderInfo(); changeCard(T().chg.amt(fmt(a),d),before); markMutation();
+    return `Done. Monthly amount is now ${a} THB, charged on day ${d}. New values: ${JSON.stringify(vars())}`; },
+  set_risk_level: async(p)=>{ if(!consentOn()) return noConsent;
+    const l=String(p.level||"").toLowerCase(); if(RISK_SPLIT[l]===undefined) return "Invalid level. Use low, mid or high.";
+    const before=snap(); S.risk=l; S.split=RISK_SPLIT[l]; save(); renderInfo(); changeCard(T().chg.risk(T().lvl[l]),before); markMutation();
+    return `Done. Risk level is now ${l}. New values: ${JSON.stringify(vars())}`; },
+  add_money: async(p)=>{ if(!consentOn()) return noConsent;
+    const a=Math.round(Number(p.amount)); if(!(a>0&&a<=1000000)) return "Invalid amount. Must be between 1 and 1,000,000.";
+    const before=snap(); S.topup+=a; save(); renderText(); changeCard(T().chg.top(fmt(a)),before); markMutation();
+    return `Done. Added ${a} THB (simulated). New values: ${JSON.stringify(vars())}`; }
+};
+
+// ---- context pushed to the agent after the session starts ----
+function modelContext(){
+  const out=[], st=MODEL.state, fx=MODEL.fx;
+  if(st&&typeof st.stress==="number") out.push(`Market volatility gauge (as of ${st.as_of}): stress level ${st.stress} on a 0-3 scale (0 calm, 3 very bumpy). This is a volatility regime, NOT a crash forecast. Volatility ratio ${st.vol_ratio}, drawdown ${st.drawdown_pct}%.`);
+  try{ const h=fx&&fx.horizons&&fx.horizons["30"], r=h&&h.ranges&&h.ranges["80"];
+    if(fx&&fx.spot&&r) out.push(`USD/THB spot ${fx.spot} (as of ${fx.as_of}). 30-day 80% range ${r.rate_low} to ${r.rate_high}. Ranges only, never a direction call.`); }catch(e){}
+  return out;
+}
+function fullContext(){
+  const p=["Context from the Mira app. Rules: the portfolio is a paper simulation, money only grows from top-ups the user adds. Never tell the user to buy or sell a specific asset, never promise returns, say research only / not investment advice when relevant. Only say a plan change is done after a client tool call succeeded. The user interface language is "+(lang==="th"?"Thai":"English")+"; keep words easy."];
+  p.push("ADVISOR MODE: act as the user's hands-on money coach, not a passive FAQ. Be decisive and give clear step-by-step instructions they can act on today. For any plan question use this shape: 1) one-line read of their situation from their numbers, 2) ONE concrete recommendation with a number (e.g. monthly amount, charge day, risk level) and why, 3) what could go wrong / the trade-off, 4) the next step, then offer to apply it with the right tool once they say yes. If key facts are missing, ask at most two short questions first (monthly income, goal and time horizon, how many months of emergency cash they hold) and then recommend. Rules of thumb you may use: keep 3-6 months of expenses as cash outside the plan first; put in only money not needed within ~3 years; a steady monthly amount of roughly 10-20% of income is a common starting range; match risk level to how much of a drop they can stomach (low = sleep well, high = accept big swings). Boundaries that never change: this is a paper simulation; do not name specific stocks/funds/coins to buy or sell or time the market; never promise or predict returns; ranges and stress levels are not forecasts; mention once per chat, briefly, that this is educational guidance, not licensed personal investment advice. Never say a change is done until the tool succeeded.");
+  if(isZero()) p.push("The user has ฿0 in the plan right now. Be warm, guide them to add some simulated money first (use add_money only if they ask), and explain the plan in easy words.");
+  const pf=getProfile();
+  if(pf) p.push("Onboarding answers the user agreed to share (income/essential/debt/saved are THB; goal emergency|buy|grow; horizon short|mid|long; react to a drop sell|hold|buy; exp none|some|lots; split = % of monthly money to the growth track): "+JSON.stringify(pf)+". Explain the suggested split in easy words with these rules: debt, under 3 months emergency cash, short horizon or a nervous reaction lower the growth share; long horizon, calm reaction or experience raise it. It is a suggestion, not advice. Offer to apply changes with set_risk_level / set_monthly_amount.");
+  else if(consentOn()) p.push("The user has not completed the onboarding questions (or declined sharing them). Offer once to answer a few questions at /onboarding.html so you can personalise; do not invent their answers.");
+  if(!consentOn()) p.push("The user turned off sharing plan numbers. Do not guess them and do not change the plan.");
+  p.push(...modelContext());
+  if(TRACK) p.push(`The user opened this chat from the ${TRACK}-risk track screen.`); else if(TOPIC) p.push("The user opened this chat to adjust their plan.");
+  const others=chats.filter(c=>c.id!==curId).slice(0,3);
+  if(others.length) p.push("Earlier separate chats with this user (newest first, memory only):\n"+others.map(c=>"- "+new Date(c.ts||0).toISOString().slice(0,10)+": "+c.h.filter(e=>e.k==="m"||e.k==="c").slice(-6).map(e=>(e.k==="c"?"[change] ":e.w==="u"?"User: ":"June: ")+e.t.slice(0,160)).join(" / ")).join("\n"));
+  const recent=hist.filter(e=>e.k==="m").slice(-8);
+  if(recent.length) p.push("Earlier in this chat (before the page was reloaded):\n"+recent.map(e=>(e.w==="u"?"User: ":"June: ")+e.t).join("\n"));
+  return p.join("\n");
+}
+
+// ---- ElevenLabs conversation ----
+let localHello=null, Conversation=null, conv=null, agentId="", mode="text", starting=null, cur=null, retryN=0, retryTimer=null, sent=false, voiceStart=false, sawAgent=false, connectedAt=0;
+async function loadSdk(){ if(Conversation) return; const m=await import("https://esm.sh/@elevenlabs/client"); Conversation=m.Conversation; }
+async function getAgent(){ if(agentId) return agentId; const r=await fetch("june-config.json",{cache:"no-store"}); const c=await r.json(); agentId=(c.agentId||"").trim(); return agentId; }
+function pushContext(text){ try{ if(conv) conv.sendContextualUpdate(text); }catch(e){} }
+function micOn(on){ $("mic").classList.toggle("on",on); }
+function persistHello(){ if(localHello){ hist.unshift({k:"m",w:"j",t:localHello.textContent}); persist(); localHello=null; } }
+
+async function start(voice){
+  if(starting) return starting;
+  starting=(async()=>{
+    setStatus("conn"); if(window.MiraLoading) MiraLoading.show(T().st_conn);
+    try{
+      const id=await getAgent(); if(!id){ addErr(T().nokey); setStatus("off"); return null; }
+      await loadSdk();
+      if(voice){
+        if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ addErr(T().nomic); setStatus("off"); return null; }
+        try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); }catch(e){ addErr(T().micdeny); setStatus("off"); return null; } }
+      const my={}; cur=my; sent=false; sawAgent=false; connectedAt=Date.now(); voiceStart=!!voice;
+      const alive=()=>cur===my;
+      const cfg={ agentId:id, dynamicVariables:vars(), clientTools,
+        onMessage:({message,source})=>{ if(!alive()||!message) return;
+          if(source==="user"){ if(voiceStart){ resetTurn(); persistHello(); addMsg(message,"u"); showTyping(); } return; }
+          // text chat: drop the agent's own opening line, the page already shows a ฿0-aware hello
+          // the opening line can land just before or just after our first send; a real reply cannot arrive within ~1.2s of connect
+          if(!voiceStart&&!sawAgent){ sawAgent=true; if(!sent||Date.now()-connectedAt<1200) return; }
+          if(!voiceStart&&!sent) return;
+          hideTyping(); persistHello(); addMsg(message,"j"); guard(message); },
+        onModeChange:({mode:m})=>{ if(alive()&&m==="speaking") hideTyping(); },
+        onStatusChange:({status})=>{ if(!alive()) return;
+          if(status==="connected"&&state==="conn") setStatus(voiceStart?"voice":"on");
+          if(status==="disconnected") dropped(my); },
+        onError:(e)=>{ if(!alive()) return; hideTyping(); console.warn("EL error",e); },
+        onUnhandledClientToolCall:(c)=>{ console.warn("EL unhandled tool",c); } };
+      if(voice){ cfg.connectionType="webrtc"; } else { cfg.connectionType="websocket"; cfg.textOnly=true; cfg.overrides={conversation:{textOnly:true}}; }
+      const c=await Conversation.startSession(cfg); connectedAt=Date.now();
+      if(!alive()){ try{ await c.endSession(); }catch(e){} return null; }
+      conv=c; mode=voice?"voice":"text"; retryN=0; setStatus(voice?"voice":"on");
+      try{ conv.sendContextualUpdate(fullContext()); }catch(e){}
+      return conv;
+    }catch(e){ console.warn(e); addErr(T().fail,T().retry,()=>{ if(lastUser) send(lastUser,true); else start(false); }); setStatus("off"); conv=null; return null; }
+    finally{ if(window.MiraLoading) MiraLoading.hide(); }
+  })();
+  try{ return await starting; } finally{ starting=null; }
+}
+// connection dropped by the server/network (not by us)
+function dropped(my){
+  if(cur!==my) return;
+  const wasVoice=mode==="voice"; conv=null; cur=null; hideTyping(); micOn(false); setStatus("off");
+  if(wasVoice) return;                         // voice: user taps the mic again
+  if(retryN>=3){ addErr(T().fail,T().retry,()=>{ retryN=0; start(false); }); return; }
+  const wait=[1500,3000,6000][retryN++]; setStatus("conn");
+  if(retryN===1) addErr(T().dropped);
+  clearTimeout(retryTimer);
+  retryTimer=setTimeout(async()=>{ const c=await start(false); if(!c&&!conv){ if(retryN>=3){ setStatus("off"); } else dropped({}); } },wait);
+}
+async function endConv(){ clearTimeout(retryTimer); retryN=0; const c=conv; conv=null; cur=null; try{ if(c) await c.endSession(); }catch(e){} }
+
+async function send(text,isRetry){
+  text=(text||"").trim(); if(!text||state==="conn") return false;
+  lastUser=text;
+  if(!conv){ const c=await start(false); if(!c) return false; }
+  persistHello(); resetTurn(); sent=true;
+  if(!isRetry) addMsg(text,"u");
+  showTyping();
+  try{ conv.sendUserMessage(text); }catch(e){ hideTyping(); addErr(T().sent,T().resend,()=>send(text,true)); }
+  return true;
+}
+$("form").addEventListener("submit",e=>{ e.preventDefault(); if(state==="conn") return; const v=$("inp").value; if(!v.trim()) return;
+  $("inp").value=""; autosize(); send(v); });
+$("inp").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); $("form").requestSubmit(); } });
+function autosize(){ const i=$("inp"); i.style.height="auto"; i.style.height=Math.min(120,i.scrollHeight)+"px"; }
+$("inp").addEventListener("input",autosize);
+$("chips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) send(b.textContent); });
+$("mic").onclick=async()=>{
+  if(state==="conn") return;
+  if(conv&&mode==="voice"){ await endConv(); micOn(false); setStatus("off"); return; }
+  await endConv(); micOn(true); const c=await start(true); if(!c) micOn(false);
+};
+function helloText(){ const t=T(); if(TRACK&&t.helloT[TRACK]) return t.helloT[TRACK]; if(TOPIC&&t.helloT[TOPIC]) return t.helloT[TOPIC]; const pp=getProfile(); if(pp){ const h=profileHello(pp); if(h) return h; } return isZero()?t.hello0:t.hello; }
+function showHello(){ localHello=mkMsg(helloText(),"j"); scroll(true); }
+$("lang").onclick=()=>{ lang=lang==="th"?"en":"th"; try{localStorage.setItem("mira_lang",lang)}catch(e){}
+  if(localHello) localHello.textContent=helloText(); renderText();
+  pushContext("The user switched the interface language to "+(lang==="th"?"Thai":"English")+". Reply in that language."); };
+
+// new chat / history
+async function openChat(id){
+  hideTyping(); await endConv(); resetTurn(); localHello=null; setStatus("off"); micOn(false); $("histp").hidden=true;
+  const c=id&&chats.find(x=>x.id===id); curId=c?c.id:""; hist=c?c.h.filter(e=>e&&typeof e.t==="string"):[];
+  persist(); $("msgs").innerHTML=""; if(hist.length) restore(); else showHello(); renderText();
+}
+function renderHist(){
+  const t=T(), box=$("histp"); box.innerHTML=""; const h=document.createElement("h2"); h.textContent=t.histT; box.appendChild(h);
+  const list=chats.filter(c=>c.h.some(e=>e.k==="m"));
+  if(!list.length){ const p=document.createElement("p"); p.className="small"; p.textContent=t.noHist; box.appendChild(p); return; }
+  list.forEach(c=>{ const row=document.createElement("div"); row.className="hrow";
+    const o=document.createElement("button"); o.type="button"; o.className="open"+(c.id===curId?" cur":"");
+    const b=document.createElement("b"); b.textContent=(c.title||"…")+(c.id===curId?" · "+t.cur:""); const sm=document.createElement("small");
+    sm.textContent=new Date(c.ts||0).toLocaleString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+    o.append(b,sm); o.onclick=()=>openChat(c.id);
+    const d=document.createElement("button"); d.type="button"; d.className="del"; d.textContent=t.del;
+    d.onclick=async()=>{ chats=chats.filter(x=>x.id!==c.id); if(c.id===curId){ await openChat(""); } else persist(); renderHist(); };
+    row.append(o,d); box.appendChild(row); });
+}
+$("newc").onclick=()=>{ if(state==="conn") return; openChat(""); };
+$("histb").onclick=()=>{ const h=$("histp"); if(h.hidden){ renderHist(); h.hidden=false; } else h.hidden=true; };
+
+// copy / clear
+function flashStatus(txt){ const el=$("status"), old=el.textContent; el.textContent=txt; setTimeout(()=>{ el.textContent=old; setStatus(state); },1400); }
+$("copy").onclick=async()=>{
+  const t=T(), items=hist.filter(e=>e.k==="m"); if(localHello) items.unshift({w:"j",t:localHello.textContent});
+  if(!items.length){ flashStatus(t.empty); return; }
+  const lines=items.map(e=>(e.w==="u"?t.me:"June")+": "+e.t).join("\n");
+  try{ await navigator.clipboard.writeText(lines); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=lines; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); }catch(_){} ta.remove(); }
+  flashStatus(t.copied);
+};
+$("clear").onclick=async()=>{
+  if(!hist.length&&!curId) return;
+  if(!confirm(T().clearQ)) return;
+  chats=chats.filter(c=>c.id!==curId); await openChat("");
+};
+
+// keep panel in step when the plan changes on another screen (e.g. top-up) and the user comes back
+let lastSig=JSON.stringify(vars());
+function resync(){ readLS(); renderText(); const sig=JSON.stringify(vars()); if(sig!==lastSig){ lastSig=sig; pushContext("The user's plan changed outside this chat. Now: "+sig); } }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") resync(); });
+window.addEventListener("focus",resync);
+window.addEventListener("pageshow",e=>{ if(e.persisted) resync(); });
+window.addEventListener("online",()=>{ if(!conv&&state==="off"&&sent){ retryN=0; start(false); } });
+window.addEventListener("beforeunload",()=>{ try{conv&&conv.endSession()}catch(e){} });
+
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) $("mic").style.display="none";
+renderText();
+if(hist.length) restore(); else showHello();
+</script>
+</body>
+</html>

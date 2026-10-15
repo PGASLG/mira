@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — ปล่อยเงินให้ยืม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet">
+<script src="loader.js"></script>
+<style>
+:root{--blue:#1457d9;--navy:#0e1b33;--cyan:#1457d9;--yellow:#f2b01e;--green:#1b7f4b;--red:#b3392b;--sky:#eeece4;--bg:#f7f6f2;--card:#fff;--ink:#0e1b33;--mute:#5f6675;--line:#d9d6cc}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1424;--card:#141c30;--ink:#f1efe8;--mute:#a4abb9;--line:#2a3550;--sky:#18213a;--blue:#6b9bff;--navy:#f1efe8;--green:#5fd39a;--red:#ff9b86}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans Thai","IBM Plex Sans",system-ui,sans-serif;overflow-x:hidden}
+.page{max-width:560px;margin:0 auto;padding:0 16px 48px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:8px;border-bottom:1px solid var(--ink)}
+nav .logo{height:34px;width:auto;display:block}
+.nav-r{display:flex;gap:8px;align-items:center}
+.pill{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none}
+h1{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-weight:600;font-size:clamp(28px,7vw,38px);line-height:1.2;margin:22px 0 8px;letter-spacing:-.01em}
+.sim{display:inline-block;border-left:3px solid var(--yellow);padding:0 0 0 8px;font-weight:600;font-size:13px;color:var(--mute)}
+.sub{color:var(--mute);margin:8px 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:0 0 14px}
+.card h2{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:20px;font-weight:600;margin:0 0 10px}
+.lbl{line-height:1.7;font-size:12px;font-weight:600;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.big{font-family:"Newsreader","Noto Serif Thai",Georgia,serif;font-size:40px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums lining-nums}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border:1px solid var(--line)}
+.row3>div{padding:10px 12px;text-align:left;border-left:1px solid var(--line)}
+.row3>div:first-child{border-left:0}
+.row3 b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.row3 span{font-size:12px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.chips button{flex:1 1 56px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:7px 6px;font:inherit;font-weight:600;cursor:pointer}
+.chips button.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.btn{display:block;width:100%;border:1px solid var(--blue);border-radius:6px;background:var(--blue);color:#fff;font:inherit;font-weight:600;font-size:16px;padding:11px 14px;cursor:pointer;text-align:center;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink);margin-top:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:15px}
+.kv:first-of-type{border-top:0}
+.kv b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--line);margin:12px 0}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:4px;margin:12px 0}
+.ck{height:30px;border:1px solid var(--yellow);background:transparent;display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--mute);border-radius:2px}
+.ck.m{border-color:var(--blue);background:var(--blue);color:#fff}
+.ck.p{border-color:var(--ink);background:transparent;color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.bl small{color:var(--mute);font-size:12.5px}
+.stt{font-size:12px;font-weight:600;align-self:center;color:var(--blue)}
+.opt{display:grid;grid-template-columns:1fr auto;gap:0 10px;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:9px 12px;margin-top:8px;font:inherit;cursor:pointer}
+.opt b{font-weight:600}
+.opt span{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.opt small{grid-column:1/-1;color:var(--mute);font-size:12.5px}
+.opt.on{border-color:var(--ink);background:var(--sky)}
+.stt.w{color:var(--warn,#8a5a00)}
+.risk{border-left:4px solid var(--yellow)!important}
+.risk ul{margin:8px 0 0;padding-left:20px;font-size:14.5px}
+.risk li{margin:4px 0}
+.empty{text-align:left}
+.empty p{color:var(--mute);margin:6px 0 14px}
+.fine{font-size:12.5px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px}
+.hide{display:none!important}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;font-weight:600;font-size:14px;transition:.3s;z-index:9;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:700px){.page{max-width:760px}}
+@media (min-width:1000px){
+  .page{max-width:1120px;padding:0 40px 64px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+    h1{font-size:46px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <a href="/dashboard" target="_top"><img class="logo" src="assets/logo-h.png" alt="Mira"></a>
+    <div class="nav-r">
+      <a class="pill" href="/dashboard.html" id="back"></a>
+      <button class="pill" id="lang">EN</button>
+    </div>
+  </nav>
+
+  <h1 id="h1"></h1>
+  <span class="sim" id="sim"></span>
+  <p class="sub" id="sub"></p>
+
+  <div class="cols">
+  <div class="colL">
+    <section class="card">
+      <div class="lbl" id="l_cash"></div>
+      <div class="big" id="cash">฿0</div>
+      <div class="row3">
+        <div><b id="v_lock">฿0</b><span id="k_lock"></span></div>
+        <div><b id="v_wait">฿0</b><span id="k_wait"></span></div>
+        <div><b id="v_earn">฿0</b><span id="k_earn"></span></div>
+      </div>
+      <p class="fine" id="lockNote" style="margin:12px 0 0"></p>
+    </section>
+
+    <section class="card hide" id="wdCard">
+      <h2 id="w_h"></h2>
+      <p class="sub" id="w_p" style="margin:0 0 12px"></p>
+      <button class="btn" id="wd"></button>
+    </section>
+
+    <section class="card hide" id="reqCard" style="border-left:4px solid var(--yellow)">
+      <h2 id="q_h"></h2>
+      <div id="q_kv"></div>
+      <p class="sub" id="q_p" style="margin:8px 0 12px"></p>
+      <button class="btn" id="q_ok"></button>
+      <button class="btn ghost" id="q_no"></button>
+    </section>
+
+    <section class="card empty hide" id="emptyCard">
+      <h2 id="e_h"></h2>
+      <p id="e_p"></p>
+      <a class="btn" href="/investment.html" id="e_btn"></a>
+    </section>
+
+    <section class="card hide" id="offerCard">
+      <h2 id="o_h"></h2>
+      <div class="lbl" id="o_amt"></div>
+      <div class="big" id="amtv">฿0</div>
+      <div class="chips" id="pct"></div>
+      <input type="range" id="rng" aria-labelledby="o_amt">
+      <div class="lbl" id="o_per" style="margin-top:14px"></div>
+      <div id="proj"></div>
+      <div class="lbl" id="o_fb" style="margin-top:14px"></div>
+      <div class="chips" id="fb"></div>
+      <p class="fine" id="fbNote" style="margin:0 0 12px"></p>
+      <p class="fine" id="projNote" style="margin:0 0 14px"></p>
+      <button class="btn" id="go"></button>
+    </section>
+  </div>
+
+  <div class="colR">
+    <section class="card">
+      <h2 id="m_h"></h2>
+      <p class="sub" id="m_p" style="margin-top:0"></p>
+      <div class="lbl" id="m_cnt"></div>
+      <div class="grid" id="grid"></div>
+      <div id="bl"></div>
+      <button class="pill hide" id="ff" style="margin-top:12px"></button>
+      <p class="fine hide" id="nobNote" style="margin-top:12px"></p>
+      <p class="fine" id="modeNote" style="margin-top:12px"></p>
+    </section>
+
+    <section class="card risk">
+      <h2 id="r_h"></h2>
+      <ul id="r_ul"></ul>
+    </section>
+    <p class="fine" id="fine"></p>
+  </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="lend-core.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const LS=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}};
+const SET=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const ML=window.MiraLend;
+const fmt=n=>Math.round(n).toLocaleString("en-US");
+const fmt2=n=>n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const L={
+ th:{h1:"ปล่อยเงินให้คนอื่นยืม",sim:"จำลอง ไม่ใช่เงินจริง",sub:"เงินที่ปล่อยจะเข้ากองกลาง แล้วถูกจับคู่กับผู้ยืมทีละก้อนเล็กๆ รับเงินต้นและดอกเบี้ยคืนเมื่อผู้ยืมจ่าย",back:"‹ กลับ",
+  l_cash:"เงินพร้อมลงทุน",k_lock:"ปล่อยอยู่ (ล็อก)",k_wait:"รอจับคู่ (ถอนได้)",k_earn:"ดอกเบี้ยที่ได้แล้ว",
+  lockNote:"ส่วนที่ล็อกจะกลับมาเมื่อผู้ยืมจ่ายคืน ถอนก่อนไม่ได้ ส่วนที่รอจับคู่ถอนได้ทันที",
+  w_h:"ถอนเงินที่ยังไม่ถูกจับคู่",w_p:(w)=>`มี ฿${w} ที่ยังไม่มีผู้ยืม ถอนกลับไปเป็นเงินพร้อมลงทุนได้ทันที ส่วนที่ปล่อยไปแล้วถอนไม่ได้`,w_btn:(w)=>`ถอนกลับไปหน้าลงทุน ฿${w}`,
+  e_h:"ยังไม่มีเงินให้ปล่อย",e_p:"เติมเงินในพอร์ตก่อน (จำลอง) แล้วค่อยกลับมาปล่อยบางส่วนให้คนอื่นยืมได้",e_btn:"ไปเติมเงินที่หน้าลงทุน",
+  o_h:"ปล่อยเงินของฉัน",o_amt:"จำนวนที่จะปล่อย",o_per:"ผลที่คาดไว้ ตามระยะเวลาที่ผู้ยืมเลือก (คุณไม่ต้องเลือกเอง)",o_fb:"ถ้า 3 เดือนแล้วไม่มีใครยืม",fb_cash:"คืนเข้าเงินพร้อมลงทุน",fb_keep:"รอต่อไป",fbn_cash:"เงินส่วนที่ยังไม่ถูกจับคู่จะกลับไปเป็นเงินพร้อมลงทุนเมื่อครบ 3 เดือน (ถอนก่อนได้ทุกเมื่อ)",fbn_keep:"เงินส่วนที่ยังไม่ถูกจับคู่จะรอต่ออีก 3 เดือนไปเรื่อยๆ จนกว่าคุณจะถอน",until:"หมดเวลารอ",
+  mo:"เดือน",pj_row:(m,tot,i)=>[`${m} เดือน`,`฿${tot}`,`ดอกเบี้ย ฿${i}`],
+  pj_sel:(a,i,t,d)=>`ถ้าปล่อย ฿${a} และจับคู่ครบทั้งหมด คุณจะได้เงินต้น ฿${a} + ดอกเบี้ย ฿${i} = ฿${t} ภายใน ${d}`,
+  pj_note:"นี่เป็นเพียงการประมาณการ ผู้ยืมอาจจ่ายช้า จ่ายไม่ครบ หรือไม่จ่าย และเงินที่ยังไม่ถูกจับคู่จะยังไม่ได้ดอกเบี้ย อัตราดอกเบี้ยตามที่ผู้ยืมเห็น (ตัวอย่าง 3% ต่อปี)",
+  go:"ปล่อยเงิน (จำลอง)",
+  m_h:"แบ่งเงินให้หลายคนยืม",m_p:"เงินของคุณถูกแบ่งเป็นก้อนละไม่เกิน ฿500 ให้ผู้ยืมคนละคน เพื่อไม่ให้ใครคนเดียวถือเงินทั้งหมดของคุณ",
+  m_cnt:(a,b)=>`ล็อกกับผู้ยืมแล้ว ${a} ก้อน · รอจับคู่ ${b} ก้อน`,m_none:"ยังไม่มีเงินในกองกลาง",
+  waitrow:"รอผู้ยืม",locked:"ล็อกอยู่",borrower:"ผู้ยืมจำลอง",app:"ผู้ยืมในแอป (จากหน้าสินเชื่อ)",cov:"หลักประกัน",paidn:(a,b)=>`จ่ายแล้ว ${a}/${b} งวด`,due:"ครบ",
+  ff:"ข้ามไป 1 เดือน (ทดลองดูการคืนเงิน)",
+  r_h:"ความเสี่ยงที่ต้องรู้",
+  r:["ผู้ยืมอาจจ่ายช้าหรือไม่จ่าย และคุณอาจเสียเงินส่วนนี้","เงินกู้มีสินทรัพย์ของผู้ยืมค้ำไว้ (ดูหน้าสินเชื่อ: ถ้าไม่คืน สินทรัพย์ที่ล็อกไว้จะถูกยึด) แต่ราคาสินทรัพย์ลดลงได้","เงินที่ถูกจับคู่แล้วถูกล็อกจนกว่าผู้ยืมจะจ่ายคืน","ดอกเบี้ยที่เห็นเป็นตัวเลขจำลอง ไม่ได้รับประกันผลตอบแทน","นี่คือการจำลอง ไม่มีเงินจริงและไม่มีผู้ยืมจริง","การปล่อยกู้ระหว่างบุคคลจริงในไทยมีกฎหมายควบคุม","ไม่ใช่คำแนะนำการลงทุน"],
+  fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน",
+  failed:"ทำรายการไม่สำเร็จ ลองใหม่อีกครั้ง",mode_cloud:"โหมดผู้ใช้จริง: จับคู่กับผู้ใช้ Mira คนอื่น (เงินจำลอง)",mode_local:"โหมดจำลองในเครื่องนี้ ยังไม่ได้เชื่อมต่อกับผู้ใช้อื่น",borrowerReal:"ผู้ยืม",nob:"ตอนนี้ยังไม่มีผู้ยืมในระบบ เงินจะรอจนครบเวลา แล้วเป็นไปตามที่คุณเลือก",
+  started:"เพิ่มเงินเข้ากองกลางแล้ว (จำลอง)",drew:(w)=>`ถอน ฿${w} กลับไปเป็นเงินพร้อมลงทุนแล้ว`,
+  q_h:"มีคำขอปรับโครงสร้างหนี้",q_who:"ผู้ยืม",q_prin:"ยอดคงเหลือ",q_to:"ขอปรับเป็น",q_pay:"จ่ายต่อเดือนใหม่",q_p:"จำลองเท่านั้น ถ้าอนุมัติ ผู้ยืมจะผ่อนยาวขึ้น ดอกเบี้ยที่คุณได้ระหว่างทางอาจเปลี่ยนไป และความเสี่ยงที่ผู้ยืมจะคืนไม่ได้ยังอยู่",q_ok:"อนุมัติ",q_no:"ไม่อนุมัติ",q_okd:"อนุมัติคำขอแล้ว (จำลอง)",q_nod:"ไม่อนุมัติคำขอแล้ว (จำลอง)"},
+ en:{h1:"Lend your money to others",sim:"Simulation, not real money",sub:"Money you lend goes into a pool and is matched with borrowers in small pieces. You get principal and interest back as borrowers repay.",back:"‹ Back",
+  l_cash:"Cash to invest",k_lock:"Lent out (locked)",k_wait:"Waiting (withdrawable)",k_earn:"Earned so far",
+  lockNote:"Locked money returns when the borrower repays and cannot be withdrawn before. Waiting money can be withdrawn at once.",
+  w_h:"Withdraw money that is not matched",w_p:(w)=>`฿${w} has no borrower yet. Pull it back to your investable cash right now. Money already lent cannot be withdrawn.`,w_btn:(w)=>`Withdraw to investment ฿${w}`,
+  e_h:"No money to lend yet",e_p:"Add money to your portfolio first (simulated), then come back and lend part of it.",e_btn:"Add money on the investment page",
+  o_h:"Lend my money",o_amt:"Amount to lend",o_per:"Expected result, by the period the borrower picks (you do not choose it)",o_fb:"If nobody borrows within 3 months",fb_cash:"Return to my cash",fb_keep:"Keep waiting",fbn_cash:"Money that is not matched goes back to your investable cash after 3 months (you can withdraw earlier any time).",fbn_keep:"Money that is not matched keeps waiting for another 3 months, again and again, until you withdraw.",until:"Wait ends",
+  mo:"months",pj_row:(m,tot,i)=>[`${m} month${m>1?"s":""}`,`฿${tot}`,`interest ฿${i}`],
+  pj_sel:(a,i,t,d)=>`If you lend ฿${a} and it is all matched, you will get back principal ฿${a} + interest ฿${i} = ฿${t} by ${d}`,
+  pj_note:"This is only a projection. Borrowers can pay late, pay part, or fail to repay, and money that is not matched earns no interest. Rate is the borrower's rate (example 3% per year).",
+  go:"Lend (simulated)",
+  m_h:"Your money, split between many people",m_p:"Your money is broken into pieces of at most ฿500, each lent to a different borrower, so no single borrower holds all of it.",
+  m_cnt:(a,b)=>`Locked with borrowers: ${a} pieces · waiting: ${b} pieces`,m_none:"No money in the pool yet",
+  waitrow:"Waiting for a borrower",locked:"Locked",borrower:"Simulated borrower",app:"Borrower in this app (lending page)",cov:"Collateral",paidn:(a,b)=>`Paid ${a}/${b} instalments`,due:"Ends",
+  ff:"Skip 1 month (try the repayment flow)",
+  r_h:"Risks you should know",
+  r:["A borrower may pay late or fail to repay and you may lose this money.","Loans are backed by the borrower's assets (see the lending page: if they do not repay, locked assets are forfeited), but asset prices can fall.","Money that is matched is locked until the borrower repays.","Interest shown is simulated; returns are not promised.","This is a simulation: no real money and no real borrowers.","Real peer-to-peer lending in Thailand is regulated.","Not investment advice."],
+  fine:"Research only. Not investment advice.",
+  failed:"That did not go through. Please try again.",mode_cloud:"Real-user mode: matched with other Mira users (paper money)",mode_local:"Local simulation on this device, not connected to other users",borrowerReal:"Borrower",nob:"There are no borrowers in the system right now. Your money waits until the time is up, then follows your choice.",
+  started:"Money added to the pool (simulated)",drew:(w)=>`Withdrew ฿${w} back to investable cash`,
+  q_h:"A debt restructure request is waiting",q_who:"Borrower",q_prin:"Balance left",q_to:"Asks to change to",q_pay:"New monthly payment",q_p:"Simulation only. If you approve, the borrower repays over a longer time, the interest you get along the way may change, and the risk of non-repayment remains.",q_ok:"Approve",q_no:"Decline",q_okd:"Request approved (simulated)",q_nod:"Request declined (simulated)"}
+};
+let lang=LS("mira_lang","th")==="en"?"en":"th";
+const T=()=>L[lang];
+const dFmt=d=>d.toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",year:"numeric"});
+const lbl=id=>{const n=+id;return String.fromCharCode(65+(n-1)%26)+(n>26?Math.floor((n-1)/26):"")};
+
+let amt=0, fbSel="cash", pctSel=25;
+function bounds(){ const f=Math.floor(ML.topup()), step=f>=5000?500:(f>=500?100:1); return {min:Math.min(step,f),max:Math.floor(f/step)*step||f,step}; }
+function setAmtFromPct(p){ const b=bounds(); amt=Math.min(b.max,Math.max(b.min,Math.floor(Math.floor(ML.topup())*p/100/b.step)*b.step)); }
+function readReq(){ try{return JSON.parse(LS("mira_loan_request","null"))}catch(e){return null} }
+
+function render(){
+  const T_=T(), S=ML.summary(), p=S.pool, cash=S.cash;
+  document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย";
+  ["h1","sim","sub","l_cash","k_lock","k_wait","k_earn","lockNote","e_h","e_p","e_btn","o_h","o_amt","o_per","o_fb","m_h","m_p","r_h","fine","go","ff"].forEach(k=>{ $(k).textContent=T_[k]; });
+  $("projNote").textContent=T_.pj_note;
+  $("back").textContent=T_.back;
+  $("r_ul").innerHTML=T_.r.map(x=>`<li>${x}</li>`).join("");
+  $("cash").textContent="฿"+fmt(cash); $("v_lock").textContent="฿"+fmt(S.locked); $("v_wait").textContent="฿"+fmt(S.waiting); $("v_earn").textContent="฿"+fmt2(S.earned);
+
+  // restructure request from the borrower side
+  const rq=readReq(), pend=!!(rq&&rq.status==="pending");
+  $("reqCard").classList.toggle("hide",!pend);
+  if(pend){
+    ["q_h","q_p","q_ok","q_no"].forEach(k=>$(k).textContent=T_[k]);
+    $("q_kv").innerHTML=[[T_.q_who,T_.app],[T_.q_prin,"฿"+fmt(rq.principal||0)],[T_.q_to,rq.toMonths+" "+T_.mo],[T_.q_pay,"฿"+fmt(rq.newPay||0)]].map(r=>`<div class="kv"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  }
+
+  // withdraw (waiting part only)
+  const canW=S.waiting>=1;
+  $("wdCard").classList.toggle("hide",!canW);
+  if(canW){ $("w_h").textContent=T_.w_h; $("w_p").textContent=T_.w_p(fmt(S.waiting)); $("wd").textContent=T_.w_btn(fmt(S.waiting)); }
+
+  // offer form
+  const noMoney=cash<1&&!S.on;
+  $("emptyCard").classList.toggle("hide",!noMoney);
+  const canLend=cash>=1;
+  $("offerCard").classList.toggle("hide",!canLend);
+  if(canLend){
+    const b=bounds(); $("rng").min=b.min; $("rng").max=b.max; $("rng").step=b.step;
+    amt=Math.min(b.max,Math.max(b.min,amt||b.min)); $("rng").value=amt;
+    $("amtv").textContent="฿"+fmt(amt);
+    $("pct").innerHTML=[10,25,50,100].map(x=>`<button data-p="${x}" class="${pctSel===x?"on":""}">${x}%</button>`).join("");
+    $("proj").innerHTML=ML.PERIODS.map(m=>{ const j=ML.projection(amt,m), r=T_.pj_row(m,fmt2(j.total),fmt2(j.interest));
+      return `<div class="opt"><b>${r[0]}</b><span>${r[1]}</span><small>${T_.pj_sel(fmt(amt),fmt2(j.interest),fmt2(j.total),dFmt(j.date))}</small></div>`; }).join("");
+    $("fb").innerHTML=[["cash",T_.fb_cash],["keep",T_.fb_keep]].map(x=>`<button data-f="${x[0]}" class="${fbSel===x[0]?"on":""}">${x[1]}</button>`).join("");
+    $("fbNote").textContent=T_["fbn_"+fbSel];
+    $("go").disabled=amt<1;
+  }
+
+  // pool visual: locked pieces, app share, waiting chunks
+  const rows=[], cells=[]; let nl=0, nw=0;
+  p.pieces.forEach(c=>{ nl++; cells.push("m"); const end=ML.addMonths(c.start,c.months);
+    rows.push(`<div class="bl"><b>${c.real?T_.borrowerReal:T_.borrower} ${lbl(c.id)} · ฿${fmt(ML.pieceRem(c))}</b><span class="stt">${T_.locked}</span><small>${c.months} ${T_.mo} · ${c.rate}% · ${c.cover?T_.cov+" "+c.cover+"% · ":""}${T_.paidn(c.paid,c.months)} · ${T_.due} ${dFmt(end)}</small><span></span></div>`); });
+  if(p.app&&p.app.F>=1){ const n=Math.ceil(p.app.F/ML.PIECE); nl+=n; for(let i=0;i<n;i++) cells.push("m");
+    rows.push(`<div class="bl"><b>${T_.app} · ฿${fmt(p.app.F)}</b><span class="stt">${T_.locked}</span><small>${T_.cov} 90%+</small><span></span></div>`); }
+  p.offers.forEach(o=>{ let left=o.left; while(left>0.004){ const s=Math.min(ML.PIECE,left); left-=s; nw++; cells.push("w");
+    rows.push(`<div class="bl"><b>฿${fmt(s)}</b><span class="stt w">${T_.waitrow}</span><small>${T_.until} ${dFmt(new Date(o.exp))} · ${T_["fb_"+(o.fb||"cash")]}</small><span></span></div>`); } });
+  $("grid").innerHTML=cells.map((c,i)=>`<div class="ck ${c==="m"?"m":""}">${i+1}</div>`).join("");
+  $("bl").innerHTML=rows.join("");
+  $("m_cnt").textContent=cells.length?T_.m_cnt(nl,nw):T_.m_none;
+  $("ff").classList.toggle("hide",!p.pieces.some(c=>!c.real));
+  $("modeNote").textContent=ML.mode()==="cloud"?T_.mode_cloud:T_.mode_local;
+  $("nobNote").classList.toggle("hide",!(ML.mode()==="cloud"&&S.waiting>=1&&!p.pieces.some(c=>c.real)));
+  $("nobNote").textContent=T_.nob;
+}
+function toast(s){ const t=$("toast"); t.textContent=s; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2400); }
+
+$("pct").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b)return; pctSel=+b.dataset.p; setAmtFromPct(pctSel); render();});
+$("fb").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b)return; fbSel=b.dataset.f; render();});
+$("rng").addEventListener("input",()=>{amt=+$("rng").value; pctSel=0; render();});
+$("go").onclick=async()=>{ $("go").disabled=true; const ok=await ML.lend(amt,fbSel); if(ok){ toast(T().started); amt=0; setAmtFromPct(pctSel||25); } else toast(T().failed); render(); };
+$("wd").onclick=async()=>{ const w=await ML.withdraw(); if(w>0){ toast(T().drew(fmt(w))); amt=0; } render(); };
+$("ff").onclick=()=>{ ML.skipMonth(); render(); };
+// same key/shape lending.html reads: {status:"pending"|"approved"|"rejected"|"applied",toMonths,newPay,principal,createdAt}
+function decide(status){ const r=readReq(); if(!r||r.status!=="pending") return;
+  SET("mira_loan_request",JSON.stringify({...r,status,decidedAt:new Date().toISOString()}));
+  toast(status==="approved"?T().q_okd:T().q_nod); render(); }
+$("q_ok").onclick=()=>decide("approved");
+$("q_no").onclick=()=>decide("rejected");
+$("lang").onclick=()=>{lang=lang==="th"?"en":"th"; SET("mira_lang",lang); render();};
+addEventListener("storage",render);
+setAmtFromPct(pctSel);
+render();
+setInterval(render,1000);
+</script>
+</body>
+</html>
