@@ -100,6 +100,11 @@
   function demoOn() { return get("mira_demo", "") === "1"; }
   function seedDemo() {
     if (demoOn()) return;                       // one demo per device: resume instead of creating another
+    try {                                       // park any real account data so the demo never mixes with it
+      var keepK = ["mira_lang", "mira_theme", "mira_text", "mira_motion"], real = {}, any = false;
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("mira_") === 0 && keepK.indexOf(k) < 0) { real[k] = localStorage.getItem(k); any = true; } }
+      if (any) { localStorage.setItem("mirastash_real", JSON.stringify(real)); Object.keys(real).forEach(function (k) { localStorage.removeItem(k); }); }
+    } catch (e) {}
     var d = function (days) { return new Date(Date.now() - days * DAY).toISOString(); };
     set("mira_demo", "1"); set("mira_onboarded", "1"); set("mira_name", "ผู้ทดลองใช้");
     set("mira_risk", "mid"); set("mira_split", "30"); set("mira_monthly", "2000"); set("mira_day", "5");
@@ -115,6 +120,8 @@
       var keep = ["mira_lang", "mira_theme", "mira_text", "mira_motion"], del = [];
       for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("mira_") === 0 && keep.indexOf(k) < 0) del.push(k); }
       del.forEach(function (k) { localStorage.removeItem(k); });
+      var raw = localStorage.getItem("mirastash_real");   // give back the real data parked when the demo began
+      if (raw) { var old = JSON.parse(raw); Object.keys(old).forEach(function (k) { if (k.indexOf("mira_") === 0 && keep.indexOf(k) < 0) localStorage.setItem(k, old[k]); }); localStorage.removeItem("mirastash_real"); }
     } catch (e) {}
   }
 

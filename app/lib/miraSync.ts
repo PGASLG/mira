@@ -22,6 +22,33 @@ function snapshot(): Record<string, string> {
   return out;
 }
 
+const KEEP = ["mira_lang", "mira_theme", "mira_text", "mira_motion"];
+const STASH = "mirastash_real";   // real account data parked while the demo is on (no mira_ prefix: never synced or wiped)
+
+// Demo data and a real account must never meet. Leaving the demo wipes it and puts back the real data it parked.
+export function leaveDemoIfAny(): boolean {
+  try {
+    if (localStorage.getItem("mira_demo") !== "1") return false;
+    const del: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("mira_") && !KEEP.includes(k)) del.push(k);
+    }
+    del.forEach((k) => localStorage.removeItem(k));
+    const raw = localStorage.getItem(STASH);
+    if (raw) {
+      const old = JSON.parse(raw) as Record<string, string>;
+      for (const [k, v] of Object.entries(old)) if (k.startsWith("mira_") && !KEEP.includes(k)) localStorage.setItem(k, v);
+      localStorage.removeItem(STASH);
+    }
+    return true;
+  } catch { return false; }
+}
+
+function demoOn(): boolean {
+  try { return localStorage.getItem("mira_demo") === "1"; } catch { return false; }
+}
+
 export function useMiraSync() {
   const { getToken, isSignedIn } = useAuth();
   const [ready, setReady] = useState(false);
@@ -32,6 +59,7 @@ export function useMiraSync() {
   useEffect(() => {
     if (isSignedIn === false) { setReady(true); setStatus("local-only"); return; }
     if (!isSignedIn) return;
+    leaveDemoIfAny();   // signed in = real account: demo sample data must not be read, pushed or shown
     let stop = false;
     let timer: ReturnType<typeof setInterval> | undefined;
 
@@ -68,7 +96,7 @@ export function useMiraSync() {
       // 2) push changes
       if (dead.current) return;
       timer = setInterval(async () => {
-        if (dead.current) return;
+        if (dead.current || demoOn()) return;
         const snap = JSON.stringify(snapshot());
         if (snap === last.current) return;
         try {

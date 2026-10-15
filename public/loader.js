@@ -85,6 +85,8 @@
         var keep = ["mira_lang", "mira_theme", "mira_text", "mira_motion"], del = [];
         for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("mira_") === 0 && keep.indexOf(k) < 0) del.push(k); }
         del.forEach(function (k) { localStorage.removeItem(k); });
+        var raw = localStorage.getItem("mirastash_real");   // give back the real data parked when the demo began
+        if (raw) { var old = JSON.parse(raw); Object.keys(old).forEach(function (k) { if (k.indexOf("mira_") === 0 && keep.indexOf(k) < 0) localStorage.setItem(k, old[k]); }); localStorage.removeItem("mirastash_real"); }
       } catch (e) {}
       top.location.href = "/";
     };

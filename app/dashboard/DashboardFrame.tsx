@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useMiraSync } from "../lib/miraSync";
+import { useMiraSync, leaveDemoIfAny } from "../lib/miraSync";
 
 // Puts the signed-in username where the static dashboard can read it, syncs settings with Supabase,
 // then shows the dashboard page. The username never goes into the URL.
@@ -13,6 +13,7 @@ export default function DashboardFrame() {
 
   useEffect(() => {
     if (!isLoaded) return;
+    leaveDemoIfAny();   // a signed-in account never shows demo data
     const name = user?.username || user?.firstName || "";
     try { if (name) localStorage.setItem("mira_name", name); } catch {}
     setNamed(true);
