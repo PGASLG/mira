@@ -119,6 +119,7 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
 .wd-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .wd-btn{border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:6px;padding:10px 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
 .wd-btn:hover{background:var(--ink);color:var(--card)}
+.wd-btn.dp{background:var(--ink);color:var(--card)}
 .wd-btn[disabled]{opacity:.45;cursor:default;background:var(--card);color:var(--ink)}
 .wd-hint{color:var(--mute);font-size:13px;align-self:center}
 .wd-ov{position:fixed;inset:0;background:rgba(14,27,51,.55);z-index:60;display:grid;place-items:center;padding:16px}
@@ -186,7 +187,7 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
     <div class="val" id="val">฿0</div>
     <span class="gain" id="gain"></span>
     <p class="note" id="note"></p>
-    <div class="wd-row"><button class="wd-btn" id="wd-open"></button><span class="wd-hint" id="wd-hint"></span></div>
+    <div class="wd-row"><button class="wd-btn dp" id="dp-open"></button><button class="wd-btn" id="wd-open"></button><span class="wd-hint" id="wd-hint"></span></div>
     <div class="ports" id="ports"></div>
   </section>
 
@@ -216,6 +217,18 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
   </div>
 
   <p class="fine" id="fine"></p>
+</div>
+
+<div class="wd-ov" id="dp-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dp-title">
+  <div class="wd-box">
+    <h3 id="dp-title"></h3>
+    <p class="sub" id="dp-sub"></p>
+    <label class="wd-lbl" for="dp-amt" id="dp-lbl"></label>
+    <div class="wd-num"><span>&#3647;</span><input id="dp-amt" type="number" inputmode="numeric" min="5" max="100000" step="1"></div>
+    <div class="wd-chips" id="dp-chips"></div>
+    <p class="sub" id="dp-note" style="margin-top:10px;font-size:12.5px"></p>
+    <div class="wd-act"><button class="cancel" id="dp-cancel"></button><button class="go" id="dp-go" disabled></button></div>
+  </div>
 </div>
 
 <div class="wd-ov" id="wd-modal" hidden role="dialog" aria-modal="true" aria-labelledby="wd-title">
@@ -256,13 +269,14 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
 <script src="data/mira-data.js"></script>
 <script src="wallet.js"></script>
 <script src="lend-core.js"></script>
+<script src="mira-core.js"></script>
 <script>
 const P = window.MIRA_DATA.portfolio;
 const I18N = {
   th:{lb_have:"คุณมีหนี้ที่ต้องชำระ", lb_near:"ใกล้ครบกำหนดชำระแล้ว", lb_s:(l,d)=>`คงเหลือ ฿${l} · งวดถัดไป ${d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`} (จำลอง)`, lb_btn:"ชำระหนี้",
-      start:"เริ่มต้นที่ ฿0 · เติมเงินเพื่อเริ่มลงทุน (จำลอง)", t3zero:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", hi:"สวัสดี", who:"คุณ", setlbl:"ตั้งค่า", np_h:"การแจ้งเตือน", np_mark:"อ่านทั้งหมดแล้ว", np_empty:"ยังไม่มีการแจ้งเตือน", np_fn:"สร้างจากแผนและข้อมูลของคุณบนเครื่องนี้ ไม่ใช่การแจ้งเตือนจากเซิร์ฟเวอร์",
+      start:"เริ่มต้นที่ ฿0 · ฝากเงินเพื่อเริ่มลงทุน (จำลอง)", t3zero:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", hi:"สวัสดี", who:"คุณ", setlbl:"ตั้งค่า", np_h:"การแจ้งเตือน", np_mark:"อ่านทั้งหมดแล้ว", np_empty:"ยังไม่มีการแจ้งเตือน", np_fn:"สร้างจากแผนและข้อมูลของคุณบนเครื่องนี้ ไม่ใช่การแจ้งเตือนจากเซิร์ฟเวอร์",
       n:{welcome:["ยินดีต้อนรับสู่ Mira","ดูเงินของคุณและคุยกับ June ได้เลย"],plan:["ยังไม่ได้ตั้งแผนใส่เงินรายเดือน","ตั้งจำนวนและวันตัดเงินได้ที่หน้าการลงทุน"],charge:(d,a)=>[d===0?"วันนี้ถึงวันใส่เงินรายเดือน":`อีก ${d} วันถึงวันใส่เงินรายเดือน`,`จำนวน ฿${a} (จำลอง)`],loan:["คุณมีสินเชื่อฉุกเฉินที่ยังไม่ได้คืน","ดูยอดและกำหนดคืนได้ที่หน้าสินเชื่อ"],stress:(n)=>["ตลาดผันผวนขึ้นกว่าปกติ",`ระดับความผันผวน ${n} จาก 3 (ไม่ใช่การพยากรณ์วิกฤต)`]}, lbl:"เงินของคุณตอนนี้",
-      up:(g)=>`เพิ่มขึ้น ฿${fmt(g)} จากที่ใส่ไป`, down:(g)=>`ลดลง ฿${fmt(-g)} จากที่ใส่ไป`,
+      up:(g,p)=>`กำไรรวม ฿${fmt(g)} (+${p.toFixed(1)}%)`, down:(g,p)=>`ขาดทุนรวม ฿${fmt(-g)} (${p.toFixed(1)}%)`,
       note:"ตัวเลขจากพอร์ตจำลอง ไม่ใช่เงินจริง",
       h_todo:"วันนี้อยากทำอะไร",
       t1:"ดูว่าเงินไปไหนบ้าง", t1s:"รายละเอียดการลงทุนและความเสี่ยง",
@@ -272,9 +286,9 @@ const I18N = {
       soon:"เร็วๆ นี้", toast:"หน้านี้กำลังสร้างอยู่นะ",
       fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
   en:{lb_have:"You have a loan to repay", lb_near:"Payment due soon", lb_s:(l,d)=>`฿${l} left · next payment ${d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`} (simulated)`, lb_btn:"Pay debt",
-      start:"Starting at ฿0 · add money to begin (simulated)", t3zero:"You need money in your portfolio before you can borrow", hi:"Hello", who:"there", setlbl:"Settings", np_h:"Notifications", np_mark:"Mark all read", np_empty:"No notifications yet", np_fn:"Built from your plan and data on this device, not server alerts.",
+      start:"Starting at ฿0 · deposit to begin (simulated)", t3zero:"You need money in your portfolio before you can borrow", hi:"Hello", who:"there", setlbl:"Settings", np_h:"Notifications", np_mark:"Mark all read", np_empty:"No notifications yet", np_fn:"Built from your plan and data on this device, not server alerts.",
       n:{welcome:["Welcome to Mira","See your money and chat with June"],plan:["No monthly plan set yet","Set the amount and charge day on the investment page"],charge:(d,a)=>[d===0?"Today is your monthly top-up day":`${d} days to your monthly top-up`,`Amount ฿${a} (simulated)`],loan:["You have an emergency loan not yet repaid","See the balance and due date on the lending page"],stress:(n)=>["The market is bumpier than usual",`Volatility level ${n} of 3 (not a crash forecast)`]}, lbl:"Your money right now",
-      up:(g)=>`up ฿${fmt(g)} on what you put in`, down:(g)=>`down ฿${fmt(-g)} on what you put in`,
+      up:(g,p)=>`Total profit ฿${fmt(g)} (+${p.toFixed(1)}%)`, down:(g,p)=>`Total loss ฿${fmt(-g)} (${p.toFixed(1)}%)`,
       note:"Numbers come from a paper portfolio, not real money.",
       h_todo:"What would you like to do?",
       t1:"See where it all went", t1s:"Investment details and risk",
@@ -292,14 +306,26 @@ const LS=(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}};
 if(!LS("mira_onboarded","")){ location.replace("onboarding.html"); }
 function fmt(n){return Math.round(n).toLocaleString("en-US")}
 // Money starts at 0. The only money is what the user has added (mira_topup), simulated.
-function dca(){ const t=window.MiraWallet?MiraWallet.total():Math.max(0,+LS("mira_topup","0")||0); return {value:t, put:t}; }
+function dca(){
+  const W=window.MiraWallet; if(!W) return {value:Math.max(0,+LS("mira_topup","0")||0), put:0, profit:0, pct:0};
+  const cash=W.central(), L=W.lending(), principal=L.locked+L.waiting;
+  let inv=W.invest(), put=inv;                     // fallback: no growth model loaded
+  try{                                             // same maths as the investment page: each lot grows with its track from its date
+    const sp=LS("mira_split",""), rk=LS("mira_risk","mid");
+    const split=sp!==""&&!isNaN(+sp)?+sp:({low:10,mid:30,high:60}[rk]||30);
+    inv=0; put=0;
+    for(const t of MC.TRK){ const d=MC.trackValue(t,t==="high"?split/100:1-split/100); inv+=d.value; put+=d.put; }
+  }catch(e){ inv=put=W.invest(); }
+  const base=put+principal, profit=(inv-put)+L.accrued;
+  return {value:cash+inv+L.total, put:base, profit, pct:base>0?profit/base*100:0};
+}
 function render(){
-  const T=I18N[lang], r=dca(), g=r.value-r.put;
+  const T=I18N[lang], r=dca(), g=r.profit;
   document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย";
   $("hi").textContent=T.hi; $("who").textContent=LS("mira_name","")||T.who; $("setlbl").textContent=T.setlbl; $("lbl").textContent=T.lbl;
   $("val").textContent="฿"+fmt(r.value);
   if(r.put===0){ $("gain").textContent=T.start; $("gain").className="gain"; }
-  else { $("gain").textContent=(g>=0?"▲ ":"▼ ")+(g>=0?T.up(g):T.down(g)); $("gain").className="gain "+(g>=0?"up":"down"); }
+  else { $("gain").textContent=(g>=0?"▲ ":"▼ ")+(g>=0?T.up(g,r.pct):T.down(g,r.pct)); $("gain").className="gain "+(g>=0?"up":"down"); }
   $("note").textContent=T.note; $("h_todo").textContent=T.h_todo;
   $("t1").textContent=T.t1; $("t1s").textContent=T.t1s; $("t2").textContent=T.t2; $("t2s").textContent=T.t2s;
   $("t3").textContent=T.t3; $("t3s").textContent=r.value>0?T.t3s(fmt(r.value*0.9)):T.t3zero;
@@ -410,6 +436,64 @@ $("wd-cancel").onclick = wdClose;
 $("wd-modal").addEventListener("click", e => { if (e.target.id === "wd-modal") wdClose(); });
 $("wd-amt").addEventListener("input", wdRefresh);
 $("wd-type").addEventListener("input", wdRefresh);
+
+// ---- deposit (ฝากเงิน): adds simulated money to central cash; Stripe test checkout when the server has a key, else the labelled demo screen ----
+const DP = {
+  th: { btn:"ฝากเงิน", title:"ฝากเงิน", sub:"ใส่เงินเข้าเงินพัก (จำลอง) แล้วค่อยกด “ลงทุน” เมื่อพร้อมให้เงินทำงาน", lbl:"จำนวนเงินที่ฝาก (บาท) · ฿5 – ฿100,000",
+        go:"ไปหน้าชำระเงิน", cancel:"ยกเลิก", note:"เงินในแอปนี้เป็นเงินจำลอง ไม่ได้นำไปลงทุนจริง", bad:"ใส่จำนวนเงิน ฿5 – ฿100,000", below:"ขั้นต่ำสำหรับบัตรคือ ฿10",
+        added:(a)=>`ฝากเงิน ฿${a} แล้ว (จำลอง)` },
+  en: { btn:"Deposit", title:"Deposit", sub:"Add simulated money to your cash, then press “Invest” when you want it to work.", lbl:"Amount to deposit (THB) · ฿5 – ฿100,000",
+        go:"Continue to payment", cancel:"Cancel", note:"Money in this app is simulated and is not invested for real.", bad:"Enter an amount from ฿5 to ฿100,000", below:"Card minimum is ฿10",
+        added:(a)=>`Deposited ฿${a} (simulated)` }
+};
+function dpLabels(){ const T = DP[lang]; $("dp-open").textContent = T.btn; }
+function dpRefresh(){
+  const T = DP[lang], a = Math.round(+$("dp-amt").value || 0);
+  $("dp-title").textContent = T.title; $("dp-sub").textContent = T.sub; $("dp-lbl").textContent = T.lbl;
+  $("dp-note").textContent = T.note; $("dp-cancel").textContent = T.cancel; $("dp-go").textContent = T.go;
+  $("dp-chips").innerHTML = [100,500,1000,5000].map(v => `<button type="button" data-a="${v}">฿${fmt(v)}</button>`).join("");
+  $("dp-go").disabled = !(a >= 5 && a <= 100000);
+}
+function dpOpen(){ $("dp-amt").value = ""; $("dp-modal").hidden = false; dpRefresh(); $("dp-amt").focus(); }
+function dpClose(){ $("dp-modal").hidden = true; }
+$("dp-open").onclick = dpOpen;
+$("dp-cancel").onclick = dpClose;
+$("dp-modal").addEventListener("click", e => { if (e.target.id === "dp-modal") dpClose(); });
+$("dp-amt").addEventListener("input", dpRefresh);
+$("dp-chips").addEventListener("click", e => { const b = e.target.closest("button[data-a]"); if (!b) return; $("dp-amt").value = b.dataset.a; dpRefresh(); });
+document.addEventListener("click", e => { if (e.target.closest("[data-dp]")) { e.preventDefault(); dpOpen(); } });
+$("dp-go").onclick = function(){
+  const T = DP[lang], a = Math.round(+$("dp-amt").value || 0);
+  if (!(a >= 5 && a <= 100000)) { $("toast").textContent = T.bad; $("toast").classList.add("show"); return; }
+  const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  $("dp-go").disabled = true;
+  fetch("/api/checkout", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ id, amt:a }) })
+    .then(r => r.json()).then(j => {
+      if (j.error === "below_stripe_min") { $("toast").textContent = T.below; $("toast").classList.add("show"); $("dp-go").disabled = false; return; }
+      // Stripe Checkout cannot run inside the iframe that embeds this page, so leave the frame
+      if (j.url) { try { window.top.location.href = j.url; } catch (e) { window.open(j.url, "_blank"); } }
+      else location.href = "/pay.html?id=" + id + "&amt=" + a + "&m=card";
+    })
+    .catch(() => { location.href = "/pay.html?id=" + id + "&amt=" + a + "&m=card"; });
+};
+// payment finished on pay.html (same browser): credit it once, then show the new balance
+function dpScan(){
+  try {
+    let ids = []; try { ids = JSON.parse(LS("mira_paid_ids", "[]")); } catch (e) {}
+    let n = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i); if (!k || k.indexOf("mira_pay_") !== 0) continue;
+      const id = k.slice(9), a = Math.round(+localStorage.getItem(k));
+      if (ids.indexOf(id) < 0 && a >= 1 && a <= 100000) {
+        ids.push(id); localStorage.setItem("mira_paid_ids", JSON.stringify(ids.slice(-50)));
+        localStorage.setItem("mira_topup", String(avail() + a)); n += a;
+      }
+      localStorage.removeItem(k);
+    }
+    if (n > 0) { $("toast").textContent = DP[lang].added(fmt(n)); $("toast").classList.add("show"); setTimeout(() => $("toast").classList.remove("show"), 2800); }
+    return n;
+  } catch (e) { return 0; }
+}
 $("wd-last").addEventListener("input", wdRefresh);
 $("wd-dest").addEventListener("change", wdRefresh);
 $("wd-chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { $("wd-amt").value = b.dataset.a; wdRefresh(); } });
@@ -425,11 +509,11 @@ $("wd-go").onclick = () => {
     localStorage.setItem("mira_wd_dest", dest);
     localStorage.setItem("mira_withdrawals", JSON.stringify(log));
   } catch (e) {}
-  wdClose(); render(); renderNotes();
+  wdClose(); dpScan(); render(); renderNotes();
   const t = $("toast"); t.textContent = T.done(fmt(amt), destName); t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2600);
 };
 const _renderBase = render;
-render = function(){ _renderBase(); wdLabels(); };
+render = function(){ _renderBase(); wdLabels(); dpLabels(); };
 
 
 // ---- my money: central cash, investment port, lending port ----
@@ -438,7 +522,7 @@ const MV = {
        c:"เงินพัก (ส่วนกลาง)", cSub:"พักไว้เฉยๆ ยังไม่ทำงาน ถอนเข้าบัญชีธนาคารได้จากปุ่มถอนเงินด้านบน",
        i:"พอร์ตลงทุน", iSub:(w)=>`ถอนกลับเงินพักได้ตอนนี้ ฿${w}`,
        l:"พอร์ตปล่อยกู้", lSub:(a,b,c)=>(+a.replace(/,/g,'')+ +b.replace(/,/g,'')+ +c.replace(/,/g,''))>0?`ถูกจับคู่ ฿${a} · รอจับคู่ ฿${b} · ดอกเบี้ย ฿${c}`:"ยังไม่ได้ปล่อยกู้",
-       toI:"ใส่เข้าพอร์ตลงทุน", fromI:"ถอนกลับเงินพัก", detail:"ดูรายละเอียด", lendGo:"ไปหน้าปล่อยเงิน", topup:"เติมเงินเข้าเงินพัก",
+       toI:"ใส่เข้าพอร์ตลงทุน", fromI:"ถอนกลับเงินพัก", detail:"ดูรายละเอียด", lendGo:"ไปหน้าปล่อยเงิน", topup:"ฝากเงินเข้าเงินพัก",
        inT:"ใส่เงินเข้าพอร์ตลงทุน", inS:"ย้ายเงินจากเงินพักเข้าไปทำงานในพอร์ตลงทุน",
        outT:"ถอนจากพอร์ตลงทุนกลับเงินพัก", outS:"ขายสินทรัพย์ในพอร์ตแล้วพักไว้ที่เงินพัก (ยังไม่เข้าบัญชีธนาคาร) ขายได้เฉพาะส่วนที่ขายและรับเงินแล้ว",
        amt:"จำนวน (บาท)", max:"ทั้งหมด", cancel:"ปิด", confirm:"ยืนยัน",
@@ -451,7 +535,7 @@ const MV = {
        c:"Cash (central)", cSub:"Just sits there, not working. Withdraw to a bank with the Withdraw button above.",
        i:"Investment port", iSub:(w)=>`You can move ฿${w} back to cash right now`,
        l:"Lending port", lSub:(a,b,c)=>(+a.replace(/,/g,'')+ +b.replace(/,/g,'')+ +c.replace(/,/g,''))>0?`Matched ฿${a} · waiting ฿${b} · interest ฿${c}`:"Nothing lent yet",
-       toI:"Move into investment", fromI:"Move back to cash", detail:"Details", lendGo:"Go to lending", topup:"Add money to cash",
+       toI:"Move into investment", fromI:"Move back to cash", detail:"Details", lendGo:"Go to lending", topup:"Deposit to cash",
        inT:"Move money into the investment port", inS:"Move money from cash so it goes to work in the investment tracks.",
        outT:"Move money from investment back to cash", outS:"Sells assets in the port and parks the money in cash (not in your bank yet). Only the part already sold and settled can move.",
        amt:"Amount (THB)", max:"All", cancel:"Close", confirm:"Confirm",
@@ -468,7 +552,7 @@ function renderPorts(){
   const T = MV[lang], c = Math.round(W.central()), iv = Math.round(W.invest()), wd = Math.floor(W.withdrawable()), L = W.lending();
   $("ports").innerHTML =
     `<div class="port"><div><h4>${T.c}</h4><div class="sub2">${T.cSub}</div></div><div class="amt">฿${fmt(c)}</div>
-       <div class="acts2"><a href="investment.html">${T.topup}</a><button class="p" id="mv-in" ${c<=0?"disabled":""}>${T.toI}</button></div></div>` +
+       <div class="acts2"><a href="#" data-dp>${T.topup}</a><button class="p" id="mv-in" ${c<=0?"disabled":""}>${T.toI}</button></div></div>` +
     `<div class="port"><div><h4>${T.i}</h4><div class="sub2">${T.iSub(fmt(wd))}</div></div><div class="amt">฿${fmt(iv)}</div>
        <div class="acts2"><button id="mv-out" ${iv<=0?"disabled":""}>${T.fromI}</button><a href="investment.html">${T.detail}</a></div></div>` +
     `<div class="port"><div><h4>${T.l}</h4><div class="sub2">${T.lSub(fmt(L.locked),fmt(L.waiting),fmt(L.accrued))}</div></div><div class="amt">฿${fmt(L.total)}</div>

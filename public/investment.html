@@ -152,7 +152,7 @@ label{font-size:13px;font-weight:600;color:var(--mute);display:block;margin-top:
     <section class="hero">
       <div class="lbl" id="a_l"></div>
       <div class="vault" id="vault">฿0</div>
-      <div class="row3">
+      <div class="row3" hidden>
         <div class="cell"><small id="p1l"></small><b id="p1">฿0</b></div>
         <div class="cell"><small id="p2l"></small><b id="p2">฿0</b></div>
         <div class="cell"><small id="p3l"></small><b id="p3">฿0</b></div>
@@ -170,7 +170,7 @@ label{font-size:13px;font-weight:600;color:var(--mute);display:block;margin-top:
       <p class="note" id="wd"></p>
       <p class="empty" id="empty" hidden></p>
 
-      <div class="actions">
+      <div class="actions" hidden>
         <div class="action">
           <button class="btn p" data-topup id="topup1"></button>
           <span class="cap" id="tp_s"></span>
@@ -191,7 +191,7 @@ label{font-size:13px;font-weight:600;color:var(--mute);display:block;margin-top:
         </div>
       </div>
       <span hidden id="tp_t"></span><span hidden id="ld_t"></span>
-      <p class="note" id="tp_r"></p>
+      <p class="note" id="tp_r" hidden></p>
 
       <div class="auto">
         <div class="tx"><b id="au_t"></b><span class="m" id="au_s"></span><button class="lnk" data-june="plan" id="au_l"></button></div>
@@ -303,7 +303,7 @@ const {P,ST,FX,TRK,RK,store,trackValue,mixFor,stats}=MC;
 const WL=window.MiraWallet;
 const I18N={
  th:{back:"← หน้าหลัก", title:"เงินของฉัน",
-  a_l:"สินทรัพย์ทั้งหมดของฉัน", p1l:"เงินกลาง (ยังไม่ทำงาน)", p2l:"พอร์ตลงทุน", p3l:"พอร์ตปล่อยกู้",
+  a_l:"มูลค่าพอร์ตลงทุนของฉัน", p1l:"เงินกลาง (ยังไม่ทำงาน)", p2l:"พอร์ตลงทุน", p3l:"พอร์ตปล่อยกู้",
   a1l:"ลงทุนไป", a2l:"กำไร", a3l:"การเติบโต",
   wd:(x)=>`ถอนจากพอร์ตลงทุนกลับเงินกลางได้ทันที ฿${x} (ที่เหลือรอขายและรับเงินตามชนิดสินทรัพย์)`,
   mv_in:"ลงทุน", mv_in_s:(c)=>`ย้ายจากเงินกลาง (มี ฿${c})`, mv_out:"ถอนกลับเงินกลาง", mv_out_s:(w)=>`ถอนได้ทันที ฿${w}`,
@@ -313,7 +313,7 @@ const I18N={
   e_amount:"ใส่จำนวนเงินก่อน", e_central:(m)=>`เงินกลางไม่พอ มีอยู่ ฿${m}`, e_exceeds:(m)=>`มากกว่าเงินที่ลงทุนอยู่ (฿${m})`,
   e_wait:(c,d)=>`ถอนไม่สำเร็จ ขายสินทรัพย์ไม่ทัน ตอนนี้ถอนได้ ฿${c} ที่เหลือต้องรอ จะถอนเต็มได้ประมาณ ${d}`,
   mv_d_in:(a)=>`ย้าย ฿${a} ไปลงทุนแล้ว`, mv_d_out:(a)=>`ถอน ฿${a} กลับเงินกลางแล้ว`, dn_inv:"ย้ายไปลงทุนเลย",
-  empty:"เริ่มต้นที่ ฿0 · เติมเงินเพื่อเริ่มลงทุน (จำลอง)",
+  empty:"ยังไม่มีเงินในพอร์ตลงทุน · ฝากเงินที่หน้าหลักก่อน แล้วกด “ลงทุน” (จำลอง)",
   bt:(v,d)=>`ผลย้อนหลัง (ไม่ใช่เงินของคุณ): ถ้าใส่ ฿10,000 ตามสัดส่วนนี้ตั้งแต่ ${d} จะเป็นประมาณ ฿${v}`,
   tp_t:"เติมเงิน", more1:"ดูรายละเอียดความเสี่ยง", tp_s:"ใส่เงินครั้งเดียว ฿5 – ฿100,000", topup:"+ เติมเงิน",
   l1l:"ปล่อยอยู่ (ล็อก)", l2l:"รอจับคู่", l3l:"ดอกเบี้ยสะสม",
@@ -343,7 +343,7 @@ const I18N={
   fx_note:"เป็นช่วงที่เป็นไปได้ ไม่ใช่การทายทิศทาง ไม่ใช่คำแนะนำการลงทุน",
   j1:"คุยกับ June AI เพื่อปรับแผน", j2:"หน้านี้ดูอย่างเดียว การเปลี่ยนจำนวน วัน หรือสัดส่วนทำผ่าน June",
   in_t:"ยินดีต้อนรับสู่เงินของคุณ", in_ok:"เริ่มเลย",
-  in_l:["เงินของคุณมี 3 ที่: เงินกลาง (พักไว้ ไม่ทำงาน) พอร์ตลงทุน และพอร์ตปล่อยกู้","เติมเงินเข้าเงินกลางก่อน แล้วกด “ลงทุน” เมื่อพร้อมให้เงินทำงาน","แตะแทร็กเพื่อดูว่าถืออะไรบ้าง ถอนกลับเงินกลางได้เมื่อขายสินทรัพย์เสร็จ","ล่างสุดคือรายงานความเสี่ยงและค่าเงินบาท ไว้ดูก่อนตัดสินใจ"],
+  in_l:["หน้านี้แสดงเฉพาะเงินในพอร์ตลงทุน ส่วนเงินกลางและเงินปล่อยกู้ดูที่หน้าหลัก","ฝากเงินที่หน้าหลักก่อน แล้วกด “ลงทุน” เมื่อพร้อมให้เงินทำงาน","แตะแทร็กเพื่อดูว่าถืออะไรบ้าง ถอนกลับเงินกลางได้เมื่อขายสินทรัพย์เสร็จ","ล่างสุดคือรายงานความเสี่ยงและค่าเงินบาท ไว้ดูก่อนตัดสินใจ"],
   sh_t:"เติมเงิน", sh_l:"จำนวนเงินที่เติม (บาท) · ใส่เอง ฿5 – ฿100,000", ph:"ใส่จำนวนเงิน", sh_pm:"เลือกวิธีเติมเงิน",
   go:"ไปชำระเงินที่ Stripe", go_s:"เลือกจ่ายด้วยบัตร PromptPay หรือวิธีอื่นได้ที่หน้าชำระเงินของ Stripe (โหมดทดลอง ไม่ตัดเงินจริง)",
   sh_note:"พอร์ตนี้เป็นพอร์ตจำลอง เงินที่เติมเป็นตัวเลขทดลอง ไม่ได้นำไปลงทุนจริง",
@@ -354,7 +354,7 @@ const I18N={
   back:"← เปลี่ยนวิธี", dn_t:"เสร็จสมบูรณ์", dn_s:(a)=>`เติม ฿${a} เข้าเงินกลางแล้ว · ยังไม่ได้ลงทุน`, ok:"ตกลง", added:(a)=>`เติมเงิน ฿${a} แล้ว (จำลอง)`,
   fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต พอร์ตนี้เป็นพอร์ตจำลอง ไม่ใช่เงินจริง"},
  en:{back:"← Home", title:"My money",
-  a_l:"All my assets", p1l:"Central cash (idle)", p2l:"Investment port", p3l:"Lending port",
+  a_l:"My investment port value", p1l:"Central cash (idle)", p2l:"Investment port", p3l:"Lending port",
   a1l:"Invested", a2l:"Profit", a3l:"Growth",
   wd:(x)=>`You can bring ฿${x} back to central cash right now (the rest waits for assets to sell and settle).`,
   mv_in:"Invest", mv_in_s:(c)=>`Move from central cash (have ฿${c})`, mv_out:"Back to central cash", mv_out_s:(w)=>`Available now ฿${w}`,
@@ -364,7 +364,7 @@ const I18N={
   e_amount:"Enter an amount first", e_central:(m)=>`Not enough central cash. You have ฿${m}`, e_exceeds:(m)=>`More than you have invested (฿${m})`,
   e_wait:(c,d)=>`Could not withdraw: assets are not sold yet. You can take ฿${c} now; the rest has to wait, full amount around ${d}`,
   mv_d_in:(a)=>`Moved ฿${a} into investing`, mv_d_out:(a)=>`Brought ฿${a} back to central cash`, dn_inv:"Invest it now",
-  empty:"Starting at ฿0 · add money to begin (paper)",
+  empty:"No money in the investment port yet · deposit on the main page first, then press “Invest” (paper)",
   bt:(v,d)=>`Backtest (not your money): ฿10,000 split like this since ${d} would be about ฿${v}`,
   tp_t:"Add money", more1:"Risk details", tp_s:"One-off, ฿5 – ฿100,000", topup:"+ Add money",
   l1l:"Lent out (locked)", l2l:"Waiting", l3l:"Interest so far",
@@ -394,7 +394,7 @@ const I18N={
   fx_note:"These are ranges, not a call on direction, and not investment advice.",
   j1:"Talk to June AI to adjust the plan", j2:"This page is view-only. Amount, day and split changes go through June.",
   in_t:"Welcome to your money", in_ok:"Let's go",
-  in_l:["Your money lives in 3 places: central cash (idle), the investment port and the lending port.","Add money to central cash first, then press “Invest” when you want it to work.","Tap a track to see what it holds. Bring money back to central cash once assets have sold and settled.","At the bottom: the risk report and the baht rate, to check before you decide."],
+  in_l:["This page shows only the money in your investment port. Cash and lending are on the main page.","Deposit on the main page first, then press “Invest” when you want it to work.","Tap a track to see what it holds. Bring money back to central cash once assets have sold and settled.","At the bottom: the risk report and the baht rate, to check before you decide."],
   sh_t:"Add money", sh_l:"Amount to add (THB) · enter ฿5 – ฿100,000", ph:"Enter amount", sh_pm:"Choose how to pay",
   go:"Continue to Stripe", go_s:"Pick card, PromptPay or other methods on the Stripe payment page (test mode, no real money).",
   sh_note:"This is a paper portfolio. Money added here is a test number and is not invested for real.",
@@ -422,7 +422,7 @@ function render(){
   $("lang").textContent=lang==="th"?"EN":"ไทย"; $("back").textContent=T.back; $("title").textContent=T.title;
   const D={}; let inv=0, put=0;
   for(const t of TRK){ D[t]=trackValue(t,frac(t)); inv+=D[t].value; put+=D[t].put; }
-  const cashC=MC.central(), L=MC.lend(), value=cashC+inv+L.total;   // three places, each counted once
+  const cashC=MC.central(), L=MC.lend(), value=inv;   // this page shows the investment port only; cash + lending live on the main page
   const g=inv-put, gr=put?g/put*100:0, canNow=WL?Math.min(WL.withdrawable(),put):0;
   $("a_l").textContent=T.a_l; $("vault").textContent="฿"+fmt(value);
   $("p1l").textContent=T.p1l; $("p1").textContent="฿"+fmt(cashC);
@@ -434,8 +434,8 @@ function render(){
   $("wd").textContent=put>0?T.wd(fmt(canNow)):"";
   $("mv_in").textContent=T.mv_in; $("mv_in_s").textContent=T.mv_in_s(fmt(cashC));
   $("mv_out").textContent=T.mv_out; $("mv_out_s").textContent=T.mv_out_s(fmt(canNow));
-  $("empty").hidden=value>0; $("empty").textContent=T.empty;
-  $("lrow").hidden=!L.on; $("l1l").textContent=T.l1l; $("l1").textContent="฿"+fmt(L.locked);
+  $("empty").hidden=value>0||cashC>0; $("empty").textContent=T.empty;
+  $("lrow").hidden=true; $("l1l").textContent=T.l1l; $("l1").textContent="฿"+fmt(L.locked);
   $("l2l").textContent=T.l2l; $("l2").textContent="฿"+fmt(L.waiting); $("l3l").textContent=T.l3l; $("l3").textContent="฿"+fmt(L.accrued);
   $("ld_t").textContent=T.ld_t; $("ld_s").textContent=L.on?T.ld_on(fmt(L.accrued)):T.ld_s; $("ld_b").textContent=T.ld_b;
   const btv=TRK.reduce((a,t)=>a+frac(t)*D[t].bt,0)*10000; $("bt").textContent=T.bt(fmt(btv),P.curve[0][0]);
