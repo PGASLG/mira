@@ -199,10 +199,10 @@ const MIX = {low:{stocks:15,bonds:60,commodities:15,"real estate":5,currencies:5
              high:{stocks:50,bonds:10,commodities:20,"real estate":10,currencies:0,crypto:10}};
 // ponytail: sample caps, not a real risk model; replace with per-asset haircut data if this goes beyond a demo
 const CAP = {bonds:.70,commodities:.50,"real estate":.50,currencies:.50,stocks:.40,crypto:.20};
-const RATE = 0.03, MAXLTV = 0.9, PERIODS = [1,3,6,12];
+const RATE = 0.10, MAXLTV = 0.9, PERIODS = [1,3,6,12];
 const I18N = {
  th:{back:"← หน้าหลัก", sim:"จำลองเท่านั้น ไม่มีเงินจริง ไม่มีการกู้จริง",
-  h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ยต่ำ ทำตาม 3 ขั้นตอนง่ายๆ",
+  h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ย 10% ต่อปี (ตัวอย่าง) ทำตาม 3 ขั้นตอนง่ายๆ",
   k_max:"ยืมได้สูงสุดตอนนี้",
   pay_m:(p)=>`ชำระงวดนี้ ฿${p}`, pay_all:(p)=>`ชำระทั้งหมด ฿${p}`, l_prog:(a,b)=>`ชำระแล้ว ${a} จาก ${b} งวด`, l_next:"งวดถัดไปครบกำหนด", l_left:"ยอดคงเหลือที่ต้องชำระ",
   days:(d)=>d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`, near_t:"ใกล้ครบกำหนดแล้ว กรุณาชำระงวดนี้ให้ทัน", paidm:"ชำระงวดนี้แล้ว (จำลอง)", paidall:"ชำระครบ ปิดหนี้แล้ว (จำลอง)",
@@ -216,7 +216,7 @@ const I18N = {
   june_rec:(n,cap)=>`June แนะนำ <b>${n} เดือน</b> เพราะเงินที่จ่ายต่อเดือนไม่เกิน 30% ของเงินที่คุณใส่ต่อเดือน (฿${cap}) หรือเลือกเองจากรายการก็ได้`,
   per_mo:(p)=>`฿${p}/เดือน`, int_of:(i)=>`ดอกเบี้ยรวม ฿${i}`,
   s3_h:"ตรวจสอบและยืนยัน",
-  r:{amt:"ยืม",rate:"ดอกเบี้ยตัวอย่าง",per:"ระยะเวลา",pay:"จ่ายต่อเดือน",int:"ดอกเบี้ยรวม",total:"ยอดที่ต้องจ่ายคืนรวม",due:"ครบกำหนด"}, rate:"3% ต่อปี (ตัวอย่าง)",
+  r:{amt:"ยืม",rate:"ดอกเบี้ยตัวอย่าง",per:"ระยะเวลา",pay:"จ่ายต่อเดือน",int:"ดอกเบี้ยรวม",total:"ยอดที่ต้องจ่ายคืนรวม",due:"ครบกำหนด"}, rate:"10% ต่อปี (ตัวอย่าง)",
   d_h:"ข้อตกลงสำคัญ อ่านก่อนยืนยัน",
   d_list:["ถ้าคุณไม่จ่ายคืนตามกำหนด ผู้ให้ยืมมีสิทธิ์ยึดสินทรัพย์ของคุณ สินทรัพย์นั้นจะตกเป็นของผู้ให้ยืม","สินทรัพย์ทั้งหมดของคุณจะถูกย้ายไปเป็นแบบความเสี่ยงต่ำเพื่อค้ำประกัน จนกว่าจะจ่ายคืนครบ","ถ้าราคาสินทรัพย์ตก อาจต้องจ่ายคืนก่อนกำหนด","หน้านี้เป็นการจำลอง ไม่มีเงินจริงและไม่มีการยึดจริง"],
   typed_l:"พิมพ์คำว่า sure เพื่อยืนยัน", go:"ยืนยันและยืม (จำลอง)",
@@ -229,10 +229,10 @@ const I18N = {
   w_push:(d)=>`ขอพูดตรงๆ: ยืม 90% ของสินทรัพย์ที่ราคาขึ้นลงเสี่ยงมาก พอร์ตตัวอย่างนี้เคยลดลงราว ${d}% ในช่วงที่แย่สุด และคริปโตกับหุ้นลดได้มากกว่านี้ ที่ 90% แทบไม่มีที่ว่างรองรับ`,
   caps_h:"ยืมได้ปลอดภัยตามประเภท (ตัวอย่าง)", cls:{bonds:"พันธบัตร",commodities:"สินค้าโภคภัณฑ์","real estate":"อสังหาฯ",currencies:"สกุลเงิน",stocks:"หุ้น",crypto:"คริปโต"},
   w_reg:"หมายเหตุ: ในประเทศไทยการให้ยืมเงินระหว่างบุคคลแบบนี้มีกฎหมายควบคุม หน้านี้เป็นแค่การจำลองเพื่อแสดงไอเดีย ไม่ใช่บริการจริง",
-  h_h:"ทำงานอย่างไร", steps:["เลือกจำนวนเงินที่ต้องการยืม","เลือกระยะเวลาจ่ายคืน ให้ June แนะนำหรือเลือกเอง","ยืนยัน แล้วจ่ายคืนรายเดือนพร้อมดอกเบี้ยต่ำ"],
+  h_h:"ทำงานอย่างไร", steps:["เลือกจำนวนเงินที่ต้องการยืม","เลือกระยะเวลาจ่ายคืน ให้ June แนะนำหรือเลือกเอง","ยืนยัน แล้วจ่ายคืนรายเดือนพร้อมดอกเบี้ย 10% ต่อปี (ผู้ให้ยืมได้ 8% Mira เก็บ 2%)"],
   june:"ถาม June ก่อนตัดสินใจ", fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
  en:{back:"← Home", sim:"Simulation only. No real money, no real loan.",
-  h1:"Need money fast?", sub:"Borrow from other Mira users at a low rate. Just 3 easy steps.",
+  h1:"Need money fast?", sub:"Borrow from other Mira users at 10% a year (example). Just 3 easy steps.",
   k_max:"You can borrow up to",
   pay_m:(p)=>`Pay this month ฿${p}`, pay_all:(p)=>`Pay all ฿${p}`, l_prog:(a,b)=>`Paid ${a} of ${b} payments`, l_next:"Next payment due", l_left:"Left to pay",
   days:(d)=>d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`, near_t:"Due soon. Please pay this month's payment on time.", paidm:"This month paid (simulated)", paidall:"All paid, loan closed (simulated)",
@@ -246,7 +246,7 @@ const I18N = {
   june_rec:(n,cap)=>`June suggests <b>${n} month${n>1?"s":""}</b> so the monthly payment stays within 30% of your monthly amount (฿${cap}). Or pick your own from the list.`,
   per_mo:(p)=>`฿${p}/month`, int_of:(i)=>`Total interest ฿${i}`,
   s3_h:"Check and confirm",
-  r:{amt:"Borrow",rate:"Sample rate",per:"Period",pay:"Per month",int:"Total interest",total:"Total to repay",due:"Due date"}, rate:"3% per year (example)",
+  r:{amt:"Borrow",rate:"Sample rate",per:"Period",pay:"Per month",int:"Total interest",total:"Total to repay",due:"Due date"}, rate:"10% per year (example)",
   d_h:"Important terms. Read before confirming",
   d_list:["If you do not repay on time, the lender has the right to take your assets, and those assets become the lender's.","All your assets will be moved into low-risk assets as security until the loan is repaid.","If asset prices fall, you may have to repay early.","This page is a simulation: no real money and nothing is really taken."],
   typed_l:"Type the word sure to confirm", go:"Confirm and borrow (simulated)",
@@ -259,7 +259,7 @@ const I18N = {
   w_push:(d)=>`Honest note: borrowing 90% of volatile assets is risky. This sample portfolio fell about ${d}% at its worst, and crypto and stocks can fall more. At 90% there is almost no room.`,
   caps_h:"Safer borrowing by asset type (example)", cls:{bonds:"Bonds",commodities:"Commodities","real estate":"Real estate",currencies:"Currencies",stocks:"Stocks",crypto:"Crypto"},
   w_reg:"Note: real peer-to-peer lending is regulated in Thailand. This page is a simulation to show the idea, not a real service.",
-  h_h:"How it works", steps:["Pick how much you want to borrow","Pick how long to repay: June suggests, or choose yourself","Confirm, then repay monthly with a low interest rate"],
+  h_h:"How it works", steps:["Pick how much you want to borrow","Pick how long to repay: June suggests, or choose yourself","Confirm, then repay monthly at 10% a year (lenders get 8%, Mira keeps 2%)"],
   june:"Ask June before deciding", fine:"Research only, not investment advice. Past results do not guarantee the future."}
 };
 let lang="th", S={amt:2000,risk:"mid",topup:0}, per=3, want=0, loan=null, userPer=false, step=1, rsOpen=false, rsPick=0;

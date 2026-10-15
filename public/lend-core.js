@@ -8,7 +8,7 @@
    mira_topup = investable cash. lend() takes from it; withdraw() and repayments (principal + interest) return to it.
    mira_lend_active is a compatibility mirror for mira-core.js MC.lend(). */
 (function(){
-  var KEY="mira_lend_pool", RATE=3, PIECE=500, PERIODS=[1,3,6,12], WAIT_MONTHS=3;
+  var KEY="mira_lend_pool", RATE=8, BORROW_RATE=10, PIECE=500, PERIODS=[1,3,6,12], WAIT_MONTHS=3;
   function LS(k,d){ try{ var v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } }
   function SET(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
   function DEL(k){ try{ localStorage.removeItem(k); }catch(e){} }
@@ -22,6 +22,8 @@
   function addMonths(d,n){ var x=new Date(d); x.setMonth(x.getMonth()+n); return x; }
   function monthsBetween(a,b){ a=new Date(a); b=new Date(b); var m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth(); if(b.getDate()<a.getDate()) m--; return Math.max(0,m); }
   // same amortised payment as lending.html calc()
+  // borrower pays BORROW_RATE (10%/yr); lender gets RATE (8%/yr); Mira keeps the 2% difference
+  var SHARE=RATE/BORROW_RATE, CAP={low:0.5,mid:0.6,high:0.7};
   function calc(a,n,rate){ var r=(rate==null?RATE:rate)/100/12, pay=a*r/(1-Math.pow(1+r,-n)); return {pay:pay,int:pay*n-a}; }
   function projection(a,n){ var c=calc(a,n); return {principal:a,interest:c.int,total:a+c.int,date:addMonths(new Date(),n),pay:c.pay}; }
   function appLoan(){ try{ var l=JSON.parse(LS("mira_loan_active","null")); return l&&l.amt>0&&l.months>0?l:null; }catch(e){ return null; } }
@@ -50,13 +52,13 @@
     } else if(p.app){
       var pn=outP(loan), dP=p.app.P-pn;
       if(dP>0.004&&p.app.P>0){ var pr=p.app.F/p.app.P*dP; credit(pr,pr*p.app.ir); p.app.F-=pr; }
-      p.app.P=pn; p.app.ir=Math.max(0,loan.pay*loan.months/loan.amt-1);
+      p.app.P=pn; p.app.ir=Math.max(0,loan.pay*loan.months/loan.amt-1)*SHARE;
     }
     if(loan){
       var P=outP(loan), demand=P-(p.app&&p.app.acc===loan.accepted?p.app.F:0), take=Math.min(demand,waitingOf(p));
       if(take>=1){
         var need=take; p.offers.forEach(function(o){ var t=Math.min(o.left,need); o.left-=t; need-=t; });
-        if(!p.app) p.app={acc:loan.accepted,F:0,P:P,ir:Math.max(0,loan.pay*loan.months/loan.amt-1)};
+        if(!p.app) p.app={acc:loan.accepted,F:0,P:P,ir:Math.max(0,loan.pay*loan.months/loan.amt-1)*SHARE};
         p.app.F+=take; ch=true;
       }
     }
@@ -179,8 +181,17 @@
     var locked=S.locked+(+R.state.locked), waiting=S.waiting+(+R.state.waiting), earned=S.earned+(+R.state.earned);
     return {pool:pool,locked:locked,waiting:waiting,earned:earned,realized:S.realized+(+R.state.earned),on:locked+waiting>0.004||earned>0,cash:topup(),mode:"cloud"};
   }
+  // most a user may have in lending: 50% / 60% / 70% (low / mid / high risk) of ALL their money (cash + investment port + lending)
+  function cap(){
+    var S=summary(), lots=[]; try{ lots=JSON.parse(LS("mira_port_lots","[]")); }catch(e){}
+    var inv=(Array.isArray(lots)?lots:[]).reduce(function(s,x){ return s+(+x.a||0); },0);
+    var used=S.locked+S.waiting, total=topup()+inv+used+S.earned, pct=CAP[LS("mira_risk","mid")]||CAP.mid;
+    var limit=Math.floor(total*pct);
+    return {pct:pct,total:total,limit:limit,used:used,room:Math.max(0,limit-Math.ceil(used))};
+  }
   function lend(amount,fb){
     return R.ready.then(function(){
+      if(amount>cap().room+0.004) return false;
       if(R.mode==="cloud") return lendCloud(Math.floor(amount),fb).catch(function(e){ R.why=String(e.message||e); return false; });
       return lendLocal(amount,fb);
     });
@@ -244,5 +255,5 @@
     }
   }
   function mode(){ return R.mode; }
-  window.MiraLend={borrow:borrow,repayMonth:repayMonth,repayAll:repayAll,borrowerLoans:borrowerLoans,mode:mode,why:function(){ return R.why; },ready:R.ready,refresh:refresh,RATE:RATE,PIECE:PIECE,PERIODS:PERIODS,WAIT_MONTHS:WAIT_MONTHS,sync:sync,summary:summary,lend:lend,withdraw:withdraw,skipMonth:skipMonth,projection:projection,calc:calc,addMonths:addMonths,topup:topup,pieceRem:pieceRem};
+  window.MiraLend={borrow:borrow,repayMonth:repayMonth,repayAll:repayAll,borrowerLoans:borrowerLoans,mode:mode,why:function(){ return R.why; },ready:R.ready,refresh:refresh,RATE:RATE,BORROW_RATE:BORROW_RATE,cap:cap,PIECE:PIECE,PERIODS:PERIODS,WAIT_MONTHS:WAIT_MONTHS,sync:sync,summary:summary,lend:lend,withdraw:withdraw,skipMonth:skipMonth,projection:projection,calc:calc,addMonths:addMonths,topup:topup,pieceRem:pieceRem};
 })();
