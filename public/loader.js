@@ -1,6 +1,9 @@
 /* Mira loading screen. Shows until the page has loaded (min 450ms).
    Also usable by pages:  MiraLoading.show("กำลังเชื่อมต่อ June...")  /  MiraLoading.hide()  */
 (function () {
+  // tab icon: Mira circle logo (static pages have no <link rel=icon>)
+  document.querySelectorAll("link[rel~=icon]").forEach(function (l) { l.remove(); });
+  var ic = document.createElement("link"); ic.rel = "icon"; ic.href = "/icon.png"; document.head.appendChild(ic);
   // user appearance settings (theme, text size, motion)
   var ap = document.createElement("script"); ap.src = "appearance.js"; document.head.appendChild(ap);
   // shared design system: fonts + mira.css (flat, editorial look)
