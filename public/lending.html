@@ -160,6 +160,7 @@ ol.how{margin:10px 0 0;padding-left:22px} ol.how li{margin:6px 0}
       <div id="s3" hidden>
         <h2 id="s3_h"></h2>
         <div class="rows" id="sum"></div>
+        <p class="fine" id="fee_note"></p>
         <div class="danger"><b id="d_h"></b><ul id="d_list"></ul></div>
         <label class="lbl" for="typed" id="typed_l" style="display:block;margin-top:14px"></label>
         <input type="text" class="typed" id="typed" autocomplete="off" autocapitalize="off" spellcheck="false">
@@ -199,7 +200,8 @@ const MIX = {low:{stocks:15,bonds:60,commodities:15,"real estate":5,currencies:5
              high:{stocks:50,bonds:10,commodities:20,"real estate":10,currencies:0,crypto:10}};
 // ponytail: sample caps, not a real risk model; replace with per-asset haircut data if this goes beyond a demo
 const CAP = {bonds:.70,commodities:.50,"real estate":.50,currencies:.50,stocks:.40,crypto:.20};
-const RATE = 0.10, MAXLTV = 0.9, PERIODS = [1,3,6,12];
+// borrower pays 10%/yr: 8% goes to lenders, 2% is Mira's platform fee (simulated)
+const RATE = 0.10, LENDER_RATE = 0.08, MAXLTV = 0.9, PERIODS = [1,3,6,12];
 const I18N = {
  th:{back:"← หน้าหลัก", sim:"จำลองเท่านั้น ไม่มีเงินจริง ไม่มีการกู้จริง",
   h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ย 10% ต่อปี (ตัวอย่าง) ทำตาม 3 ขั้นตอนง่ายๆ",
@@ -217,6 +219,7 @@ const I18N = {
   per_mo:(p)=>`฿${p}/เดือน`, int_of:(i)=>`ดอกเบี้ยรวม ฿${i}`,
   s3_h:"ตรวจสอบและยืนยัน",
   r:{amt:"ยืม",rate:"ดอกเบี้ยตัวอย่าง",per:"ระยะเวลา",pay:"จ่ายต่อเดือน",int:"ดอกเบี้ยรวม",total:"ยอดที่ต้องจ่ายคืนรวม",due:"ครบกำหนด"}, rate:"10% ต่อปี (ตัวอย่าง)",
+  fee:(i,l,f)=>`ดอกเบี้ยรวม ฿${i} แบ่งดังนี้: ผู้ให้ยืมได้ ฿${l} (8% ต่อปี) และ Mira เก็บค่าธรรมเนียมแพลตฟอร์ม ฿${f} (2% ต่อปี) ตัวเลขจำลองจากอัตราตัวอย่าง`,
   d_h:"ข้อตกลงสำคัญ อ่านก่อนยืนยัน",
   d_list:["ถ้าคุณไม่จ่ายคืนตามกำหนด ผู้ให้ยืมมีสิทธิ์ยึดสินทรัพย์ของคุณ สินทรัพย์นั้นจะตกเป็นของผู้ให้ยืม","สินทรัพย์ทั้งหมดของคุณจะถูกย้ายไปเป็นแบบความเสี่ยงต่ำเพื่อค้ำประกัน จนกว่าจะจ่ายคืนครบ","ถ้าราคาสินทรัพย์ตก อาจต้องจ่ายคืนก่อนกำหนด","หน้านี้เป็นการจำลอง ไม่มีเงินจริงและไม่มีการยึดจริง"],
   typed_l:"พิมพ์คำว่า sure เพื่อยืนยัน", go:"ยืนยันและยืม (จำลอง)",
@@ -247,6 +250,7 @@ const I18N = {
   per_mo:(p)=>`฿${p}/month`, int_of:(i)=>`Total interest ฿${i}`,
   s3_h:"Check and confirm",
   r:{amt:"Borrow",rate:"Sample rate",per:"Period",pay:"Per month",int:"Total interest",total:"Total to repay",due:"Due date"}, rate:"10% per year (example)",
+  fee:(i,l,f)=>`Total interest ฿${i} is split: lenders get ฿${l} (8% a year) and Mira keeps a platform fee of ฿${f} (2% a year). Simulated figures from the example rate.`,
   d_h:"Important terms. Read before confirming",
   d_list:["If you do not repay on time, the lender has the right to take your assets, and those assets become the lender's.","All your assets will be moved into low-risk assets as security until the loan is repaid.","If asset prices fall, you may have to repay early.","This page is a simulation: no real money and nothing is really taken."],
   typed_l:"Type the word sure to confirm", go:"Confirm and borrow (simulated)",
@@ -353,6 +357,7 @@ function render(){
   // step 3
   $("s3_h").textContent=t.s3_h;
   $("sum").innerHTML=kv(t.r.amt,"฿"+fmtN(want))+kv(t.r.rate,t.rate)+kv(t.r.per,t.mo(per))+kv(t.r.pay,"฿"+fmtN(c.pay))+kv(t.r.int,"฿"+fmtN(c.int))+kv(t.r.due,dueDate(per))+kv(t.r.total,"฿"+fmtN(want+c.int),"tot");
+  $("fee_note").textContent=t.fee(fmtN(c.int),fmtN(c.int*LENDER_RATE/RATE),fmtN(c.int*(RATE-LENDER_RATE)/RATE));
   $("d_h").textContent=t.d_h; $("d_list").innerHTML=t.d_list.map(s=>`<li>${s}</li>`).join("");
   $("typed_l").textContent=t.typed_l; $("typed").placeholder="sure"; $("go").textContent=t.go; $("b3").textContent=t.prev;
   $("go").disabled=!sureOk();
