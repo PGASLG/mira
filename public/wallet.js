@@ -104,7 +104,7 @@
     set("mira_demo", "1"); set("mira_onboarded", "1"); set("mira_name", "ผู้ทดลองใช้");
     set("mira_risk", "mid"); set("mira_split", "30"); set("mira_monthly", "2000"); set("mira_day", "5");
     set("mira_topup", "8000");
-    set("mira_port_lots", JSON.stringify([{ t: d(20), a: 20000 }, { t: d(6), a: 5000 }, { t: d(0.1), a: 5000 }]));
+    set("mira_port_lots", JSON.stringify([{ t: d(90), a: 20000 }, { t: d(60), a: 5000 }, { t: d(0.1), a: 5000 }]));
     var now = Date.now(), pieces = [], n;
     for (n = 0; n < 6; n++) pieces.push({ id: n + 1, amt: 500, months: 3, rate: 3, start: new Date(now - 20 * DAY).toISOString(), paid: 0, cover: 1.2 });
     set("mira_lend_pool", JSON.stringify({ v: 1, offers: [{ id: 7, t: now, exp: now + 90 * DAY, fb: "keep", left: 2000, k: 0 }], pieces: pieces, app: null, earned: 12, seq: 8 }));
