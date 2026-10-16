@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mira — Feedback</title>
+<meta name="description" content="Tell us what is confusing, broken or missing. บอกเราว่าอะไรสับสนหรือขาดหาย">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style id="fb-css">
+.fb-intro{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--line);margin-bottom:2rem}
+.fb-heading{font-family:var(--serif,Georgia,serif);font-size:clamp(1.5rem,5vw,2rem);font-weight:700;color:var(--ink);margin:0 0 .5rem;line-height:1.2}
+.fb-sub{font-size:1rem;color:var(--ink);opacity:.72;margin:0;max-width:52ch}
+
+#fb[hidden],.fb-done[hidden]{display:none}
+#fb{display:flex;flex-direction:column;gap:2rem;max-width:560px;padding-bottom:3rem}
+.fb-field{display:flex;flex-direction:column;gap:.375rem}
+.fb-fieldset{border:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem}
+
+.fb-label,.fb-legend{font-size:.875rem;font-weight:600;color:var(--ink);letter-spacing:.01em}
+.fb-legend{float:left;width:100%;margin-bottom:.5rem}
+.fb-required{color:var(--red);margin-left:.2em}
+.fb-optional{font-weight:400;opacity:.6;font-size:.8em}
+.fb-hint{font-size:.8rem;color:var(--ink);opacity:.6;margin:0}
+.fb-field-err{font-size:.8rem;color:var(--red);margin:0;min-height:1.1em}
+.fb-err-global{font-size:.875rem;color:var(--red);margin:0;min-height:1.1em}
+
+.fb-input,.fb-select,.fb-textarea{width:100%;box-sizing:border-box;background:var(--paper,#f7f6f2);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-size:1rem;font-family:inherit;padding:.625rem .75rem;min-height:44px;appearance:none;-webkit-appearance:none;transition:border-color .15s;outline:none}
+.fb-input:focus,.fb-select:focus,.fb-textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 20%,transparent)}
+.fb-input[aria-invalid="true"],.fb-select[aria-invalid="true"],.fb-textarea[aria-invalid="true"]{border-color:var(--red)}
+.fb-input[aria-invalid="true"]:focus,.fb-select[aria-invalid="true"]:focus,.fb-textarea[aria-invalid="true"]:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 20%,transparent)}
+
+.fb-select-wrap{position:relative}
+.fb-select-wrap::after{content:'';pointer-events:none;position:absolute;right:.875rem;top:50%;transform:translateY(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--ink);opacity:.5}
+.fb-select-wrap .fb-select{padding-right:2.25rem;cursor:pointer}
+
+.fb-textarea{min-height:120px;resize:vertical;line-height:1.5}
+.fb-counter-row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+.fb-counter{font-size:.75rem;font-variant-numeric:tabular-nums;color:var(--ink);opacity:.5;white-space:nowrap;flex-shrink:0}
+.fb-counter--warn{color:var(--red);opacity:1}
+
+.fb-radios{display:flex;flex-wrap:wrap;gap:.5rem}
+.fb-radio-label{display:flex;align-items:center;gap:.5rem;cursor:pointer;min-height:44px;padding:.5rem .875rem;border:1px solid var(--line);border-radius:6px;background:var(--paper,#f7f6f2);color:var(--ink);font-size:.9rem;transition:border-color .15s,background .15s;user-select:none}
+.fb-radio-label:hover{border-color:var(--blue)}
+.fb-radio{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.fb-radio-box{display:inline-block;width:16px;height:16px;border:1.5px solid var(--line);border-radius:50%;flex-shrink:0;position:relative;background:transparent;transition:border-color .15s}
+.fb-radio:checked + .fb-radio-box{border-color:var(--blue);background:var(--blue)}
+.fb-radio:checked + .fb-radio-box::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--paper,#f7f6f2)}
+.fb-radio:focus-visible + .fb-radio-box{outline:3px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px}
+.fb-radio:checked ~ .fb-radio-text{color:var(--blue);font-weight:600}
+.fb-radio-label:has(.fb-radio:checked){border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,var(--paper,#f7f6f2))}
+
+.fb-rating{display:flex;gap:.5rem}
+.fb-rating-label{flex:1;cursor:pointer;position:relative}
+.fb-rating-input{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.fb-rating-btn{display:flex;align-items:center;justify-content:center;min-height:44px;width:100%;border:1px solid var(--line);border-radius:6px;background:var(--paper,#f7f6f2);color:var(--ink);font-size:1rem;font-variant-numeric:tabular-nums;font-weight:600;transition:border-color .15s,background .15s,color .15s;user-select:none}
+.fb-rating-label:hover .fb-rating-btn{border-color:var(--blue);color:var(--blue)}
+.fb-rating-input:checked + .fb-rating-btn{background:var(--blue);border-color:var(--blue);color:#fff}
+.fb-rating-input:focus-visible + .fb-rating-btn{outline:3px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px}
+
+.fb-field--consent .fb-consent-label{display:flex;align-items:flex-start;gap:.75rem;cursor:pointer;min-height:44px}
+.fb-checkbox{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.fb-consent-box{display:inline-block;flex-shrink:0;width:20px;height:20px;margin-top:.15em;border:1.5px solid var(--line);border-radius:4px;background:transparent;position:relative;transition:border-color .15s,background .15s}
+.fb-checkbox:checked + .fb-consent-box{background:var(--blue);border-color:var(--blue)}
+.fb-checkbox:checked + .fb-consent-box::after{content:'';position:absolute;left:5px;top:2px;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg)}
+.fb-checkbox:focus-visible + .fb-consent-box{outline:3px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px}
+.fb-consent-text{font-size:.875rem;color:var(--ink);line-height:1.5}
+
+.fb-field--submit{padding-top:.25rem}
+.fb-submit{min-height:48px;min-width:160px;font-size:1rem;border-radius:6px;cursor:pointer}
+.fb-submit:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px}
+
+.fb-honesty{border-top:1px solid var(--line);padding-top:1rem;margin-top:.5rem}
+.fb-honesty p{font-size:.8rem;color:var(--ink);opacity:.6;margin:0;line-height:1.5;max-width:52ch}
+
+.fb-done{max-width:560px;padding:3rem 0}
+.fb-done__inner{border:1px solid var(--line);border-radius:6px;padding:2.5rem 2rem;text-align:center;background:var(--paper,#f7f6f2)}
+.fb-done__icon{font-size:2rem;color:var(--green);margin:0 0 1rem;line-height:1}
+.fb-done__heading{font-family:var(--serif,Georgia,serif);font-size:1.5rem;font-weight:700;color:var(--ink);margin:0 0 .75rem}
+.fb-done__body{font-size:.95rem;color:var(--ink);opacity:.75;margin:0 auto 1.75rem;max-width:40ch;line-height:1.6}
+.fb-again{min-height:44px;font-size:.95rem;border-radius:6px;cursor:pointer}
+.fb-again:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+@media (min-width:600px){
+  .fb-radios{flex-wrap:nowrap}
+  .fb-done__inner{padding:3rem}
+}
+</style>
+<script src="loader.js"></script>
+</head>
+<body class="s-body">
+<div class="s-glow" aria-hidden="true"></div>
+
+<header class="s-head">
+  <div class="s-wrap">
+    <a class="s-logo" href="/"><img src="assets/logo-h.png" alt="Mira"></a>
+    <nav class="s-links" aria-label="main"><a href="/features.html"><span class="th">ฟีเจอร์</span><span class="en">Features</span></a><a href="/results.html"><span class="th">ผลทดสอบ</span><span class="en">Results</span></a><a href="/how-it-works.html"><span class="th">เริ่มยังไง</span><span class="en">How it works</span></a><a href="/safety.html"><span class="th">ความปลอดภัยและข้อมูล</span><span class="en">Safety and data</span></a><a href="/faq.html"><span class="th">คำถามที่พบบ่อย</span><span class="en">FAQ</span></a><a href="/feedback.html" class=on><span class="th">ข้อเสนอแนะ</span><span class="en">Feedback</span></a></nav>
+    <div class="s-act">
+      <button class="s-lang" aria-label="language">EN</button>
+      <button class="s-btn p sm" data-signin><span class="th">เข้าสู่ระบบ</span><span class="en">Sign in</span></button>
+      <button class="s-burger" id="s-burger" aria-label="menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+  <div class="s-mobile" id="s-mobile"><a href="/features.html"><span class="th">ฟีเจอร์</span><span class="en">Features</span></a><a href="/results.html"><span class="th">ผลทดสอบ</span><span class="en">Results</span></a><a href="/how-it-works.html"><span class="th">เริ่มยังไง</span><span class="en">How it works</span></a><a href="/safety.html"><span class="th">ความปลอดภัยและข้อมูล</span><span class="en">Safety and data</span></a><a href="/faq.html"><span class="th">คำถามที่พบบ่อย</span><span class="en">FAQ</span></a><a href="/feedback.html"><span class="th">ข้อเสนอแนะ</span><span class="en">Feedback</span></a></div>
+</header>
+
+<main class="s-wrap" id="main-content">
+
+  <section class="fb-intro">
+    <h1 class="fb-heading">
+      <span class="th">บอกเราว่าคุณคิดอย่างไร</span>
+      <span class="en">Tell us what you think</span>
+    </h1>
+    <p class="fb-sub">
+      <span class="th">บอกเราว่าอะไรสับสน ขาดหาย หรือยังไม่มี เราอ่านทุกข้อความ</span>
+      <span class="en">Tell us what is confusing, broken or missing. We read every message.</span>
+    </p>
+  </section>
+
+  <form id="fb" novalidate autocomplete="off">
+
+    <!-- Type -->
+    <fieldset class="fb-fieldset" id="fb-type-group">
+      <legend class="fb-legend">
+        <span class="th">ประเภท</span>
+        <span class="en">Type</span>
+      </legend>
+      <div class="fb-radios">
+        <label class="fb-radio-label">
+          <input type="radio" name="type" value="bug" class="fb-radio">
+          <span class="fb-radio-box" aria-hidden="true"></span>
+          <span class="fb-radio-text"><span class="th">พบบั๊ก</span><span class="en">Bug</span></span>
+        </label>
+        <label class="fb-radio-label">
+          <input type="radio" name="type" value="idea" class="fb-radio">
+          <span class="fb-radio-box" aria-hidden="true"></span>
+          <span class="fb-radio-text"><span class="th">ไอเดีย</span><span class="en">Idea</span></span>
+        </label>
+        <label class="fb-radio-label">
+          <input type="radio" name="type" value="confusing" class="fb-radio">
+          <span class="fb-radio-box" aria-hidden="true"></span>
+          <span class="fb-radio-text"><span class="th">สับสน</span><span class="en">Something confusing</span></span>
+        </label>
+        <label class="fb-radio-label">
+          <input type="radio" name="type" value="praise" class="fb-radio">
+          <span class="fb-radio-box" aria-hidden="true"></span>
+          <span class="fb-radio-text"><span class="th">ชมเชย</span><span class="en">Praise</span></span>
+        </label>
+      </div>
+      <p class="fb-field-err" id="fb-type-err" aria-live="polite"></p>
+    </fieldset>
+
+    <!-- Screen (plain text in <option>: spans are not allowed there) -->
+    <div class="fb-field">
+      <label class="fb-label" for="fb-screen">
+        <span class="th">หน้าจอไหน</span>
+        <span class="en">Which screen</span>
+      </label>
+      <div class="fb-select-wrap">
+        <select id="fb-screen" name="screen" class="fb-select">
+          <option value="">—</option>
+          <option value="home">หน้าแรก / Home</option>
+          <option value="dashboard">หน้าหลัก / Dashboard</option>
+          <option value="investment">ลงทุน / Investment</option>
+          <option value="lending">กู้ยืม / Lending (borrow)</option>
+          <option value="lender">ปล่อยกู้ / Lender (earn interest)</option>
+          <option value="june">จูน / June chat</option>
+          <option value="settings">ตั้งค่า / Settings</option>
+          <option value="other">อื่นๆ / Other</option>
+        </select>
+      </div>
+      <p class="fb-field-err" id="fb-screen-err" aria-live="polite"></p>
+    </div>
+
+    <!-- Rating -->
+    <fieldset class="fb-fieldset" id="fb-rating-group">
+      <legend class="fb-legend">
+        <span class="th">รู้สึกอย่างไร (1 = แย่, 5 = ดีมาก)</span>
+        <span class="en">How was it? (1 = poor, 5 = great)</span>
+      </legend>
+      <div class="fb-rating">
+        <label class="fb-rating-label" title="1">
+          <input type="radio" name="rating" value="1" class="fb-rating-input">
+          <span class="fb-rating-btn" aria-hidden="true">1</span>
+          <span class="sr-only">1</span>
+        </label>
+        <label class="fb-rating-label" title="2">
+          <input type="radio" name="rating" value="2" class="fb-rating-input">
+          <span class="fb-rating-btn" aria-hidden="true">2</span>
+          <span class="sr-only">2</span>
+        </label>
+        <label class="fb-rating-label" title="3">
+          <input type="radio" name="rating" value="3" class="fb-rating-input">
+          <span class="fb-rating-btn" aria-hidden="true">3</span>
+          <span class="sr-only">3</span>
+        </label>
+        <label class="fb-rating-label" title="4">
+          <input type="radio" name="rating" value="4" class="fb-rating-input">
+          <span class="fb-rating-btn" aria-hidden="true">4</span>
+          <span class="sr-only">4</span>
+        </label>
+        <label class="fb-rating-label" title="5">
+          <input type="radio" name="rating" value="5" class="fb-rating-input">
+          <span class="fb-rating-btn" aria-hidden="true">5</span>
+          <span class="sr-only">5</span>
+        </label>
+      </div>
+      <p class="fb-field-err" id="fb-rating-err" aria-live="polite"></p>
+    </fieldset>
+
+    <!-- Message -->
+    <div class="fb-field">
+      <label class="fb-label" for="fb-message">
+        <span class="th">ข้อความของคุณ</span>
+        <span class="en">Your message</span>
+        <span class="fb-required" aria-hidden="true">*</span>
+      </label>
+      <textarea id="fb-message" name="message" class="fb-textarea" rows="5" minlength="10" maxlength="1000" required aria-describedby="fb-message-counter fb-message-err"></textarea>
+      <div class="fb-counter-row">
+        <p class="fb-field-err" id="fb-message-err" aria-live="polite"></p>
+        <span class="fb-counter" id="fb-message-counter" aria-live="polite" aria-atomic="true">0 / 1000</span>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="fb-field">
+      <label class="fb-label" for="fb-contact">
+        <span class="th">อีเมล <span class="fb-optional">(ไม่บังคับ)</span></span>
+        <span class="en">Contact email <span class="fb-optional">(optional)</span></span>
+      </label>
+      <input type="email" id="fb-contact" name="contact" class="fb-input" autocomplete="off" inputmode="email" aria-describedby="fb-contact-hint fb-contact-err">
+      <p class="fb-hint" id="fb-contact-hint">
+        <span class="th">ใส่เฉพาะเมื่อต้องการให้ตอบกลับ</span>
+        <span class="en">Only if you want a reply.</span>
+      </p>
+      <p class="fb-field-err" id="fb-contact-err" aria-live="polite"></p>
+    </div>
+
+    <!-- Consent -->
+    <div class="fb-field fb-field--consent">
+      <label class="fb-consent-label" for="fb-consent">
+        <input type="checkbox" id="fb-consent" name="consent" class="fb-checkbox" required aria-describedby="fb-consent-err">
+        <span class="fb-consent-box" aria-hidden="true"></span>
+        <span class="fb-consent-text">
+          <span class="th">ฉันยินยอมให้ Mira เก็บข้อความนี้เพื่อปรับปรุงแอป และรับทราบว่านี่ไม่ใช่ช่องทางขอคำแนะนำด้านการลงทุน</span>
+          <span class="en">I agree that Mira may store this message to improve the app. I understand it is not a way to ask for investment advice.</span>
+        </span>
+      </label>
+      <p class="fb-field-err" id="fb-consent-err" aria-live="polite"></p>
+    </div>
+
+    <!-- Submit -->
+    <div class="fb-field fb-field--submit">
+      <button type="submit" class="s-btn p fb-submit">
+        <span class="th">ส่งข้อความ</span>
+        <span class="en">Send feedback</span>
+      </button>
+    </div>
+
+    <p id="fb-err" class="fb-err-global" aria-live="polite"></p>
+
+    <aside class="fb-honesty">
+      <p>
+        <span class="th">Mira เป็นแอปเงินสมมติ อย่าเขียนเลขบัญชี บัตร หรือเลขประจำตัวจริงลงในช่องนี้</span>
+        <span class="en">Mira is a paper-money app. Do not write real bank, card, or ID numbers here.</span>
+      </p>
+    </aside>
+
+  </form>
+
+  <!-- Success state -->
+  <div id="fb-done" class="fb-done" hidden tabindex="-1" aria-live="polite">
+    <div class="fb-done__inner">
+      <p class="fb-done__icon" aria-hidden="true">&#10003;</p>
+      <h2 class="fb-done__heading">
+        <span class="th">ขอบคุณ</span>
+        <span class="en">Thank you</span>
+      </h2>
+      <p class="fb-done__body">
+        <span class="th">ข้อความของคุณถูกบันทึกไว้ในเครื่องนี้ และจะถูกส่งเมื่อระบบรับข้อเสนอแนะพร้อมใช้งาน</span>
+        <span class="en">Your message is saved on this device and will be sent when feedback is connected.</span>
+      </p>
+      <button type="button" class="s-btn fb-again" id="fb-again">
+        <span class="th">ส่งอีกครั้ง</span>
+        <span class="en">Send another</span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<footer class="s-foot">
+  <div class="s-wrap">
+    <div class="row">
+      <div><b>Mira</b><br><span class="th">เงินเดือนแรก ควรได้มากกว่าการเดา</span><span class="en">Your first paycheck deserves more than guesswork.</span></div>
+      <nav>
+        <a href="/features.html"><span class="th">ฟีเจอร์</span><span class="en">Features</span></a>
+        <a href="/results.html"><span class="th">ผลทดสอบ</span><span class="en">Results</span></a>
+        <a href="/how-it-works.html"><span class="th">เริ่มยังไง</span><span class="en">How it works</span></a>
+        <a href="/safety.html"><span class="th">ความปลอดภัยและข้อมูล</span><span class="en">Safety and data</span></a>
+        <a href="/faq.html">FAQ</a>
+        <a href="/feedback.html"><span class="th">ข้อเสนอแนะ</span><span class="en">Feedback</span></a>
+        <a href="/model/report.html"><span class="th">รายงานฉบับเต็ม</span><span class="en">Full report</span></a>
+      </nav>
+    </div>
+    <p class="legal"><span class="th">เพื่อการวิจัยและทดสอบแบบจำลองเท่านั้น ไม่ใช่คำแนะนำการลงทุน ไม่มีการรับประกันกำไร และอาจขาดทุนได้ ผลในอดีตไม่รับประกันอนาคต</span><span class="en">For research and simulation only. Not investment advice. No profit is promised and you can lose money. Past results do not guarantee the future.</span></p>
+  </div>
+</footer>
+<script src="site.js"></script>
+<script id="fb-js">
+(function () {
+  'use strict';
+
+  var form = document.getElementById('fb');
+  var doneBox = document.getElementById('fb-done');
+  var againBtn = document.getElementById('fb-again');
+  var msgTA = document.getElementById('fb-message');
+  var counter = document.getElementById('fb-message-counter');
+  var screenSel = document.getElementById('fb-screen');
+  var contactIn = document.getElementById('fb-contact');
+  var consentCb = document.getElementById('fb-consent');
+  var globalErr = document.getElementById('fb-err');
+
+  function isTh() { return document.documentElement.lang === 'th'; }
+  function t(th, en) { return isTh() ? th : en; }
+  function setErr(id, th, en) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = (th || en) ? t(th, en) : '';
+  }
+  function clearErr(id) { setErr(id, '', ''); }
+  function setInvalid(el, invalid) {
+    if (!el) return;
+    if (invalid) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+  }
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
+  /* Prefill "which screen" from ?from= (value must match an option) */
+  function prefillFrom() {
+    try {
+      var from = (new URLSearchParams(window.location.search).get('from') || '').toLowerCase().trim();
+      if (!from || !screenSel) return;
+      for (var i = 0; i < screenSel.options.length; i++) {
+        if (screenSel.options[i].value === from) { screenSel.value = from; break; }
+      }
+    } catch (e) { /* ignore */ }
+  }
+  prefillFrom();
+
+  /* Live character counter */
+  function updateCounter() {
+    if (!msgTA || !counter) return;
+    var len = msgTA.value.length;
+    counter.textContent = len + ' / 1000';
+    counter.classList.toggle('fb-counter--warn', len > 950);
+  }
+  if (msgTA) { msgTA.addEventListener('input', updateCounter); updateCounter(); }
+
+  /* Clear errors as the user fixes them */
+  if (form) {
+    form.addEventListener('change', function (e) {
+      var name = e.target.name;
+      if (name === 'type') clearErr('fb-type-err');
+      if (name === 'rating') clearErr('fb-rating-err');
+      if (name === 'screen') { clearErr('fb-screen-err'); setInvalid(screenSel, false); }
+      if (name === 'consent') clearErr('fb-consent-err');
+    });
+    form.addEventListener('input', function (e) {
+      var name = e.target.name;
+      if (name === 'message') { clearErr('fb-message-err'); setInvalid(msgTA, false); }
+      if (name === 'contact') { clearErr('fb-contact-err'); setInvalid(contactIn, false); }
+      if (globalErr) globalErr.textContent = '';
+    });
+  }
+
+  /* Stored on this device only. TODO(mira): replace the body with a POST to Supabase when the table exists. */
+  async function submitFeedback(p) {
+    try {
+      var list = [];
+      try { list = JSON.parse(localStorage.getItem('mira_feedback')) || []; } catch (e) { list = []; }
+      if (!Array.isArray(list)) list = [];
+      list.push(p);
+      localStorage.setItem('mira_feedback', JSON.stringify(list.slice(-20)));
+    } catch (e) { /* storage unavailable: the page still shows the confirmation */ }
+  }
+
+  function validate(data) {
+    var ok = true;
+    if (data.message.length < 10) {
+      setErr('fb-message-err', 'กรุณาเขียนอย่างน้อย 10 ตัวอักษร', 'Please write at least 10 characters.');
+      setInvalid(msgTA, true); ok = false;
+    } else if (data.message.length > 1000) {
+      setErr('fb-message-err', 'ข้อความยาวเกิน 1,000 ตัวอักษร', 'Message exceeds 1,000 characters.');
+      setInvalid(msgTA, true); ok = false;
+    } else { clearErr('fb-message-err'); setInvalid(msgTA, false); }
+
+    if (!data.consent) {
+      setErr('fb-consent-err', 'กรุณายืนยันความยินยอมก่อนส่ง', 'Please tick the consent box before sending.');
+      ok = false;
+    } else clearErr('fb-consent-err');
+
+    if (data.contact && !isValidEmail(data.contact)) {
+      setErr('fb-contact-err', 'รูปแบบอีเมลไม่ถูกต้อง', 'Email address does not look right.');
+      setInvalid(contactIn, true); ok = false;
+    } else { clearErr('fb-contact-err'); setInvalid(contactIn, false); }
+    return ok;
+  }
+
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (globalErr) globalErr.textContent = '';
+      var fd = new FormData(form);
+      var data = {
+        type: fd.get('type') || '',
+        screen: fd.get('screen') || '',
+        rating: fd.get('rating') ? +fd.get('rating') : null,
+        message: (fd.get('message') || '').trim(),
+        contact: (fd.get('contact') || '').trim(),
+        consent: consentCb ? consentCb.checked : false
+      };
+      if (!validate(data)) {
+        var bad = form.querySelector('[aria-invalid="true"]');
+        if (bad) bad.focus();
+        else if (globalErr) globalErr.textContent = t('กรุณาตรวจสอบข้อมูลอีกครั้ง', 'Please check the fields above and try again.');
+        return;
+      }
+      var p = {
+        type: data.type, screen: data.screen, rating: data.rating, message: data.message,
+        contact: data.contact, consent: data.consent,
+        lang: document.documentElement.lang || 'th', at: new Date().toISOString()
+      };
+      submitFeedback(p).then(function () {
+        form.hidden = true;
+        if (doneBox) { doneBox.hidden = false; doneBox.focus(); }
+      });
+    });
+  }
+
+  /* "Send another": reset and show the form again */
+  if (againBtn) {
+    againBtn.addEventListener('click', function () {
+      if (!form) return;
+      form.reset();
+      ['fb-type-err', 'fb-screen-err', 'fb-rating-err', 'fb-message-err', 'fb-contact-err', 'fb-consent-err'].forEach(clearErr);
+      [msgTA, screenSel, contactIn].forEach(function (el) { setInvalid(el, false); });
+      if (globalErr) globalErr.textContent = '';
+      updateCounter();
+      prefillFrom();
+      form.hidden = false;
+      if (doneBox) doneBox.hidden = true;
+      var first = form.querySelector('input, select, textarea, button');
+      if (first) first.focus();
+    });
+  }
+})();
+</script>
+</body>
+</html>

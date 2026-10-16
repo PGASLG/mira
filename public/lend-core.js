@@ -26,6 +26,9 @@
   var FEE=2;
   function bR(m){ return m>12?10:7; }                       // borrower rate for a term in months
   function lR(m){ return bR(m)-FEE; }                       // lender rate
+  // lender gets principal + interest back at the END of the term: whole years compound yearly, the rest of a year is pro-rata
+  // (200 for 36 months at 8% = 200 x 1.08^3 = 251.94). Interest only; months may be fractional (accrued so far).
+  function lump(a,months,ratePct){ var r=ratePct/100, y=Math.floor(months/12+1e-9), f=months/12-y; return a*Math.pow(1+r,y)*(1+r*f)-a; }
   function share(m){ return lR(m)/bR(m); }                  // lender's share of the interest a borrower pays
   var CAP={low:0.5,mid:0.6,high:0.7};
   // f="d": n daily instalments at rate/365 per day; otherwise n monthly instalments at rate/12
@@ -33,7 +36,7 @@
   function periodsBetween(start,now,f,total){ var m=f==="d"?Math.floor((now-new Date(start).getTime())/864e5):monthsBetween(start,now); return Math.max(0,Math.min(total,m)); }
   function periodStart(start,k,f){ if(f!=="d") return addMonths(start,k).getTime(); var d=new Date(start); d.setDate(d.getDate()+k); return d.getTime(); }
   function daysFor(start,months){ return Math.round((addMonths(start,months).getTime()-new Date(start).getTime())/864e5); }
-  function projection(a,n){ var c=calc(a,n); return {principal:a,interest:c.int,total:a+c.int,date:addMonths(new Date(),n),pay:c.pay}; }
+  function projection(a,n){ var i=lump(a,n,lR(n)); return {principal:a,interest:i,total:a+i,date:addMonths(new Date(),n),pay:null}; }
   function appLoan(){ try{ var l=JSON.parse(LS("mira_loan_active","null")); return l&&l.amt>0&&l.months>0?l:null; }catch(e){ return null; } }
   // true amortization: balance left after k equal instalments (interest each month = balance x monthly rate)
   function bal(a,n,ratePct,k,f){
@@ -44,7 +47,7 @@
   }
   function outP(l){ return bal(l.amt,l.n||l.months,bR(l.months),l.paid||0,l.freq); }
   function waitingOf(p){ return p.offers.reduce(function(s,o){ return s+o.left; },0); }
-  function pieceRem(c){ return c.rem!=null?c.rem:bal(c.amt,c.n||c.months,c.rate==null?RATE:c.rate,c.paid,c.freq); }
+  function pieceRem(c){ return c.rem!=null?c.rem:c.amt; }   // lender money stays locked in full until the term ends
 
   function sync(now){
     now=now||Date.now();
@@ -91,15 +94,10 @@
       }
     });
     p.offers=p.offers.filter(function(o){ return o.left>0.004; });
-    // 3) simulated borrowers repay one instalment per full month
+    // 3) at the end of the term the lender gets principal + interest (interest compounded yearly, see lump())
     p.pieces=p.pieces.filter(function(c){
-      var tot=c.n||c.months, m=periodsBetween(c.start,now,c.freq,tot);
-      if(m>c.paid){
-        var k=calc(c.amt,tot,c.rate,c.freq), n=m-c.paid;
-        var prin=bal(c.amt,tot,c.rate,c.paid,c.freq)-bal(c.amt,tot,c.rate,m,c.freq);   // principal part of these instalments
-        credit(prin,n*k.pay-prin); c.paid=m;
-      }
-      return c.paid<tot;
+      if(now>=addMonths(c.start,c.months).getTime()){ credit(c.amt,lump(c.amt,c.months,lR(c.months))); return false; }
+      return true;
     });
     if(ch) save(p); else mirror(p);
     return p;
@@ -121,9 +119,9 @@
     var p=sync(), now=Date.now(), locked=0, acc=0;
     p.pieces.forEach(function(c){
       locked+=pieceRem(c);
-      // interest accrued in the current (unpaid) month = balance x monthly rate x share of the month elapsed
-      var s0=periodStart(c.start,c.paid,c.freq), e0=periodStart(c.start,c.paid+1,c.freq), cr=c.rate==null?RATE:c.rate;
-      acc+=bal(c.amt,c.n||c.months,cr,c.paid,c.freq)*cr/100/(c.freq==="d"?365:12)*Math.max(0,Math.min(1,(now-s0)/(e0-s0)));
+      // interest accrued so far on the full amount, by share of the term elapsed
+      var s0=new Date(c.start).getTime(), e0=addMonths(c.start,c.months).getTime();
+      acc+=lump(c.amt,c.months*Math.max(0,Math.min(1,(now-s0)/(e0-s0))),lR(c.months));
     });
     if(p.app) locked+=p.app.F;
     var waiting=waitingOf(p);

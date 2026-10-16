@@ -261,7 +261,7 @@ function render(){
   // pool visual: locked pieces, app share, waiting chunks
   const rows=[], cells=[]; let nl=0, nw=0;
   p.pieces.forEach(c=>{ nl++; cells.push("m"); const end=ML.addMonths(c.start,c.months);
-    rows.push(`<div class="bl"><b>${c.real?T_.borrowerReal:T_.borrower} ${lbl(c.id)} · ฿${fmt(ML.pieceRem(c))}</b><span class="stt">${T_.locked}</span><small>${c.months} ${T_.mo} · ${c.rate}% · ${c.cover?T_.cov+" "+c.cover+"% · ":""}${T_.paidn(c.paid,c.months)} · ${T_.due} ${dFmt(end)}</small><span></span></div>`); });
+    rows.push(`<div class="bl"><b>${c.real?T_.borrowerReal:T_.borrower} ${lbl(c.id)} · ฿${fmt(ML.pieceRem(c))}</b><span class="stt">${T_.locked}</span><small>${c.months} ${T_.mo} · ${c.real?c.rate:ML.lR(c.months)}% · ${c.cover?T_.cov+" "+c.cover+"% · ":""}${c.real?T_.paidn(c.paid,c.months)+" · ":""}${T_.due} ${dFmt(end)}</small><span></span></div>`); });
   if(p.app&&p.app.F>=1){ const n=Math.ceil(p.app.F/ML.PIECE); nl+=n; for(let i=0;i<n;i++) cells.push("m");
     rows.push(`<div class="bl"><b>${T_.app} · ฿${fmt(p.app.F)}</b><span class="stt">${T_.locked}</span><small>${T_.cov} 90%+</small><span></span></div>`); }
   p.offers.forEach(o=>{ let left=o.left; while(left>0.004){ const s=Math.min(ML.PIECE,left); left-=s; nw++; cells.push("w");
