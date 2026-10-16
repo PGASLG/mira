@@ -8,7 +8,7 @@
    mira_topup = investable cash. lend() takes from it; withdraw() and repayments (principal + interest) return to it.
    mira_lend_active is a compatibility mirror for mira-core.js MC.lend(). */
 (function(){
-  var KEY="mira_lend_pool", RATE=8, BORROW_RATE=10, PIECE=500, PERIODS=[1,3,6,12], WAIT_MONTHS=3;
+  var KEY="mira_lend_pool", RATE=5, BORROW_RATE=7, PIECE=500, PERIODS=[1,3,6,12,24,36], WAIT_MONTHS=3;
   function LS(k,d){ try{ var v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } }
   function SET(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
   function DEL(k){ try{ localStorage.removeItem(k); }catch(e){} }
@@ -22,14 +22,29 @@
   function addMonths(d,n){ var x=new Date(d); x.setMonth(x.getMonth()+n); return x; }
   function monthsBetween(a,b){ a=new Date(a); b=new Date(b); var m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth(); if(b.getDate()<a.getDate()) m--; return Math.max(0,m); }
   // same amortised payment as lending.html calc()
-  // borrower pays BORROW_RATE (10%/yr); lender gets RATE (8%/yr); Mira keeps the 2% difference
-  var SHARE=RATE/BORROW_RATE, CAP={low:0.5,mid:0.6,high:0.7};
-  function calc(a,n,rate){ var r=(rate==null?RATE:rate)/100/12, pay=a*r/(1-Math.pow(1+r,-n)); return {pay:pay,int:pay*n-a}; }
+  // borrower pays 7%/yr for terms up to 1 year, 10%/yr for terms over 1 year; the lender gets 2 points less, Mira keeps the 2%
+  var FEE=2;
+  function bR(m){ return m>12?10:7; }                       // borrower rate for a term in months
+  function lR(m){ return bR(m)-FEE; }                       // lender rate
+  function share(m){ return lR(m)/bR(m); }                  // lender's share of the interest a borrower pays
+  var CAP={low:0.5,mid:0.6,high:0.7};
+  // f="d": n daily instalments at rate/365 per day; otherwise n monthly instalments at rate/12
+  function calc(a,n,rate,f){ var r=(rate==null?lR(f==="d"?12:n):rate)/100/(f==="d"?365:12), pay=a*r/(1-Math.pow(1+r,-n)); return {pay:pay,int:pay*n-a}; }
+  function periodsBetween(start,now,f,total){ var m=f==="d"?Math.floor((now-new Date(start).getTime())/864e5):monthsBetween(start,now); return Math.max(0,Math.min(total,m)); }
+  function periodStart(start,k,f){ if(f!=="d") return addMonths(start,k).getTime(); var d=new Date(start); d.setDate(d.getDate()+k); return d.getTime(); }
+  function daysFor(start,months){ return Math.round((addMonths(start,months).getTime()-new Date(start).getTime())/864e5); }
   function projection(a,n){ var c=calc(a,n); return {principal:a,interest:c.int,total:a+c.int,date:addMonths(new Date(),n),pay:c.pay}; }
   function appLoan(){ try{ var l=JSON.parse(LS("mira_loan_active","null")); return l&&l.amt>0&&l.months>0?l:null; }catch(e){ return null; } }
-  function outP(l){ return l.amt*(l.months-(l.paid||0))/l.months; }
+  // true amortization: balance left after k equal instalments (interest each month = balance x monthly rate)
+  function bal(a,n,ratePct,k,f){
+    k=Math.min(Math.max(k||0,0),n); if(k>=n) return 0;
+    var r=ratePct/100/(f==="d"?365:12); if(!r) return a*(n-k)/n;
+    var pay=a*r/(1-Math.pow(1+r,-n)), g=Math.pow(1+r,k);
+    return Math.max(0,a*g-pay*(g-1)/r);
+  }
+  function outP(l){ return bal(l.amt,l.n||l.months,bR(l.months),l.paid||0,l.freq); }
   function waitingOf(p){ return p.offers.reduce(function(s,o){ return s+o.left; },0); }
-  function pieceRem(c){ return c.rem!=null?c.rem:c.amt*(c.months-c.paid)/c.months; }
+  function pieceRem(c){ return c.rem!=null?c.rem:bal(c.amt,c.n||c.months,c.rate==null?RATE:c.rate,c.paid,c.freq); }
 
   function sync(now){
     now=now||Date.now();
@@ -41,7 +56,8 @@
         var tm=o.t+((o.k%7===6)?172800:((o.k*7)%6)*4)*1000;
         if(now<tm) break;
         var size=Math.min(PIECE,o.left); p.seq++;
-        p.pieces.push({id:p.seq,amt:size,months:PERIODS[(p.seq*3+1)%4],rate:RATE,start:new Date(tm).toISOString(),paid:0,cover:135+(p.seq*13)%60});
+        var pm=PERIODS[(p.seq*3+1)%PERIODS.length], pf=(p.seq%4===2)?"d":"m", ps=new Date(tm).toISOString();   // simulated borrower picks daily or monthly
+        p.pieces.push({id:p.seq,amt:size,months:pm,freq:pf,n:pf==="d"?daysFor(ps,pm):pm,rate:lR(pm),start:ps,paid:0,cover:135+(p.seq*13)%60});
         o.left-=size; o.k++; ch=true;
       }
     });
@@ -50,15 +66,20 @@
     if(p.app&&(!loan||loan.accepted!==p.app.acc)){            // repaid in full (or replaced by a new loan): settle what is left
       credit(p.app.F,p.app.F*p.app.ir); p.app=null;
     } else if(p.app){
-      var pn=outP(loan), dP=p.app.P-pn;
-      if(dP>0.004&&p.app.P>0){ var pr=p.app.F/p.app.P*dP; credit(pr,pr*p.app.ir); p.app.F-=pr; }
-      p.app.P=pn; p.app.ir=Math.max(0,loan.pay*loan.months/loan.amt-1)*SHARE;
+      var pn=outP(loan), dP=p.app.P-pn, np=loan.paid||0, dN=np-(p.app.n==null?np:p.app.n);
+      if(dP>0.004&&p.app.P>0){
+        var sh=p.app.F/p.app.P, pr=sh*dP;
+        // lender share of the interest the borrower really paid in these instalments (pay x count - principal repaid)
+        var li=p.app.n==null?pr*p.app.ir:sh*Math.max(0,loan.pay*dN-dP)*share(loan.months);
+        credit(pr,li); p.app.F-=pr;
+      }
+      p.app.n=np; p.app.P=pn; p.app.ir=Math.max(0,loan.pay*(loan.n||loan.months)/loan.amt-1)*share(loan.months);
     }
     if(loan){
       var P=outP(loan), demand=P-(p.app&&p.app.acc===loan.accepted?p.app.F:0), take=Math.min(demand,waitingOf(p));
       if(take>=1){
         var need=take; p.offers.forEach(function(o){ var t=Math.min(o.left,need); o.left-=t; need-=t; });
-        if(!p.app) p.app={acc:loan.accepted,F:0,P:P,ir:Math.max(0,loan.pay*loan.months/loan.amt-1)*SHARE};
+        if(!p.app) p.app={acc:loan.accepted,F:0,P:P,n:loan.paid||0,ir:Math.max(0,loan.pay*(loan.n||loan.months)/loan.amt-1)*share(loan.months)};
         p.app.F+=take; ch=true;
       }
     }
@@ -72,12 +93,13 @@
     p.offers=p.offers.filter(function(o){ return o.left>0.004; });
     // 3) simulated borrowers repay one instalment per full month
     p.pieces=p.pieces.filter(function(c){
-      var m=Math.min(c.months,monthsBetween(c.start,now));
+      var tot=c.n||c.months, m=periodsBetween(c.start,now,c.freq,tot);
       if(m>c.paid){
-        var k=calc(c.amt,c.months,c.rate), prin=c.amt/c.months, n=m-c.paid;
-        credit(n*prin,n*(k.pay-prin)); c.paid=m;
+        var k=calc(c.amt,tot,c.rate,c.freq), n=m-c.paid;
+        var prin=bal(c.amt,tot,c.rate,c.paid,c.freq)-bal(c.amt,tot,c.rate,m,c.freq);   // principal part of these instalments
+        credit(prin,n*k.pay-prin); c.paid=m;
       }
-      return c.paid<c.months;
+      return c.paid<tot;
     });
     if(ch) save(p); else mirror(p);
     return p;
@@ -99,8 +121,9 @@
     var p=sync(), now=Date.now(), locked=0, acc=0;
     p.pieces.forEach(function(c){
       locked+=pieceRem(c);
-      var k=calc(c.amt,c.months,c.rate), s=new Date(c.start).getTime(), e=addMonths(c.start,c.months).getTime();
-      acc+=Math.max(0,k.int*Math.min(1,(now-s)/(e-s))-k.int*c.paid/c.months);
+      // interest accrued in the current (unpaid) month = balance x monthly rate x share of the month elapsed
+      var s0=periodStart(c.start,c.paid,c.freq), e0=periodStart(c.start,c.paid+1,c.freq), cr=c.rate==null?RATE:c.rate;
+      acc+=bal(c.amt,c.n||c.months,cr,c.paid,c.freq)*cr/100/(c.freq==="d"?365:12)*Math.max(0,Math.min(1,(now-s0)/(e0-s0)));
     });
     if(p.app) locked+=p.app.F;
     var waiting=waitingOf(p);
@@ -255,5 +278,5 @@
     }
   }
   function mode(){ return R.mode; }
-  window.MiraLend={borrow:borrow,repayMonth:repayMonth,repayAll:repayAll,borrowerLoans:borrowerLoans,mode:mode,why:function(){ return R.why; },ready:R.ready,refresh:refresh,RATE:RATE,BORROW_RATE:BORROW_RATE,cap:cap,PIECE:PIECE,PERIODS:PERIODS,WAIT_MONTHS:WAIT_MONTHS,sync:sync,summary:summary,lend:lend,withdraw:withdraw,skipMonth:skipMonth,projection:projection,calc:calc,addMonths:addMonths,topup:topup,pieceRem:pieceRem};
+  window.MiraLend={borrow:borrow,repayMonth:repayMonth,repayAll:repayAll,borrowerLoans:borrowerLoans,mode:mode,why:function(){ return R.why; },ready:R.ready,refresh:refresh,RATE:RATE,BORROW_RATE:BORROW_RATE,bR:bR,lR:lR,FEE:FEE,cap:cap,PIECE:PIECE,PERIODS:PERIODS,WAIT_MONTHS:WAIT_MONTHS,sync:sync,summary:summary,lend:lend,withdraw:withdraw,skipMonth:skipMonth,projection:projection,calc:calc,addMonths:addMonths,topup:topup,pieceRem:pieceRem};
 })();

@@ -152,6 +152,8 @@ ol.how{margin:10px 0 0;padding-left:22px} ol.how li{margin:6px 0}
 
       <div id="s2" hidden>
         <h2 id="s2_h"></h2>
+        <div class="opts" id="freq" style="grid-template-columns:1fr 1fr"></div>
+        <div class="fine" id="fq_note" style="margin-top:8px"></div>
         <div class="sugg" id="june_rec"></div>
         <div class="opts" id="opts"></div>
         <div class="btns"><button class="btn ghost" id="b2"></button><button class="btn" id="n2"></button></div>
@@ -200,11 +202,12 @@ const MIX = {low:{stocks:15,bonds:60,commodities:15,"real estate":5,currencies:5
              high:{stocks:50,bonds:10,commodities:20,"real estate":10,currencies:0,crypto:10}};
 // ponytail: sample caps, not a real risk model; replace with per-asset haircut data if this goes beyond a demo
 const CAP = {bonds:.70,commodities:.50,"real estate":.50,currencies:.50,stocks:.40,crypto:.20};
-// borrower pays 10%/yr: 8% goes to lenders, 2% is Mira's platform fee (simulated)
-const RATE = 0.10, LENDER_RATE = 0.08, MAXLTV = 0.9, PERIODS = [1,3,6,12];
+// borrower pays 7%/yr (term up to 1 year) or 10%/yr (over 1 year); lenders get 2 points less, Mira keeps 2% (simulated)
+const RATE_SHORT = 0.07, RATE_LONG = 0.10, FEE = 0.02, MAXLTV = 0.9, PERIODS = [1,3,6,12,24,36];
+const annOf = m => m > 12 ? RATE_LONG : RATE_SHORT;   // per-year rate by term: up to 1 year 7%, over 1 year 10%
 const I18N = {
  th:{back:"← หน้าหลัก", sim:"จำลองเท่านั้น ไม่มีเงินจริง ไม่มีการกู้จริง",
-  h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ย 10% ต่อปี (ตัวอย่าง) ทำตาม 3 ขั้นตอนง่ายๆ",
+  h1:"ต้องใช้เงินด่วน?", sub:"ยืมจากผู้ใช้ Mira คนอื่น ดอกเบี้ย 7% ต่อปี ถ้าไม่เกิน 1 ปี และ 10% ต่อปี ถ้าเกิน 1 ปี (ตัวอย่าง) ทำตาม 3 ขั้นตอนง่ายๆ",
   k_max:"ยืมได้สูงสุดตอนนี้",
   pay_m:(p)=>`ชำระงวดนี้ ฿${p}`, pay_all:(p)=>`ชำระทั้งหมด ฿${p}`, l_prog:(a,b)=>`ชำระแล้ว ${a} จาก ${b} งวด`, l_next:"งวดถัดไปครบกำหนด", l_left:"ยอดคงเหลือที่ต้องชำระ",
   days:(d)=>d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`, near_t:"ใกล้ครบกำหนดแล้ว กรุณาชำระงวดนี้ให้ทัน", paidm:"ชำระงวดนี้แล้ว (จำลอง)", paidall:"ชำระครบ ปิดหนี้แล้ว (จำลอง)",
@@ -217,9 +220,12 @@ const I18N = {
   s2_h:"จ่ายคืนภายในกี่เดือน", mo:(n)=>`${n} เดือน`, rec_tag:"June แนะนำ",
   june_rec:(n,cap)=>`June แนะนำ <b>${n} เดือน</b> เพราะเงินที่จ่ายต่อเดือนไม่เกิน 30% ของเงินที่คุณใส่ต่อเดือน (฿${cap}) หรือเลือกเองจากรายการก็ได้`,
   per_mo:(p)=>`฿${p}/เดือน`, int_of:(i)=>`ดอกเบี้ยรวม ฿${i}`,
+  fq_m:"จ่ายรายเดือน", fq_d:"จ่ายรายวัน", per_d:(p)=>`฿${p}/วัน`, pay_d:(p)=>`ชำระวันนี้ ฿${p}`, l_pay_d:"จ่ายต่อวัน", r_pay_d:"จ่ายต่อวัน",
+  fq_note_m:"รายเดือน: ดอกเบี้ยต่อปี (7% ถ้าไม่เกิน 1 ปี, 10% ถ้าเกิน 1 ปี) หาร 12 คิดจากยอดคงเหลือทุกเดือน",
+  fq_note_d:"รายวัน: ดอกเบี้ยต่อปี (7% ถ้าไม่เกิน 1 ปี, 10% ถ้าเกิน 1 ปี) หาร 365 คิดจากยอดคงเหลือทุกวัน (ไม่ใช่ต่อวัน) จ่ายคืนทุกวัน",
   s3_h:"ตรวจสอบและยืนยัน",
   r:{amt:"ยืม",rate:"ดอกเบี้ยตัวอย่าง",per:"ระยะเวลา",pay:"จ่ายต่อเดือน",int:"ดอกเบี้ยรวม",total:"ยอดที่ต้องจ่ายคืนรวม",due:"ครบกำหนด"}, rate:"10% ต่อปี (ตัวอย่าง)",
-  fee:(i,l,f)=>`ดอกเบี้ยรวม ฿${i} แบ่งดังนี้: ผู้ให้ยืมได้ ฿${l} (8% ต่อปี) และ Mira เก็บค่าธรรมเนียมแพลตฟอร์ม ฿${f} (2% ต่อปี) ตัวเลขจำลองจากอัตราตัวอย่าง`,
+  fee:(i,l,f,lp,fp)=>`ดอกเบี้ยรวม ฿${i} แบ่งดังนี้: ผู้ให้ยืมได้ ฿${l} (${lp}% ต่อปี) และ Mira เก็บค่าธรรมเนียมแพลตฟอร์ม ฿${f} (${fp}% ต่อปี) ตัวเลขจำลองจากอัตราตัวอย่าง`,
   d_h:"ข้อตกลงสำคัญ อ่านก่อนยืนยัน",
   d_list:["ถ้าคุณไม่จ่ายคืนตามกำหนด ผู้ให้ยืมมีสิทธิ์ยึดสินทรัพย์ของคุณ สินทรัพย์นั้นจะตกเป็นของผู้ให้ยืม","สินทรัพย์ทั้งหมดของคุณจะถูกย้ายไปเป็นแบบความเสี่ยงต่ำเพื่อค้ำประกัน จนกว่าจะจ่ายคืนครบ","ถ้าราคาสินทรัพย์ตก อาจต้องจ่ายคืนก่อนกำหนด","หน้านี้เป็นการจำลอง ไม่มีเงินจริงและไม่มีการยึดจริง"],
   typed_l:"พิมพ์คำว่า sure เพื่อยืนยัน", go:"ยืนยันและยืม (จำลอง)",
@@ -232,10 +238,10 @@ const I18N = {
   w_push:(d)=>`ขอพูดตรงๆ: ยืม 90% ของสินทรัพย์ที่ราคาขึ้นลงเสี่ยงมาก พอร์ตตัวอย่างนี้เคยลดลงราว ${d}% ในช่วงที่แย่สุด และคริปโตกับหุ้นลดได้มากกว่านี้ ที่ 90% แทบไม่มีที่ว่างรองรับ`,
   caps_h:"ยืมได้ปลอดภัยตามประเภท (ตัวอย่าง)", cls:{bonds:"พันธบัตร",commodities:"สินค้าโภคภัณฑ์","real estate":"อสังหาฯ",currencies:"สกุลเงิน",stocks:"หุ้น",crypto:"คริปโต"},
   w_reg:"หมายเหตุ: ในประเทศไทยการให้ยืมเงินระหว่างบุคคลแบบนี้มีกฎหมายควบคุม หน้านี้เป็นแค่การจำลองเพื่อแสดงไอเดีย ไม่ใช่บริการจริง",
-  h_h:"ทำงานอย่างไร", steps:["เลือกจำนวนเงินที่ต้องการยืม","เลือกระยะเวลาจ่ายคืน ให้ June แนะนำหรือเลือกเอง","ยืนยัน แล้วจ่ายคืนรายเดือนพร้อมดอกเบี้ย 10% ต่อปี (ผู้ให้ยืมได้ 8% Mira เก็บ 2%)"],
+  h_h:"ทำงานอย่างไร", steps:["เลือกจำนวนเงินที่ต้องการยืม","เลือกระยะเวลาจ่ายคืน ให้ June แนะนำหรือเลือกเอง","ยืนยัน แล้วจ่ายคืนรายเดือนพร้อมดอกเบี้ย (7% ต่อปีถ้าไม่เกิน 1 ปี, 10% ถ้าเกิน 1 ปี · Mira เก็บ 2%)"],
   june:"ถาม June ก่อนตัดสินใจ", fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
  en:{back:"← Home", sim:"Simulation only. No real money, no real loan.",
-  h1:"Need money fast?", sub:"Borrow from other Mira users at 10% a year (example). Just 3 easy steps.",
+  h1:"Need money fast?", sub:"Borrow from other Mira users at 7% a year for up to 1 year, or 10% a year over 1 year (example). Just 3 easy steps.",
   k_max:"You can borrow up to",
   pay_m:(p)=>`Pay this month ฿${p}`, pay_all:(p)=>`Pay all ฿${p}`, l_prog:(a,b)=>`Paid ${a} of ${b} payments`, l_next:"Next payment due", l_left:"Left to pay",
   days:(d)=>d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`, near_t:"Due soon. Please pay this month's payment on time.", paidm:"This month paid (simulated)", paidall:"All paid, loan closed (simulated)",
@@ -248,9 +254,12 @@ const I18N = {
   s2_h:"Repay within how many months?", mo:(n)=>`${n} month${n>1?"s":""}`, rec_tag:"June suggests",
   june_rec:(n,cap)=>`June suggests <b>${n} month${n>1?"s":""}</b> so the monthly payment stays within 30% of your monthly amount (฿${cap}). Or pick your own from the list.`,
   per_mo:(p)=>`฿${p}/month`, int_of:(i)=>`Total interest ฿${i}`,
+  fq_m:"Pay monthly", fq_d:"Pay daily", per_d:(p)=>`฿${p}/day`, pay_d:(p)=>`Pay today ฿${p}`, l_pay_d:"Per day", r_pay_d:"Per day",
+  fq_note_m:"Monthly: the yearly rate (7% up to 1 year, 10% over 1 year) divided by 12, charged on the remaining balance each month.",
+  fq_note_d:"Daily: the yearly rate (7% up to 1 year, 10% over 1 year) divided by 365, charged on the remaining balance every day (not per day). Repaid every day.",
   s3_h:"Check and confirm",
   r:{amt:"Borrow",rate:"Sample rate",per:"Period",pay:"Per month",int:"Total interest",total:"Total to repay",due:"Due date"}, rate:"10% per year (example)",
-  fee:(i,l,f)=>`Total interest ฿${i} is split: lenders get ฿${l} (8% a year) and Mira keeps a platform fee of ฿${f} (2% a year). Simulated figures from the example rate.`,
+  fee:(i,l,f,lp,fp)=>`Total interest ฿${i} is split: lenders get ฿${l} (${lp}% a year) and Mira keeps a platform fee of ฿${f} (${fp}% a year). Simulated figures from the example rate.`,
   d_h:"Important terms. Read before confirming",
   d_list:["If you do not repay on time, the lender has the right to take your assets, and those assets become the lender's.","All your assets will be moved into low-risk assets as security until the loan is repaid.","If asset prices fall, you may have to repay early.","This page is a simulation: no real money and nothing is really taken."],
   typed_l:"Type the word sure to confirm", go:"Confirm and borrow (simulated)",
@@ -263,16 +272,19 @@ const I18N = {
   w_push:(d)=>`Honest note: borrowing 90% of volatile assets is risky. This sample portfolio fell about ${d}% at its worst, and crypto and stocks can fall more. At 90% there is almost no room.`,
   caps_h:"Safer borrowing by asset type (example)", cls:{bonds:"Bonds",commodities:"Commodities","real estate":"Real estate",currencies:"Currencies",stocks:"Stocks",crypto:"Crypto"},
   w_reg:"Note: real peer-to-peer lending is regulated in Thailand. This page is a simulation to show the idea, not a real service.",
-  h_h:"How it works", steps:["Pick how much you want to borrow","Pick how long to repay: June suggests, or choose yourself","Confirm, then repay monthly at 10% a year (lenders get 8%, Mira keeps 2%)"],
+  h_h:"How it works", steps:["Pick how much you want to borrow","Pick how long to repay: June suggests, or choose yourself","Confirm, then repay monthly with interest (7% a year up to 1 year, 10% over 1 year; Mira keeps 2%)"],
   june:"Ask June before deciding", fine:"Research only, not investment advice. Past results do not guarantee the future."}
 };
-let lang="th", S={amt:2000,risk:"mid",topup:0}, per=3, want=0, loan=null, userPer=false, step=1, rsOpen=false, rsPick=0;
+let lang="th", S={amt:2000,risk:"mid",topup:0}, per=3, want=0, loan=null, userPer=false, step=1, rsOpen=false, rsPick=0, fq="m";
 try{ lang=localStorage.getItem("mira_lang")||"th"; S.amt=+(localStorage.getItem("mira_monthly")||2000);
   S.risk=localStorage.getItem("mira_risk")||"mid"; S.topup=+(localStorage.getItem("mira_topup")||0);
   loan=JSON.parse(localStorage.getItem("mira_loan_active")||"null"); }catch(e){}
 if(!MIX[S.risk]) S.risk="mid";
 const $=id=>document.getElementById(id);
 function fmtN(n){return Math.round(n).toLocaleString("en-US")}
+function fmtP(n){return n<100?n.toFixed(2):fmtN(n)}   // small daily instalments keep their satang
+function perLbl(f,p){ const t=T(); return f==="d"?t.per_d(fmtP(p)):t.per_mo(fmtN(p)); }
+function cloudOn(){ try{ return !!(window.MiraLend&&MiraLend.mode()==="cloud"); }catch(e){ return false; } }   // cloud loans are monthly only
 const T=()=>I18N[lang];
 
 function mixIndex(w){ const ks=Object.keys(w).filter(k=>w[k]>0&&CC[k]), tot=ks.reduce((s,k)=>s+w[k],0), idx=[100];
@@ -284,17 +296,24 @@ function numbers(){ const w=MIX[S.risk], idx=mixIndex(w);
   const safeRatio=Object.keys(w).reduce((s,k)=>s+(w[k]/tot)*(CAP[k]||.4),0);
   return {value:Math.max(0,S.topup||0), dd:Math.round(dd*100), safeRatio}; }
 
-function calc(a,n){ const r=RATE/12, pay=a*r/(1-Math.pow(1+r,-n)); return {pay, int:pay*n-a}; }
+// f = "m" monthly (RATE/12 per month) or "d" daily (RATE/365 per day, one instalment per calendar day of the period)
+const freqOf=l=>l.freq==="d"?"d":"m";
+const rateOf=(f,m)=>annOf(m)/(f==="d"?365:12);
+function cnt(months,f,from){ if(f!=="d") return months; const s=from?new Date(from):new Date(), e=new Date(s); e.setMonth(e.getMonth()+months); return Math.round((e-s)/864e5); }
+const nOf=l=>l.n||l.months;
+function calc(a,months,f){ f=f||"m"; const n=cnt(months,f), r=rateOf(f,months), pay=r?a*r/(1-Math.pow(1+r,-n)):a/n; return {pay, int:pay*n-a, n}; }
 // ponytail: rule-based suggestion (shortest period with payment <= 30% of monthly amount), not a live AI call
-function recommend(a){ if(!a) return 3; for(const n of PERIODS) if(calc(a,n).pay<=S.amt*0.3) return n; return 12; }
+function recommend(a){ if(!a) return 3; for(const n of PERIODS) if(calc(a,n,fq).pay*(fq==="d"?30:1)<=S.amt*0.3) return n; return 12; }
 function dueDate(n,from){ const d=from?new Date(from):new Date(); d.setMonth(d.getMonth()+n);
   return d.toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",year:"numeric"}); }
 const NEAR_DAYS=7, RS_PERIODS=[6,12,18,24];
 const paidN=l=>l.paid||0;
-// ponytail: principal left shrinks evenly per payment; not a true amortization split
-const outP=l=>l.amt*(l.months-paidN(l))/l.months;
-const owed=l=>l.pay*(l.months-paidN(l));
-function nextDue(l){ const d=new Date(l.start); d.setMonth(d.getMonth()+paidN(l)+1); return d; }
+// true amortization: balance after k equal instalments (interest each period = balance x period rate)
+const outP=l=>{ const n=nOf(l), k=Math.min(paidN(l),n), r=rateOf(freqOf(l),l.months); if(k>=n) return 0; if(!r) return l.amt*(n-k)/n;
+  const pay=l.amt*r/(1-Math.pow(1+r,-n)), g=Math.pow(1+r,k); return Math.max(0,l.amt*g-pay*(g-1)/r); };
+const owed=l=>l.pay*(nOf(l)-paidN(l));
+function nextDue(l){ const d=new Date(l.start); if(freqOf(l)==="d") d.setDate(d.getDate()+paidN(l)+1); else d.setMonth(d.getMonth()+paidN(l)+1); return d; }
+const mkLoan=(amt,months,f,start,accepted)=>({amt,months,freq:f,n:cnt(months,f,start),paid:0,pay:calc(amt,months,f).pay,start,accepted});
 const daysLeft=l=>Math.ceil((nextDue(l)-new Date())/864e5);
 function readReq(){ try{return JSON.parse(localStorage.getItem("mira_loan_request")||"null")}catch(e){return null} }
 function writeReq(r){ try{ if(r) localStorage.setItem("mira_loan_request",JSON.stringify(r)); else localStorage.removeItem("mira_loan_request"); }catch(e){} }
@@ -316,11 +335,11 @@ function render(){
     const dl=daysLeft(loan), near=dl<=NEAR_DAYS, p=outP(loan), ratio=n.value?p/n.value*100:0, r=readReq();
     $("loanCard").classList.toggle("red",near);
     $("l_h").textContent=t.l_h;
-    $("l_rows").innerHTML=kv(t.l_amt,"฿"+fmtN(p))+kv(t.l_pay,"฿"+fmtN(loan.pay))+kv(t.l_prog(paidN(loan),loan.months),"")
+    $("l_rows").innerHTML=kv(t.l_amt,"฿"+fmtN(p))+kv(freqOf(loan)==="d"?t.l_pay_d:t.l_pay,"฿"+fmtP(loan.pay))+kv(t.l_prog(paidN(loan),nOf(loan)),"")
       +kv(t.l_next,nextDue(loan).toLocaleDateString(lang==="th"?"th-TH":"en-GB",{day:"numeric",month:"short",year:"numeric"})+" · "+t.days(dl),near?"redtxt":"")
       +kv(t.l_left,"฿"+fmtN(owed(loan)))+kv(t.l_ratio,Math.round(ratio)+"%");
     $("l_health").textContent=near?t.near_t:ratio>90?t.health_bad:t.health_ok; $("l_health").className="fine"+(near?" redtxt":"");
-    $("payMonth").textContent=t.pay_m(fmtN(loan.pay)); $("repay").textContent=t.pay_all(fmtN(owed(loan)));
+    $("payMonth").textContent=freqOf(loan)==="d"?t.pay_d(fmtP(loan.pay)):t.pay_m(fmtN(loan.pay)); $("repay").textContent=t.pay_all(fmtN(owed(loan)));
     // restructure request (June suggests, lender decides)
     const pend=r&&r.status==="pending";
     $("restruct").textContent=t.rs_btn; $("restruct").disabled=!!pend;
@@ -328,10 +347,11 @@ function render(){
     $("rs_status").hidden=!msg; $("rs_status").textContent=msg;
     $("rs").hidden=!rsOpen||pend;
     if(!$("rs").hidden){
-      const recM=RS_PERIODS.find(m=>calc(p,m).pay<=S.amt*0.3)||24; if(!rsPick) rsPick=recM;
-      $("rs_june").innerHTML=t.rs_june(recM,fmtN(calc(p,recM).pay));
-      $("rs_opts").innerHTML=RS_PERIODS.map(m=>{ const o=calc(p,m);
-        return `<button type="button" class="opt ${m===rsPick?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recM?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${t.per_mo(fmtN(o.pay))}</span><small></small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
+      const lf=freqOf(loan), mult=lf==="d"?30:1;
+      const recM=RS_PERIODS.find(m=>calc(p,m,lf).pay*mult<=S.amt*0.3)||24; if(!rsPick) rsPick=recM;
+      $("rs_june").innerHTML=t.rs_june(recM,fmtN(calc(p,recM,lf).pay*mult));
+      $("rs_opts").innerHTML=RS_PERIODS.map(m=>{ const o=calc(p,m,lf);
+        return `<button type="button" class="opt ${m===rsPick?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recM?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${perLbl(lf,o.pay)}</span><small></small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
       $("rs_send").textContent=t.rs_send;
     }
   }
@@ -341,8 +361,9 @@ function render(){
   $("e_h").textContent=t.e_h; $("e_p").textContent=t.e_p; $("e_btn").textContent=t.e_btn;
   // wizard
   want=Math.min(want,cap);
+  if(cloudOn()) fq="m";
   const recN=recommend(want); if(!userPer) per=recN;
-  const c=calc(want,per);
+  const c=calc(want,per,fq);
   [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i<step)); $("stepno").textContent=t.stepno(step);
   $("s1").hidden=step!==1; $("s2").hidden=step!==2; $("s3").hidden=step!==3;
   // step 1
@@ -351,13 +372,16 @@ function render(){
   $("n1").textContent=cap<100?t.none:t.next; $("n1").disabled=!want;
   // step 2
   $("s2_h").textContent=t.s2_h; $("june_rec").innerHTML=t.june_rec(recN,fmtN(S.amt*0.3));
-  $("opts").innerHTML=PERIODS.map(m=>{ const o=calc(want,m);
-    return `<button type="button" class="opt ${m===per?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recN?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${t.per_mo(fmtN(o.pay))}</span><small>${dueDate(m)}</small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
+  $("freq").hidden=cloudOn(); $("fq_note").hidden=cloudOn();
+  $("freq").innerHTML=["m","d"].map(f=>`<button type="button" class="opt ${f===fq?"on":""}" data-f="${f}"><b>${t["fq_"+f]}</b></button>`).join("");
+  $("fq_note").textContent=t["fq_note_"+fq];
+  $("opts").innerHTML=PERIODS.map(m=>{ const o=calc(want,m,fq);
+    return `<button type="button" class="opt ${m===per?"on":""}" data-m="${m}"><b>${t.mo(m)}${m===recN?`<span class="rec">★${t.rec_tag}</span>`:""}</b><span class="r">${perLbl(fq,o.pay)}</span><small>${dueDate(m)}</small><small style="text-align:right">${t.int_of(fmtN(o.int))}</small></button>`; }).join("");
   $("b2").textContent=t.prev; $("n2").textContent=t.next;
   // step 3
   $("s3_h").textContent=t.s3_h;
-  $("sum").innerHTML=kv(t.r.amt,"฿"+fmtN(want))+kv(t.r.rate,t.rate)+kv(t.r.per,t.mo(per))+kv(t.r.pay,"฿"+fmtN(c.pay))+kv(t.r.int,"฿"+fmtN(c.int))+kv(t.r.due,dueDate(per))+kv(t.r.total,"฿"+fmtN(want+c.int),"tot");
-  $("fee_note").textContent=t.fee(fmtN(c.int),fmtN(c.int*LENDER_RATE/RATE),fmtN(c.int*(RATE-LENDER_RATE)/RATE));
+  $("sum").innerHTML=kv(t.r.amt,"฿"+fmtN(want))+kv(t.r.rate,Math.round(annOf(per)*100)+(lang==="th"?"% ต่อปี (ตัวอย่าง)":"% per year (example)"))+kv(t.r.per,t.mo(per))+kv(fq==="d"?t.r_pay_d:t.r.pay,"฿"+fmtP(c.pay))+kv(t.r.int,"฿"+fmtN(c.int))+kv(t.r.due,dueDate(per))+kv(t.r.total,"฿"+fmtN(want+c.int),"tot");
+  $("fee_note").textContent=t.fee(fmtN(c.int),fmtN(c.int*(annOf(per)-FEE)/annOf(per)),fmtN(c.int*FEE/annOf(per)),Math.round((annOf(per)-FEE)*100),Math.round(FEE*100));
   $("d_h").textContent=t.d_h; $("d_list").innerHTML=t.d_list.map(s=>`<li>${s}</li>`).join("");
   $("typed_l").textContent=t.typed_l; $("typed").placeholder="sure"; $("go").textContent=t.go; $("b3").textContent=t.prev;
   $("go").disabled=!sureOk();
@@ -379,6 +403,7 @@ $("rng").oninput=e=>setAmt(e.target.value);
 $("amt").onchange=e=>setAmt(e.target.value);
 $("quick").onclick=e=>{ const b=e.target.closest("button"); if(b) setAmt(Math.floor(+$("rng").max*(+b.dataset.f)/100)*100); };
 $("opts").onclick=e=>{ const b=e.target.closest("button"); if(b){ per=+b.dataset.m; userPer=true; render(); } };
+$("freq").onclick=e=>{ const b=e.target.closest("button"); if(b&&!cloudOn()){ fq=b.dataset.f==="d"?"d":"m"; render(); } };
 $("n1").onclick=()=>goStep(2); $("b2").onclick=()=>goStep(1);
 $("n2").onclick=()=>{ $("typed").value=""; goStep(3); }; $("b3").onclick=()=>goStep(2);
 $("typed").oninput=()=>{ $("go").disabled=!sureOk(); };
@@ -387,7 +412,8 @@ $("go").onclick=()=>{ if(!want||!sureOk()) return; const c=calc(want,per);
   try{ if(!loan) localStorage.setItem("mira_loan_prev_risk",S.risk); localStorage.setItem("mira_risk","low"); }catch(e){}
   S.risk="low";
   // ponytail: a second borrow replaces the schedule with the combined principal on the new period (paid count resets)
-  loan={amt:(loan?outP(loan):0)+want, months:per, paid:0, pay:calc((loan?outP(loan):0)+want,per).pay, start:new Date().toISOString(), accepted:new Date().toISOString()};
+  const nowIso=new Date().toISOString();
+  loan=mkLoan((loan?outP(loan):0)+want, per, fq, nowIso, nowIso);
   // cloud mode (real users, paper money): also ask the shared pool for this amount; lenders fund it piece by piece
   try{ if(window.MiraLend&&MiraLend.mode()==="cloud") MiraLend.borrow(want,per); }catch(e){}
   want=0; userPer=false; step=1; $("typed").value=""; save(); render(); toast(T().toast); window.scrollTo({top:0,behavior:"smooth"}); };
@@ -401,15 +427,15 @@ $("repay").onclick=async()=>{
 $("payMonth").onclick=async()=>{ if(!loan) return;
   if(window.MiraLend&&MiraLend.mode()==="cloud"){ const r=await MiraLend.repayMonth(); if(!r.ok) return payFail(); }
   loan.paid=paidN(loan)+1;
-  if(loan.paid>=loan.months){ clearLoan(); render(); toast(T().paidall); } else { save(); render(); toast(T().paidm); } };
+  if(loan.paid>=nOf(loan)){ clearLoan(); render(); toast(T().paidall); } else { save(); render(); toast(T().paidm); } };
 $("restruct").onclick=()=>{ rsOpen=!rsOpen; rsPick=0; render(); };
 $("rs_opts").onclick=e=>{ const b=e.target.closest("button"); if(b){ rsPick=+b.dataset.m; render(); } };
 $("rs_send").onclick=()=>{ if(!loan||!rsPick) return; const p=outP(loan);
-  writeReq({status:"pending",toMonths:rsPick,newPay:calc(p,rsPick).pay,principal:p,createdAt:new Date().toISOString()});
+  writeReq({status:"pending",toMonths:rsPick,newPay:calc(p,rsPick,freqOf(loan)).pay,principal:p,createdAt:new Date().toISOString()});
   rsOpen=false; render(); toast(T().rs_sent); };
 // a lender decision (set elsewhere) of "approved" rebuilds the schedule on the remaining principal
 (function applyReq(){ const r=readReq(); if(loan&&r&&r.status==="approved"){ const p=outP(loan);
-  loan={amt:p,months:r.toMonths,paid:0,pay:calc(p,r.toMonths).pay,start:new Date().toISOString(),accepted:loan.accepted};
+  loan=mkLoan(p,r.toMonths,freqOf(loan),new Date().toISOString(),loan.accepted);
   writeReq({...r,status:"applied"}); save(); } })();
 $("lang").onclick=()=>{ lang=lang==="th"?"en":"th"; try{localStorage.setItem("mira_lang",lang)}catch(e){} render(); };
 render();
