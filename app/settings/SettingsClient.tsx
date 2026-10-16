@@ -51,6 +51,7 @@ const TXT = {
     delS: "ลบบัญชีและข้อมูลที่ผูกกับบัญชีถาวร ย้อนกลับไม่ได้ (กดจัดการบัญชี แล้วเลือก Delete account)",
     delBtn: "ไปหน้าลบบัญชี",
     out: "ออกจากระบบ",
+    fb: "ส่งข้อเสนอแนะถึงทีม Mira",
     note: "หน้านี้เป็นร่างเพื่อการสาธิต ควรให้ฝ่ายกฎหมายตรวจนโยบายความเป็นส่วนตัวก่อนใช้งานจริง ช่องทางติดต่อผู้ดูแลข้อมูล: (ทีม Mira จะระบุ)",
   },
   en: {
@@ -92,6 +93,7 @@ const TXT = {
     delS: "Delete your account and linked data for good. This cannot be undone (open Manage account, then Delete account).",
     delBtn: "Go to delete account",
     out: "Sign out",
+    fb: "Send feedback to the Mira team",
     note: "This page is a demo draft. Have a lawyer review the privacy policy before real use. Data controller contact: (Mira team to fill in).",
   },
 };
@@ -327,6 +329,7 @@ export default function SettingsClient() {
               <button className="st-btn d w" onClick={() => openUserProfile()}>{t.delBtn}</button>
             </section>
 
+            <a className="st-btn o w" style={{ marginBottom: 14, display: "block", textAlign: "center", textDecoration: "none" }} href="/feedback.html?from=settings">{t.fb}</a>
             <button className="st-btn o w" style={{ marginBottom: 14 }} onClick={() => signOut({ redirectUrl: "/" })}>{t.out}</button>
             <p className="st-note">{t.note}</p>
           </div>

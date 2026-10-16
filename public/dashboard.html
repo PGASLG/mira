@@ -91,6 +91,9 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
 .bell svg{width:22px;height:22px}
 .badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:99px;background:var(--red);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 5px}
 .badge[hidden]{display:none}
+.fbbtn{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:14px;text-decoration:none}
+.fbbtn svg{width:19px;height:19px}
+@media(max-width:560px){.fbbtn span{display:none}.fbbtn{padding:7px 10px}}
 .setbtn{display:flex;align-items:center;gap:8px;border:1.5px solid var(--blue);background:var(--card);color:var(--blue);border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;font-size:14px;text-decoration:none}
 .setbtn svg{width:19px;height:19px}
 .np{position:fixed;top:64px;right:max(16px,calc(50% - 540px));width:min(380px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 24px 60px rgba(11,58,147,.22);z-index:20;padding:14px}
@@ -169,6 +172,7 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
     <div class="nav-r">
       <button class="bell" id="bell" aria-label="Notifications" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 004 0"/></svg><span class="badge" id="badge" hidden>0</span></button>
       <a class="setbtn" href="/settings" target="_top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span id="setlbl"></span></a>
+      <a class="fbbtn" href="/feedback.html?from=dashboard" target="_top" id="fbbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span id="fblbl"></span></a>
       <button class="lang" id="lang">EN</button>
     </div>
   </nav>
@@ -274,7 +278,7 @@ h2{font-size:18px;margin:30px 0 12px;font-weight:700;animation:fadeUp .7s .3s bo
 const P = window.MIRA_DATA.portfolio;
 const I18N = {
   th:{lb_have:"คุณมีหนี้ที่ต้องชำระ", lb_near:"ใกล้ครบกำหนดชำระแล้ว", lb_s:(l,d)=>`คงเหลือ ฿${l} · งวดถัดไป ${d<0?`เกินกำหนด ${-d} วัน`:d===0?"วันนี้":`อีก ${d} วัน`} (จำลอง)`, lb_btn:"ชำระหนี้",
-      start:"เริ่มต้นที่ ฿0 · ฝากเงินเพื่อเริ่มลงทุน (จำลอง)", t3zero:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", hi:"สวัสดี", who:"คุณ", setlbl:"ตั้งค่า", np_h:"การแจ้งเตือน", np_mark:"อ่านทั้งหมดแล้ว", np_empty:"ยังไม่มีการแจ้งเตือน", np_fn:"สร้างจากแผนและข้อมูลของคุณบนเครื่องนี้ ไม่ใช่การแจ้งเตือนจากเซิร์ฟเวอร์",
+      start:"เริ่มต้นที่ ฿0 · ฝากเงินเพื่อเริ่มลงทุน (จำลอง)", t3zero:"ต้องมีเงินในพอร์ตก่อนจึงจะยืมได้", hi:"สวัสดี", who:"คุณ", setlbl:"ตั้งค่า", fblbl:"ข้อเสนอแนะ", np_h:"การแจ้งเตือน", np_mark:"อ่านทั้งหมดแล้ว", np_empty:"ยังไม่มีการแจ้งเตือน", np_fn:"สร้างจากแผนและข้อมูลของคุณบนเครื่องนี้ ไม่ใช่การแจ้งเตือนจากเซิร์ฟเวอร์",
       n:{welcome:["ยินดีต้อนรับสู่ Mira","ดูเงินของคุณและคุยกับ June ได้เลย"],plan:["ยังไม่ได้ตั้งแผนใส่เงินรายเดือน","ตั้งจำนวนและวันตัดเงินได้ที่หน้าการลงทุน"],charge:(d,a)=>[d===0?"วันนี้ถึงวันใส่เงินรายเดือน":`อีก ${d} วันถึงวันใส่เงินรายเดือน`,`จำนวน ฿${a} (จำลอง)`],loan:["คุณมีสินเชื่อฉุกเฉินที่ยังไม่ได้คืน","ดูยอดและกำหนดคืนได้ที่หน้าสินเชื่อ"],stress:(n)=>["ตลาดผันผวนขึ้นกว่าปกติ",`ระดับความผันผวน ${n} จาก 3 (ไม่ใช่การพยากรณ์วิกฤต)`]}, lbl:"เงินของคุณตอนนี้",
       up:(g,p)=>`กำไรรวม ฿${fmt(g)} (+${p.toFixed(1)}%)`, down:(g,p)=>`ขาดทุนรวม ฿${fmt(-g)} (${p.toFixed(1)}%)`,
       note:"ตัวเลขจากพอร์ตจำลอง ไม่ใช่เงินจริง",
@@ -286,7 +290,7 @@ const I18N = {
       soon:"เร็วๆ นี้", toast:"หน้านี้กำลังสร้างอยู่นะ",
       fine:"เพื่อการวิจัยเท่านั้น ไม่ใช่คำแนะนำการลงทุน ผลในอดีตไม่รับประกันอนาคต"},
   en:{lb_have:"You have a loan to repay", lb_near:"Payment due soon", lb_s:(l,d)=>`฿${l} left · next payment ${d<0?`${-d} days overdue`:d===0?"today":`in ${d} days`} (simulated)`, lb_btn:"Pay debt",
-      start:"Starting at ฿0 · deposit to begin (simulated)", t3zero:"You need money in your portfolio before you can borrow", hi:"Hello", who:"there", setlbl:"Settings", np_h:"Notifications", np_mark:"Mark all read", np_empty:"No notifications yet", np_fn:"Built from your plan and data on this device, not server alerts.",
+      start:"Starting at ฿0 · deposit to begin (simulated)", t3zero:"You need money in your portfolio before you can borrow", hi:"Hello", who:"there", setlbl:"Settings", fblbl:"Feedback", np_h:"Notifications", np_mark:"Mark all read", np_empty:"No notifications yet", np_fn:"Built from your plan and data on this device, not server alerts.",
       n:{welcome:["Welcome to Mira","See your money and chat with June"],plan:["No monthly plan set yet","Set the amount and charge day on the investment page"],charge:(d,a)=>[d===0?"Today is your monthly top-up day":`${d} days to your monthly top-up`,`Amount ฿${a} (simulated)`],loan:["You have an emergency loan not yet repaid","See the balance and due date on the lending page"],stress:(n)=>["The market is bumpier than usual",`Volatility level ${n} of 3 (not a crash forecast)`]}, lbl:"Your money right now",
       up:(g,p)=>`Total profit ฿${fmt(g)} (+${p.toFixed(1)}%)`, down:(g,p)=>`Total loss ฿${fmt(-g)} (${p.toFixed(1)}%)`,
       note:"Numbers come from a paper portfolio, not real money.",
@@ -322,7 +326,7 @@ function dca(){
 function render(){
   const T=I18N[lang], r=dca(), g=r.profit;
   document.documentElement.lang=lang; $("lang").textContent=lang==="th"?"EN":"ไทย";
-  $("hi").textContent=T.hi; $("who").textContent=LS("mira_name","")||T.who; $("setlbl").textContent=T.setlbl; $("lbl").textContent=T.lbl;
+  $("hi").textContent=T.hi; $("who").textContent=LS("mira_name","")||T.who; $("setlbl").textContent=T.setlbl; $("fblbl").textContent=T.fblbl; $("fbbtn").setAttribute("aria-label",T.fblbl); $("lbl").textContent=T.lbl;
   $("val").textContent="฿"+fmt(r.value);
   if(r.put===0){ $("gain").textContent=T.start; $("gain").className="gain"; }
   else { $("gain").textContent=(g>=0?"▲ ":"▼ ")+(g>=0?T.up(g,r.pct):T.down(g,r.pct)); $("gain").className="gain "+(g>=0?"up":"down"); }
